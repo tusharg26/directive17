@@ -1,6 +1,6 @@
 # Joel's Directive to Everyone!
 
-**STOP WATCHING. START FUCKING CREATING.**
+**STOP WATCHING. START F@CKING CREATING.**
 
 At some point, we became a civilization of spectators.
 
