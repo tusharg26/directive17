@@ -5,20 +5,61 @@
   "subline": "We build companies that improve the human experience.",
   "contact_email": "joel@directive17.com",
   "nav": [
-    { "label": "Why", "href": "/why.html" },
-    { "label": "Philosophy", "href": "/philosophy.html" },
-    { "label": "Companies", "href": "/companies.html" },
-    { "label": "Future", "href": "/future.html" },
-    { "label": "Build With Us", "href": "/build.html" },
-    { "label": "Joel's Directive", "href": "/joels-directive.html" },
-    { "label": "Joel's Blog", "href": "/blog/" }
+    {
+      "label": "Why",
+      "href": "/why.html"
+    },
+    {
+      "label": "Philosophy",
+      "href": "/philosophy.html"
+    },
+    {
+      "label": "Companies",
+      "href": "/companies.html"
+    },
+    {
+      "label": "Future",
+      "href": "/future.html"
+    },
+    {
+      "label": "Build With Us",
+      "href": "/build.html"
+    },
+    {
+      "label": "Joel's Directive",
+      "href": "/joels-directive.html"
+    },
+    {
+      "label": "Joel's Blog",
+      "href": "/blog/"
+    }
   ],
   "home_pillars": [
-    { "num": "01", "title": "Happiness", "body": "Smiles, laughter, celebration, memories, and a life well lived." },
-    { "num": "02", "title": "Health", "body": "Longer, healthier, more vibrant lives." },
-    { "num": "03", "title": "Trust", "body": "Truth, transparency, confidence, and integrity." },
-    { "num": "04", "title": "Connection", "body": "Families, friendships, communities, and belonging." },
-    { "num": "05", "title": "Human Potential", "body": "Helping people become more capable than ever before." }
+    {
+      "num": "01",
+      "title": "Happiness",
+      "body": "Smiles, laughter, celebration, memories, and a life well lived."
+    },
+    {
+      "num": "02",
+      "title": "Health",
+      "body": "Longer, healthier, more vibrant lives."
+    },
+    {
+      "num": "03",
+      "title": "Trust",
+      "body": "Truth, transparency, confidence, and integrity."
+    },
+    {
+      "num": "04",
+      "title": "Connection",
+      "body": "Families, friendships, communities, and belonging."
+    },
+    {
+      "num": "05",
+      "title": "Human Potential",
+      "body": "Helping people become more capable than ever before."
+    }
   ],
   "why_page": {
     "kicker": "Why We Exist",
@@ -26,7 +67,7 @@
     "line2": "We begin with people.",
     "paragraphs": [
       "Every day, billions of people wake up hoping for healthier lives, stronger relationships, more meaningful work, more joyful experiences, and a better future for their families.",
-      "We believe business can help create that future — not by chasing trends, but by building enduring companies that genuinely improve people's lives."
+      "We believe business can help create that future \u2014 not by chasing trends, but by building enduring companies that genuinely improve people's lives."
     ],
     "belief_label": "Our Belief",
     "belief_intro": "Progress should improve the human experience.",
@@ -57,9 +98,18 @@
       "label": "The Directive 17 Way",
       "lede": "Life is short.",
       "pairs": [
-        ["We don't build trends.", "We build institutions."],
-        ["We don't chase hype.", "We pursue enduring value."],
-        ["We don't believe technology is the destination.", "People are."]
+        [
+          "We don't build trends.",
+          "We build institutions."
+        ],
+        [
+          "We don't chase hype.",
+          "We pursue enduring value."
+        ],
+        [
+          "We don't believe technology is the destination.",
+          "People are."
+        ]
       ],
       "closing": "Smile more. Laugh more. Love more. Learn more. Live better. Help others. Leave the world better than you found it."
     }
@@ -68,12 +118,20 @@
     "kicker": "The Future We See",
     "old_q": "The old question was: what future is coming?",
     "new_q": "What future is worth building?",
-    "domains": ["Artificial intelligence", "Biology", "Mental wellness", "Medicine", "Food", "Entertainment"],
+    "domains": [
+      "Artificial intelligence",
+      "Biology",
+      "Mental wellness",
+      "Medicine",
+      "Food",
+      "Entertainment"
+    ],
     "body": "These forces will reshape the next century. Directive 17 exists to help ensure that progress makes everyday life healthier, kinder, happier, more connected, more trusting, and more human."
   },
   "build_page": {
     "headline": "Build with us.",
     "body": "The future is built by people who believe it can be better.",
     "button": "Start a Conversation"
-  }
+  },
+  "live": true
 }
