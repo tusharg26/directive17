@@ -1,0 +1,29 @@
+{
+  "name": "Directive 17",
+  "domain": "directive17.com",
+  "tagline": "The Future Should Make Life Better.",
+  "subline": "We build companies that improve the human experience.",
+  "contact_email": "joel@directive17.com",
+  "nav": [
+    { "label": "Why", "href": "/why.html" },
+    { "label": "Philosophy", "href": "/philosophy.html" },
+    { "label": "Companies", "href": "/companies.html" },
+    { "label": "Future", "href": "/future.html" },
+    { "label": "Build With Us", "href": "/build.html" },
+    { "label": "Joel's Directive", "href": "/joels-directive.html" },
+    { "label": "Joel's Blog", "href": "/blog/" }
+  ],
+  "home_pillars": [
+    { "num": "01", "title": "Happiness", "body": "Smiles, laughter, celebration, memories, and a life well lived." },
+    { "num": "02", "title": "Health", "body": "Longer, healthier, more vibrant lives." },
+    { "num": "03", "title": "Trust", "body": "Truth, transparency, confidence, and integrity." },
+    { "num": "04", "title": "Connection", "body": "Families, friendships, communities, and belonging." },
+    { "num": "05", "title": "Human Potential", "body": "Helping people become more capable than ever before." }
+  ],
+  "footer_note": "Directive 17 exists to help ensure that progress makes everyday life healthier, kinder, happier, more connected, more trusting, and more human.",
+  "build_page": {
+    "headline": "Build with us.",
+    "body": "The future is built by people who believe it can be better.",
+    "button": "Start a Conversation"
+  }
+}
