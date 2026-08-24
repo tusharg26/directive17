@@ -226,6 +226,32 @@ font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--d
 /* ---------- editorial building blocks ---------- */
 section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
+
+/* scroll cue on homepage hero */
+.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:86px;
+display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;
+cursor:pointer;opacity:0;animation:fadeUp .9s var(--ease) forwards;
+animation-delay:calc(1.55s + var(--hd,0s))}
+.scrollcue .sc-label{font-family:var(--sans);font-size:.68rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--muted);transition:color .2s}
+.scrollcue:hover .sc-label{color:var(--accent)}
+.scrollcue .sc-arrow{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;
+display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:.95rem;
+animation:nudge 1.9s var(--ease) infinite;transition:border-color .2s}
+.scrollcue:hover .sc-arrow{border-color:var(--accent)}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@media(prefers-reduced-motion:reduce){.scrollcue .sc-arrow{animation:none}}
+@media(max-width:860px){.scrollcue{bottom:74px;gap:8px}
+.scrollcue .sc-label{font-size:.6rem;letter-spacing:.16em;white-space:nowrap}
+.scrollcue .sc-arrow{width:30px;height:30px}}
+/* founder note framing */
+.note-open{padding:96px 0 8px;border-top:1px solid var(--line)}
+.note-byline{display:flex;align-items:center;gap:13px}
+.note-byline img{width:44px;height:44px;object-fit:contain}
+.note-byline .nb-name{font-family:var(--serif);font-size:1.05rem;color:var(--deep);
+font-weight:700;line-height:1.3}
+.note-byline .nb-role{font-family:var(--sans);font-size:.68rem;font-weight:600;
+text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
 /* Joel's Directive — editorial chapters */
 .jd-lede{font-family:var(--serif);font-weight:700;color:var(--accent);
 font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.2;letter-spacing:-.01em;
@@ -467,6 +493,17 @@ document.documentElement.classList.add('js');
 })();
 """
 
+SCROLLCUE_JS = """
+(function(){
+  var c = document.getElementById('scrollcue');
+  if (!c) return;
+  c.addEventListener('click', function(){
+    var t = document.getElementById('founder-note');
+    if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+"""
+
 PROGRESS_JS = """
 (function() {
   var bar = document.createElement('div');
@@ -657,6 +694,55 @@ if site.get("domain") and site.get("live"):
 posts = sorted((parse_post(p) for p in (CONTENT / "posts").glob("*.md")),
                key=lambda x: x["date"], reverse=True)
 
+# ---------------- Founder's note (rendered into the homepage)
+jd_src = (CONTENT / "pages" / "joels-directive.md").read_text()
+jd_body = re.sub(r"^#\s+.*\n", "", jd_src, count=1)
+jd_lede_m = re.search(r"^\*\*(.+?)\*\*\s*$", jd_body, flags=re.M)
+jd_lede = jd_lede_m.group(1) if jd_lede_m else ""
+if jd_lede_m:
+    jd_body = jd_body.replace(jd_lede_m.group(0), "", 1)
+jd_minutes = max(1, round(len(jd_body.split()) / 200))
+jd_parts = re.split(r"^##\s+(.*)$", jd_body, flags=re.M)
+jd_intro = jd_parts[0]
+jd_chapters = [(jd_parts[i], jd_parts[i + 1]) for i in range(1, len(jd_parts), 2)]
+ch_html = "".join(f"""
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">{i+1:02d}</div>
+<h2 class="ch-title">{md_inline(t)}</h2></div>
+<div class="ch-body longform">{md_to_html(body)}</div>
+</div></section>""" for i, (t, body) in enumerate(jd_chapters))
+
+founder_note = f"""
+<div class="note-open" id="founder-note"><div class="wrap">
+<div class="kicker reveal">A Note from the Founder</div>
+<h2 class="display reveal" style="max-width:19ch;font-size:clamp(2.2rem,5vw,4rem)">{html.escape(jd_lede)}</h2>
+</div></div>
+<section class="jd-intro" style="padding-top:56px">
+<div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="note-byline">
+<img src="images/logos/enso.webp" alt="">
+<div><div class="nb-name">Joel Shapiro</div>
+<div class="nb-role">Founder</div></div>
+</div>
+<div class="read-time">{jd_minutes} min read</div></div>
+<div class="longform">{md_to_html(jd_intro)}</div>
+</div>
+</section>
+{ch_html}
+<div class="jd-end reveal"><div class="wrap">
+<img src="images/logos/enso.webp" alt="">
+<div class="m-label-line">Directive 17</div>
+</div></div>"""
+
+# old page becomes a redirect so existing links still land correctly
+(OUT / "joels-directive.html").write_text(
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+    '<title>A Note from the Founder \u2014 Directive 17</title>'
+    '<link rel="canonical" href="https://directive17.com/#founder-note">'
+    '<meta http-equiv="refresh" content="0; url=index.html#founder-note">'
+    '<script>location.replace("index.html#founder-note")</script></head>'
+    '<body style="background:#FBF7EC"></body></html>')
+
 # ---------------- home: hero only, animated, intro curtain + pillar ticker
 tick_set = "".join(
     f'<span>{html.escape(p["title"])}</span><span class="tsep">&#10022;</span>'
@@ -670,10 +756,14 @@ home = f"""
 </div>
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
 </div>
+<button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
+<span class="sc-label">A note from the founder</span>
+<span class="sc-arrow">&darr;</span>
+</button>
 <div class="ticker"><div class="ticker-track">{tick_set}{tick_set}{tick_set}</div></div>
-</div>"""
-(OUT / "index.html").write_text(
-    page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True))
+</div>
+{founder_note}"""
+
 
 # ---------------- why
 wp = site["why_page"]
@@ -792,46 +882,9 @@ companies_body = f"""
 (OUT / "companies.html").write_text(page(f"Companies — {site['name']}", companies_body, "Companies",
     path="companies.html", desc="Different companies. One philosophy."))
 
-# ---------------- Joel's Directive: editorial chapter layout
-jd_src = (CONTENT / "pages" / "joels-directive.md").read_text()
-jd_title = next(l[2:].strip() for l in jd_src.splitlines() if l.startswith("# "))
-jd_body = re.sub(r"^#\s+.*\n", "", jd_src, count=1)
-jd_lede_m = re.search(r"^\*\*(.+?)\*\*\s*$", jd_body, flags=re.M)
-jd_lede = jd_lede_m.group(1) if jd_lede_m else ""
-if jd_lede_m:
-    jd_body = jd_body.replace(jd_lede_m.group(0), "", 1)
-jd_minutes = max(1, round(len(jd_body.split()) / 200))
-jd_parts = re.split(r"^##\s+(.*)$", jd_body, flags=re.M)
-jd_intro = jd_parts[0]
-jd_chapters = [(jd_parts[i], jd_parts[i + 1]) for i in range(1, len(jd_parts), 2)]
-ch_html = "".join(f"""
-<section class="chapter"><div class="wrap ch-grid">
-<div class="ch-side reveal"><div class="ch-num">{i+1:02d}</div>
-<h2 class="ch-title">{md_inline(t)}</h2></div>
-<div class="ch-body longform">{md_to_html(body)}</div>
-</div></section>""" for i, (t, body) in enumerate(jd_chapters))
-jd_page = f"""
-<div class="hero" style="padding-bottom:64px"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">Joel's Directive</div>
-<h1 class="display" style="max-width:18ch">{words(jd_title, .25, .07)}</h1>
-<div class="jd-lede fade" style="--d:.9s">{html.escape(jd_lede)}</div>
-</div></div>
-<section class="jd-intro" style="padding-top:64px;border-top:1px solid var(--line)">
-<div class="wrap ch-grid">
-<div class="ch-side reveal"><div class="ch-eyebrow">From the desk of Joel</div>
-<div class="read-time">{jd_minutes} min read</div></div>
-<div class="longform">{md_to_html(jd_intro)}</div>
-</div>
-</section>
-{ch_html}
-<div class="jd-end reveal"><div class="wrap">
-<img src="images/logos/enso.webp" alt="">
-<div class="m-label-line">Directive 17</div>
-</div></div>"""
-(OUT / "joels-directive.html").write_text(
-    page(f"Joel's Directive — {site['name']}", jd_page, "Joel's Directive",
-         extra_js=PROGRESS_JS, path="joels-directive.html",
-         desc="Stop watching. Start creating. Joel's directive to everyone."))
+(OUT / "index.html").write_text(
+    page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True,
+         extra_js=SCROLLCUE_JS + PROGRESS_JS))
 
 # ---------------- blog index (accordion)
 rows = "".join(f"""

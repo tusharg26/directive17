@@ -152,6 +152,32 @@ font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--d
 /* ---------- editorial building blocks ---------- */
 section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
+
+/* scroll cue on homepage hero */
+.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:86px;
+display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;
+cursor:pointer;opacity:0;animation:fadeUp .9s var(--ease) forwards;
+animation-delay:calc(1.55s + var(--hd,0s))}
+.scrollcue .sc-label{font-family:var(--sans);font-size:.68rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--muted);transition:color .2s}
+.scrollcue:hover .sc-label{color:var(--accent)}
+.scrollcue .sc-arrow{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;
+display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:.95rem;
+animation:nudge 1.9s var(--ease) infinite;transition:border-color .2s}
+.scrollcue:hover .sc-arrow{border-color:var(--accent)}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@media(prefers-reduced-motion:reduce){.scrollcue .sc-arrow{animation:none}}
+@media(max-width:860px){.scrollcue{bottom:74px;gap:8px}
+.scrollcue .sc-label{font-size:.6rem;letter-spacing:.16em;white-space:nowrap}
+.scrollcue .sc-arrow{width:30px;height:30px}}
+/* founder note framing */
+.note-open{padding:96px 0 8px;border-top:1px solid var(--line)}
+.note-byline{display:flex;align-items:center;gap:13px}
+.note-byline img{width:44px;height:44px;object-fit:contain}
+.note-byline .nb-name{font-family:var(--serif);font-size:1.05rem;color:var(--deep);
+font-weight:700;line-height:1.3}
+.note-byline .nb-role{font-family:var(--sans);font-size:.68rem;font-weight:600;
+text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
 /* Joel's Directive — editorial chapters */
 .jd-lede{font-family:var(--serif);font-weight:700;color:var(--accent);
 font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.2;letter-spacing:-.01em;
@@ -360,7 +386,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <nav class="menu-overlay" id="menu" aria-hidden="true">
 <button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
 <div class="m-label">Directive 17</div>
-<a href="index.html" class="m-link active" style="--i:0">Home</a><a href="why.html" class="m-link " style="--i:1">Why</a><a href="philosophy.html" class="m-link " style="--i:2">Philosophy</a><a href="companies.html" class="m-link " style="--i:3">Companies</a><a href="future.html" class="m-link " style="--i:4">Future</a><a href="build.html" class="m-link " style="--i:5">Build With Us</a><a href="joels-directive.html" class="m-link " style="--i:6">Joel's Directive</a><a href="blog/" class="m-link " style="--i:7">Joel's Blog</a>
+<a href="index.html" class="m-link active" style="--i:0">Home</a><a href="why.html" class="m-link " style="--i:1">Why</a><a href="philosophy.html" class="m-link " style="--i:2">Philosophy</a><a href="companies.html" class="m-link " style="--i:3">Companies</a><a href="future.html" class="m-link " style="--i:4">Future</a><a href="build.html" class="m-link " style="--i:5">Build With Us</a><a href="blog/" class="m-link " style="--i:6">Joel's Blog</a>
 <div class="m-foot">Directive 17 &copy; 2026</div>
 </nav>
 
@@ -372,8 +398,238 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 </div>
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
 </div>
+<button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
+<span class="sc-label">A note from the founder</span>
+<span class="sc-arrow">&darr;</span>
+</button>
 <div class="ticker"><div class="ticker-track"><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span></div></div>
 </div>
+
+<div class="note-open" id="founder-note"><div class="wrap">
+<div class="kicker reveal">A Note from the Founder</div>
+<h2 class="display reveal" style="max-width:19ch;font-size:clamp(2.2rem,5vw,4rem)">STOP WATCHING. START FUCKING CREATING.</h2>
+</div></div>
+<section class="jd-intro" style="padding-top:56px">
+<div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="note-byline">
+<img src="images/logos/enso.webp" alt="">
+<div><div class="nb-name">Joel Shapiro</div>
+<div class="nb-role">Founder</div></div>
+</div>
+<div class="read-time">6 min read</div></div>
+<div class="longform"><p>At some point, we became a civilization of spectators.</p>
+<p>We watch other people travel.</p>
+<p>We watch other people cook.</p>
+<p>We watch other people build companies.</p>
+<p>We watch other people exercise.</p>
+<p>We watch other people have sex.</p>
+<p>We watch other people watch other people.</p>
+<p>And then, apparently exhausted from all this activity, we lie in bed and scroll through videos of strangers organizing their refrigerators.</p>
+<p>What the fuck happened to us?</p>
+<p>We have somehow built the most powerful collection of tools in human history—and decided the highest use for them is watching a 23-year-old explain the proper way to butter a piece of toast.</p>
+<p>Think about that.</p>
+<p>You are walking around with a device in your pocket that gives you access to almost the entirety of human knowledge.</p>
+<p>Every great book.</p>
+<p>Every scientific discovery.</p>
+<p>Every piece of music.</p>
+<p>Every language.</p>
+<p>Every business idea.</p>
+<p>Every great thinker.</p>
+<p>Every imaginable skill.</p>
+<p>And increasingly, artificial intelligence that can help you understand, analyze, design, build, write, calculate, code, research, and create things that would have required entire teams of people only a few years ago.</p>
+<p>We have essentially been handed fucking superpowers.</p>
+<p>And what are we doing with them?</p>
+<p>Scrolling.</p>
+<p>Watching.</p>
+<p>Reacting.</p>
+<p>Liking.</p>
+<p>Sharing.</p>
+<p>Arguing with strangers.</p>
+<p>And checking to see whether someone we haven't spoken to since high school enjoyed their omelet in Cabo.</p></div>
+</div>
+</section>
+
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">01</div>
+<h2 class="ch-title">We Have Become Professional Consumers</h2></div>
+<div class="ch-body longform"><p>Everything around us is designed to get us to consume.</p>
+<p>Consume content.</p>
+<p>Consume products.</p>
+<p>Consume opinions.</p>
+<p>Consume outrage.</p>
+<p>Consume politics.</p>
+<p>Consume entertainment.</p>
+<p>Consume other people's lives.</p>
+<p>Wake up.</p>
+<p>Pick up the phone.</p>
+<p>Someone tells you what happened overnight.</p>
+<p>Someone tells you what you should be angry about.</p>
+<p>Someone tells you what everyone is talking about.</p>
+<p>Someone tells you what restaurant you should try.</p>
+<p>Someone tells you what shoes you should buy.</p>
+<p>Someone tells you what movie you should watch.</p>
+<p>Someone tells you what stocks you should own.</p>
+<p>Someone tells you what you should believe.</p>
+<p>And now an algorithm quietly decides which version of reality you should see next.</p>
+<p>Then we wonder why everyone seems to be thinking the same fucking thing.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">02</div>
+<h2 class="ch-title">Stop Reacting.</h2></div>
+<div class="ch-body longform"><p>This may be the greatest intellectual disease of our time.</p>
+<p>Reaction has replaced thought.</p>
+<p>Something happens and within 14 seconds everyone is expected to have an opinion.</p>
+<p>Not a considered opinion.</p>
+<p>Not an informed opinion.</p>
+<p>Just an opinion.</p>
+<p>Immediately.</p>
+<p>Preferably an angry one.</p>
+<p>We don't investigate anymore.</p>
+<p>We react.</p>
+<p>We don't question.</p>
+<p>We react.</p>
+<p>We don't contemplate.</p>
+<p>We react.</p>
+<p>We don't even finish reading the fucking headline.</p>
+<p>We react.</p>
+<p>And somewhere in Silicon Valley, a computer says:</p>
+<blockquote><p>Excellent. He is furious. Show him twelve more.</p></blockquote></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">03</div>
+<h2 class="ch-title">Question Everything.</h2></div>
+<div class="ch-body longform"><p>This is the part I think we are losing.</p>
+<p>The willingness to ask:</p>
+<p>Why?</p>
+<p>Why do we do it this way?</p>
+<p>Why does this company exist?</p>
+<p>Why does this industry work like this?</p>
+<p>Why can't this be better?</p>
+<p>Why does everyone believe this?</p>
+<p>Who decided this was normal?</p>
+<p>What if they're wrong?</p>
+<p>What if there is an entirely different way?</p>
+<p>Most genuinely interesting things probably started with somebody looking at something everyone else accepted and saying:</p>
+<blockquote><p>This makes absolutely no fucking sense.</p></blockquote>
+<p>That person is my kind of person.</p>
+<p>Because progress rarely comes from the person who understands the rules best.</p>
+<p>It often comes from the person willing to ask why the rules exist in the first place.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">04</div>
+<h2 class="ch-title">And Then Came AI.</h2></div>
+<div class="ch-body longform"><p>This is where things get really interesting.</p>
+<p>Artificial intelligence could become the greatest tool for human creativity ever invented.</p>
+<p>Or it could become the greatest excuse mankind has ever invented to stop thinking.</p>
+<p>The difference will be determined by us.</p>
+<p>You can use AI to tell you what to think.</p>
+<p>Or you can use AI to help you think bigger.</p>
+<p>Those are profoundly different things.</p>
+<p>One creates intellectual dependence.</p>
+<p>The other creates intellectual leverage.</p>
+<p>I don't want AI replacing my curiosity.</p>
+<p>I want it pouring gasoline on it.</p>
+<p>I want to ask crazier questions.</p>
+<p>Explore ideas faster.</p>
+<p>Challenge assumptions harder.</p>
+<p>Understand things I never understood.</p>
+<p>Build things I couldn't build before.</p>
+<p>Take some ridiculous idea that has been sitting in the back of my brain for ten years and say:</p>
+<blockquote><p>Fuck it. Let's see if this can actually work.</p></blockquote>
+<p>That is extraordinary.</p>
+<p>For the first time in history, almost anyone with curiosity, imagination, and determination can have something resembling a research department, strategy firm, engineering team, design studio, writing partner, and slightly psychotic brainstorming partner sitting on their phone.</p>
+<p>And we're using it to write emails saying:</p>
+<blockquote><p>"Thank you for circling back."</p></blockquote>
+<p>Jesus Christ.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">05</div>
+<h2 class="ch-title">The Next Great Divide</h2></div>
+<div class="ch-body longform"><p>I don't think the next great divide will simply be between people who use AI and people who don't.</p>
+<p>Almost everyone will use it.</p>
+<p>The divide will be between people who use technology to consume more and people who use technology to create more.</p>
+<p>Observers and builders.</p>
+<p>Followers and questioners.</p>
+<p>People waiting to see what happens next—</p>
+<p>and people trying to make something happen next.</p>
+<p>And creation doesn't mean you need to start a billion-dollar company.</p>
+<p>Create a dinner.</p>
+<p>Create a garden.</p>
+<p>Create a painting.</p>
+<p>Create a business.</p>
+<p>Create music.</p>
+<p>Create a ridiculous invention.</p>
+<p>Create a tradition with your family.</p>
+<p>Create a neighborhood gathering.</p>
+<p>Write something.</p>
+<p>Build something.</p>
+<p>Fix something.</p>
+<p>Teach somebody something.</p>
+<p>Invite twelve people over and put their fucking phones in a basket.</p>
+<p>Just participate in your own life.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">06</div>
+<h2 class="ch-title">Because You Don't Get Forever.</h2></div>
+<div class="ch-body longform"><p>This may be the strangest part of all.</p>
+<p>We know our time here is limited.</p>
+<p>Every single one of us knows how this story eventually ends.</p>
+<p>Yet somehow we have allowed companies to build trillion-dollar businesses around helping us kill time.</p>
+<p>Think about that phrase.</p>
+<p>Killing time.</p>
+<p>Time is the one thing you cannot manufacture.</p>
+<p>You cannot buy more of it.</p>
+<p>You cannot invest it and get twice as much back.</p>
+<p>You cannot call customer service and ask for a refund.</p>
+<p>And we're voluntarily killing it.</p>
+<p>One scroll at a time.</p>
+<p>One episode at a time.</p>
+<p>One meaningless argument at a time.</p>
+<p>One more hour watching somebody else live their life.</p>
+<p>I don't want to kill time.</p>
+<p>I want to use every fucking second of it.</p>
+<p>I want to see things.</p>
+<p>Taste things.</p>
+<p>Build things.</p>
+<p>Meet fascinating people.</p>
+<p>Ask inappropriate questions.</p>
+<p>Have long dinners.</p>
+<p>Make mistakes.</p>
+<p>Start companies.</p>
+<p>Write stupid blogs.</p>
+<p>Create things that may completely fail.</p>
+<p>Laugh until my stomach hurts.</p>
+<p>And occasionally look around and think:</p>
+<blockquote><p>I cannot believe we actually pulled this off.</p></blockquote>
+<p>Because someday the scrolling stops.</p>
+<p>The notifications stop.</p>
+<p>The emails stop.</p>
+<p>Everything stops.</p>
+<p>And when that day comes, I don't think any of us will wish we'd consumed more content.</p>
+<p>We'll wish we'd created more memories.</p>
+<p>More relationships.</p>
+<p>More beauty.</p>
+<p>More laughter.</p>
+<p>More ideas.</p>
+<p>More things that existed because we were here.</p>
+<p>So stop spending your entire life watching everyone else live theirs.</p>
+<p>Consume less.</p>
+<p>React less.</p>
+<p>Observe less.</p>
+<p>Question more.</p>
+<p>Think more.</p>
+<p>Build more.</p>
+<p>Love more.</p>
+<p>Gather more.</p>
+<p>Create more.</p>
+<p>And every once in a while, put the fucking phone down.</p>
+<p>There is an entire world outside the screen.</p>
+<p>Go fuck with it.</p></div>
+</div></section>
+<div class="jd-end reveal"><div class="wrap">
+<img src="images/logos/enso.webp" alt="">
+<div class="m-label-line">Directive 17</div>
+</div></div>
 <script>
 document.documentElement.classList.add('js');
 (function() {
@@ -417,6 +673,29 @@ document.documentElement.classList.add('js');
       pe.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
     }, {passive: true});
   }
+})();
+
+(function(){
+  var c = document.getElementById('scrollcue');
+  if (!c) return;
+  c.addEventListener('click', function(){
+    var t = document.getElementById('founder-note');
+    if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+(function() {
+  var bar = document.createElement('div');
+  bar.className = 'progress';
+  document.body.appendChild(bar);
+  function upd() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', upd, {passive: true});
+  window.addEventListener('resize', upd, {passive: true});
+  upd();
 })();
 </script>
 </body>
