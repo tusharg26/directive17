@@ -20,7 +20,57 @@
     { "num": "04", "title": "Connection", "body": "Families, friendships, communities, and belonging." },
     { "num": "05", "title": "Human Potential", "body": "Helping people become more capable than ever before." }
   ],
-  "footer_note": "Directive 17 exists to help ensure that progress makes everyday life healthier, kinder, happier, more connected, more trusting, and more human.",
+  "why_page": {
+    "kicker": "Why We Exist",
+    "line1": "Most organizations begin with markets.",
+    "line2": "We begin with people.",
+    "paragraphs": [
+      "Every day, billions of people wake up hoping for healthier lives, stronger relationships, more meaningful work, more joyful experiences, and a better future for their families.",
+      "We believe business can help create that future — not by chasing trends, but by building enduring companies that genuinely improve people's lives."
+    ],
+    "belief_label": "Our Belief",
+    "belief_intro": "Progress should improve the human experience.",
+    "beliefs": [
+      "Technology should make life more human.",
+      "Food should bring people together.",
+      "Entertainment should create happiness.",
+      "Health should be extended.",
+      "Trust should be earned.",
+      "Communities should grow stronger."
+    ]
+  },
+  "philosophy_page": {
+    "kicker": "Philosophy",
+    "opening": "When the history of this century is written...",
+    "q1": "Will technology have made us more human?",
+    "q2": "Or simply more efficient?",
+    "answer": "Directive 17 exists because we believe the answer should be both.",
+    "pillars_label": "The Five Pillars",
+    "pillars_intro": "The human outcomes we build toward.",
+    "human_test": {
+      "label": "The Human Test",
+      "intro": "Every company begins with one question.",
+      "question": "How will this make someone's life better?",
+      "after": "Only then do we ask whether it can become a great business."
+    },
+    "way": {
+      "label": "The Directive 17 Way",
+      "lede": "Life is short.",
+      "pairs": [
+        ["We don't build trends.", "We build institutions."],
+        ["We don't chase hype.", "We pursue enduring value."],
+        ["We don't believe technology is the destination.", "People are."]
+      ],
+      "closing": "Smile more. Laugh more. Love more. Learn more. Live better. Help others. Leave the world better than you found it."
+    }
+  },
+  "future_page": {
+    "kicker": "The Future We See",
+    "old_q": "The old question was: what future is coming?",
+    "new_q": "What future is worth building?",
+    "domains": ["Artificial intelligence", "Biology", "Mental wellness", "Medicine", "Food", "Entertainment"],
+    "body": "These forces will reshape the next century. Directive 17 exists to help ensure that progress makes everyday life healthier, kinder, happier, more connected, more trusting, and more human."
+  },
   "build_page": {
     "headline": "Build with us.",
     "body": "The future is built by people who believe it can be better.",

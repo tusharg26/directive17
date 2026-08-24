@@ -5,9 +5,10 @@ The official Directive 17 website. Live at https://directive17.com via GitHub Pa
 ## How it works
 
 - **All content lives in `content/`** — no coding needed to update anything:
-  - `content/site.json` — site name, tagline, navigation, pillars, contact email, page copy
+  - `content/site.json` — ALL page copy: tagline, nav, pillars, and the full structured
+    copy for the Why / Philosophy / Future / Build With Us pages
   - `content/companies.json` — portfolio companies (name, group, logo, one-liner, url)
-  - `content/pages/*.md` — Why / Philosophy / Future / Joel's Directive pages
+  - `content/pages/*.md` — long-form pages (Joel's Directive)
   - `content/posts/*.md` — blog posts, one file each, named `YYYY-MM-DD-slug.md`
   - `content/images/logos/` — company logos and the enso mark
 - **`build.py`** turns content into the finished site. Run `python3 build.py` (no dependencies).
