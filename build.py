@@ -493,6 +493,32 @@ document.documentElement.classList.add('js');
 })();
 """
 
+FITHEAD_JS = """
+(function(){
+  var el = document.querySelector('.note-head');
+  if (!el) return;
+  var CAP = 76;
+  function fit(){
+    if (window.innerWidth < 861) {
+      el.style.whiteSpace = '';
+      el.style.fontSize = '';
+      el.style.maxWidth = '';
+      return;
+    }
+    el.style.maxWidth = 'none';
+    el.style.whiteSpace = 'nowrap';
+    el.style.fontSize = CAP + 'px';
+    var p = el.parentElement, cs = getComputedStyle(p);
+    var avail = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var w = el.scrollWidth;
+    if (w > avail) el.style.fontSize = Math.floor(CAP * (avail / w) * 0.985) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+"""
+
 SCROLLCUE_JS = """
 (function(){
   var c = document.getElementById('scrollcue');
@@ -715,7 +741,7 @@ ch_html = "".join(f"""
 founder_note = f"""
 <div class="note-open" id="founder-note"><div class="wrap">
 <div class="kicker reveal">A Note from the Founder</div>
-<h2 class="display reveal" style="max-width:19ch;font-size:clamp(2.2rem,5vw,4rem)">{html.escape(jd_lede)}</h2>
+<h2 class="display reveal note-head" style="max-width:19ch;font-size:clamp(2.1rem,5vw,4rem)">{html.escape(jd_lede)}</h2>
 </div></div>
 <section class="jd-intro" style="padding-top:56px">
 <div class="wrap ch-grid">
@@ -884,7 +910,7 @@ companies_body = f"""
 
 (OUT / "index.html").write_text(
     page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True,
-         extra_js=SCROLLCUE_JS + PROGRESS_JS))
+         extra_js=SCROLLCUE_JS + FITHEAD_JS + PROGRESS_JS))
 
 # ---------------- blog index (accordion)
 rows = "".join(f"""
