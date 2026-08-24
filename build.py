@@ -651,7 +651,7 @@ OUT.mkdir(parents=True)
 if (CONTENT / "images").exists():
     shutil.copytree(CONTENT / "images", OUT / "images", dirs_exist_ok=True)
 (OUT / ".nojekyll").write_text("")
-if site.get("domain"):
+if site.get("domain") and site.get("live"):
     (OUT / "CNAME").write_text(site["domain"])
 
 posts = sorted((parse_post(p) for p in (CONTENT / "posts").glob("*.md")),
@@ -849,13 +849,14 @@ if not posts:
 blog_body = f"""
 <div class="hero" style="padding-bottom:70px"><div class="wrap">
 <div class="kicker fade" style="--d:.05s">Joel's Blog</div>
-<h1 class="display">{words('Question more. Build more.', .25, .09)}</h1>
+<h1 class="display" style="max-width:19ch">{words("Joel's Tales from Weird Side", .25, .085)}</h1>
+<p class="sub fade" style="--d:1.05s">I wish I was making this shit up!</p>
 </div></div>
 <section style="padding-top:20px"><div class="wrap">{rows}</div></section>"""
 (OUT / "blog" / "index.html").write_text(
-    page(f"Joel's Blog — {site['name']}", blog_body, "Joel's Blog", 1,
+    page(f"Joel's Tales from Weird Side — {site['name']}", blog_body, "Joel's Blog", 1,
          extra_js=BLOG_JS + PROGRESS_JS, path="blog/",
-         desc="Question more. Build more. Notes from Joel."))
+         desc="I wish I was making this shit up!"))
 
 # ---------------- build with us
 bp = site["build_page"]
