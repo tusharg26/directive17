@@ -4,12 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Companies — Directive 17</title>
-<meta name="description" content="We build companies that improve the human experience.">
+<meta name="description" content="Different companies. One philosophy.">
+<meta name="theme-color" content="#FBF7EC">
+<link rel="canonical" href="https://directive17.com/companies.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Directive 17">
+<meta property="og:title" content="Companies — Directive 17">
+<meta property="og:description" content="Different companies. One philosophy.">
+<meta property="og:url" content="https://directive17.com/companies.html">
+<meta property="og:image" content="https://directive17.com/images/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Companies — Directive 17">
+<meta name="twitter:description" content="Different companies. One philosophy.">
+<meta name="twitter:image" content="https://directive17.com/images/og-card.png">
 <link rel="icon" type="image/png" href="images/logos/enso.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="preload" as="image" href="images/logos/enso.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#FBF7EC;--panel:#F4EEDD;--ink:#23392C;--deep:#203C2D;--muted:#71806B;
 --line:#E6DEC7;--ghost:#EDE5CE;--accent:#D98B33;
---serif:Georgia,'Times New Roman',serif;
+--serif:'Fraunces',Georgia,'Times New Roman',serif;
 --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
 --ease:cubic-bezier(.22,.61,.21,1)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -19,6 +38,11 @@ line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{max-width:100%}
 ::selection{background:var(--deep);color:var(--bg)}
+a:focus-visible,button:focus-visible,[role=button]:focus-visible{
+outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+/* reading progress */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);
+z-index:120;transition:width .1s linear}
 .wrap{max-width:1500px;margin:0 auto;padding:0 clamp(28px,5vw,76px)}
 /* film grain */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.045;
@@ -236,7 +260,7 @@ padding:18px;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
 .card:hover .tile{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 32px rgba(32,60,45,.16)}
 .tile-dark{background:var(--deep)}
 .tile-light{background:#FDFBF3;border:1px solid var(--line)}
-.tile img{max-width:82%;max-height:74px;object-fit:contain}
+.tile img{max-width:calc(82% * var(--ls,1));max-height:calc(74px * var(--ls,1));object-fit:contain}
 .card h3{font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--ink);
 margin-top:14px;line-height:1.35}
 .card p{color:var(--muted);font-size:.85rem;margin-top:6px}
@@ -322,7 +346,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <body>
 
 <header><div class="wrap nav">
-<a class="logo" href="index.html"><img src="images/logos/enso.png" alt="Directive 17 enso logo">Directive 17</a>
+<a class="logo" href="index.html"><img src="images/logos/enso.webp" alt="Directive 17 enso logo">Directive 17</a>
 <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
 <span></span><span></span><span></span>
 </button>
@@ -331,15 +355,14 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
 <div class="m-label">Directive 17</div>
 <a href="index.html" class="m-link " style="--i:0">Home</a><a href="why.html" class="m-link " style="--i:1">Why</a><a href="philosophy.html" class="m-link " style="--i:2">Philosophy</a><a href="companies.html" class="m-link active" style="--i:3">Companies</a><a href="future.html" class="m-link " style="--i:4">Future</a><a href="build.html" class="m-link " style="--i:5">Build With Us</a><a href="joels-directive.html" class="m-link " style="--i:6">Joel's Directive</a><a href="blog/" class="m-link " style="--i:7">Joel's Blog</a>
-<div class="m-foot"><a href="mailto:joel@directive17.com">joel@directive17.com</a>
-&nbsp;&middot;&nbsp; Directive 17 &copy; 2026</div>
+<div class="m-foot">Directive 17 &copy; 2026</div>
 </nav>
 
 <div class="hero" style="padding-bottom:70px"><div class="wrap">
 <div class="kicker fade" style="--d:.05s">Our Companies</div>
 <h1 class="display" style="max-width:20ch"><span class="w" style="--d:0.25s">Different</span> <span class="w" style="--d:0.33s">companies.</span> <span class="w" style="--d:0.41s">One</span> <span class="w" style="--d:0.49s">philosophy.</span></h1>
 </div></div>
-<section style="padding-top:20px"><div class="wrap"><div class="group-label reveal">Proprietary &amp; Current Investments</div><div class="grid"><div class="card reveal"><div class="tile tile-dark"><img src="images/logos/holonic.png" alt="Holonic logo"></div><h3>Holonic</h3></div><div class="card reveal" style="--d:0.05s"><div class="tile tile-dark"><img src="images/logos/firefly-love.png" alt="Firefly.love logo"></div><h3>Firefly.love</h3></div><div class="card reveal" style="--d:0.10s"><div class="tile tile-dark"><img src="images/logos/twelve92.png" alt="Twelve92 logo"></div><h3>Twelve92</h3></div><div class="card reveal" style="--d:0.15s"><div class="tile tile-dark"><img src="images/logos/story-district.png" alt="The Story District logo"></div><h3>The Story District</h3></div><div class="card reveal" style="--d:0.20s"><div class="tile tile-dark"><img src="images/logos/humanos.png" alt="HumanOS logo"></div><h3>HumanOS</h3></div><div class="card reveal" style="--d:0.25s"><div class="tile tile-dark"><img src="images/logos/axion.png" alt="Axion Entertainment logo"></div><h3>Axion Entertainment</h3></div><div class="card reveal"><div class="tile tile-dark"><img src="images/logos/vector.png" alt="Vector logo"></div><h3>Vector</h3></div><div class="card reveal" style="--d:0.05s"><div class="tile tile-dark"><img src="images/logos/vlp.png" alt="Vertical Longevity Pharmaceuticals logo"></div><h3>Vertical Longevity Pharmaceuticals</h3></div><div class="card reveal" style="--d:0.10s"><div class="tile tile-dark"><img src="images/logos/mythogenic.png" alt="Mythogenic logo"></div><h3>Mythogenic</h3></div><div class="card reveal" style="--d:0.15s"><div class="tile tile-dark"><img src="images/logos/pivt.png" alt="Pivt logo"></div><h3>Pivt</h3></div><div class="card reveal" style="--d:0.20s"><div class="tile tile-dark"><img src="images/logos/nhra.png" alt="NHRA logo"></div><h3>NHRA</h3></div><div class="card reveal" style="--d:0.25s"><div class="tile tile-dark"><img src="images/logos/caviar-corndogs.png" alt="Caviar and Corndogs logo"></div><h3>Caviar and Corndogs</h3></div></div><div class="group-label reveal">Recent Passive Investments Made by Principals</div><div class="grid"><div class="card reveal"><div class="tile tile-light"><img src="images/logos/colossal.png" alt="Colossal Laboratories &amp; Biosciences logo"></div><h3>Colossal Laboratories &amp; Biosciences</h3></div><div class="card reveal" style="--d:0.05s"><div class="tile tile-light"><img src="images/logos/larx.png" alt="LARX logo"></div><h3>LARX</h3></div><div class="card reveal" style="--d:0.10s"><div class="tile tile-light"><img src="images/logos/epirus.png" alt="Epirus logo"></div><h3>Epirus</h3></div><div class="card reveal" style="--d:0.15s"><div class="tile tile-light"><img src="images/logos/general-fusion.png" alt="General Fusion logo"></div><h3>General Fusion</h3></div><div class="card reveal" style="--d:0.20s"><div class="tile tile-light"><img src="images/logos/advocate.png" alt="Advocate logo"></div><h3>Advocate</h3></div></div></div></section>
+<section style="padding-top:20px"><div class="wrap"><div class="group-label reveal">Proprietary &amp; Current Investments</div><div class="grid"><div class="card reveal"><div class="tile tile-dark"><img src="images/logos/holonic.webp" alt="Holonic logo"></div><h3>Holonic</h3></div><div class="card reveal" style="--d:0.05s"><div class="tile tile-dark"><img src="images/logos/firefly-love.webp" alt="Firefly.love logo"></div><h3>Firefly.love</h3></div><div class="card reveal" style="--d:0.10s"><div class="tile tile-dark"><img src="images/logos/twelve92.webp" style="--ls:0.95" alt="Twelve92 logo"></div><h3>Twelve92</h3></div><div class="card reveal" style="--d:0.15s"><div class="tile tile-dark"><img src="images/logos/story-district.webp" alt="The Story District logo"></div><h3>The Story District</h3></div><div class="card reveal" style="--d:0.20s"><div class="tile tile-dark"><img src="images/logos/humanos.webp" style="--ls:0.92" alt="HumanOS logo"></div><h3>HumanOS</h3></div><div class="card reveal" style="--d:0.25s"><div class="tile tile-dark"><img src="images/logos/axion.webp" alt="Axion Entertainment logo"></div><h3>Axion Entertainment</h3></div><div class="card reveal"><div class="tile tile-dark"><img src="images/logos/vector.webp" style="--ls:1.12" alt="Vector logo"></div><h3>Vector</h3></div><div class="card reveal" style="--d:0.05s"><div class="tile tile-dark"><img src="images/logos/vlp.webp" alt="Vertical Longevity Pharmaceuticals logo"></div><h3>Vertical Longevity Pharmaceuticals</h3></div><div class="card reveal" style="--d:0.10s"><div class="tile tile-dark"><img src="images/logos/mythogenic.webp" style="--ls:0.82" alt="Mythogenic logo"></div><h3>Mythogenic</h3></div><div class="card reveal" style="--d:0.15s"><div class="tile tile-dark"><img src="images/logos/pivt.webp" style="--ls:0.68" alt="Pivt logo"></div><h3>Pivt</h3></div><div class="card reveal" style="--d:0.20s"><div class="tile tile-dark"><img src="images/logos/caviar-corndogs.webp" style="--ls:0.88" alt="Caviar and Corndogs logo"></div><h3>Caviar and Corndogs</h3></div></div><div class="group-label reveal">Recent Passive Investments Made by Principals</div><div class="grid"><div class="card reveal"><div class="tile tile-light"><img src="images/logos/colossal.webp" style="--ls:0.95" alt="Colossal Laboratories &amp; Biosciences logo"></div><h3>Colossal Laboratories &amp; Biosciences</h3></div><div class="card reveal" style="--d:0.05s"><div class="tile tile-light"><img src="images/logos/larx.webp" style="--ls:0.8" alt="LARX logo"></div><h3>LARX</h3></div><div class="card reveal" style="--d:0.10s"><div class="tile tile-light"><img src="images/logos/epirus.webp" style="--ls:0.72" alt="Epirus logo"></div><h3>Epirus</h3></div><div class="card reveal" style="--d:0.15s"><div class="tile tile-light"><img src="images/logos/general-fusion.webp" style="--ls:0.82" alt="General Fusion logo"></div><h3>General Fusion</h3></div><div class="card reveal" style="--d:0.20s"><div class="tile tile-light"><img src="images/logos/advocate.webp" style="--ls:0.72" alt="Advocate logo"></div><h3>Advocate</h3></div></div></div></section>
 <script>
 document.documentElement.classList.add('js');
 (function() {

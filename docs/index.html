@@ -5,14 +5,33 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Directive 17 — The Future Should Make Life Better.</title>
 <meta name="description" content="We build companies that improve the human experience.">
+<meta name="theme-color" content="#FBF7EC">
+<link rel="canonical" href="https://directive17.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Directive 17">
+<meta property="og:title" content="Directive 17 — The Future Should Make Life Better.">
+<meta property="og:description" content="We build companies that improve the human experience.">
+<meta property="og:url" content="https://directive17.com/">
+<meta property="og:image" content="https://directive17.com/images/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Directive 17 — The Future Should Make Life Better.">
+<meta name="twitter:description" content="We build companies that improve the human experience.">
+<meta name="twitter:image" content="https://directive17.com/images/og-card.png">
 <link rel="icon" type="image/png" href="images/logos/enso.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="preload" as="image" href="images/logos/enso.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&display=swap" rel="stylesheet">
 <script>
 try{if(sessionStorage.getItem('d17i')){document.documentElement.classList.add('skip-intro')}
 else{sessionStorage.setItem('d17i','1')}}catch(e){}
 </script><style>
 :root{--bg:#FBF7EC;--panel:#F4EEDD;--ink:#23392C;--deep:#203C2D;--muted:#71806B;
 --line:#E6DEC7;--ghost:#EDE5CE;--accent:#D98B33;
---serif:Georgia,'Times New Roman',serif;
+--serif:'Fraunces',Georgia,'Times New Roman',serif;
 --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
 --ease:cubic-bezier(.22,.61,.21,1)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -22,6 +41,11 @@ line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{max-width:100%}
 ::selection{background:var(--deep);color:var(--bg)}
+a:focus-visible,button:focus-visible,[role=button]:focus-visible{
+outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+/* reading progress */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);
+z-index:120;transition:width .1s linear}
 .wrap{max-width:1500px;margin:0 auto;padding:0 clamp(28px,5vw,76px)}
 /* film grain */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.045;
@@ -239,7 +263,7 @@ padding:18px;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
 .card:hover .tile{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 32px rgba(32,60,45,.16)}
 .tile-dark{background:var(--deep)}
 .tile-light{background:#FDFBF3;border:1px solid var(--line)}
-.tile img{max-width:82%;max-height:74px;object-fit:contain}
+.tile img{max-width:calc(82% * var(--ls,1));max-height:calc(74px * var(--ls,1));object-fit:contain}
 .card h3{font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--ink);
 margin-top:14px;line-height:1.35}
 .card p{color:var(--muted);font-size:.85rem;margin-top:6px}
@@ -324,11 +348,11 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 </head>
 <body style="--hd:2.2s">
 <div id="intro"><div class="intro-inner">
-<img src="images/logos/enso.png" alt="">
+<img src="images/logos/enso.webp" alt="">
 <div class="intro-name">Directive 17</div>
 </div></div>
 <header><div class="wrap nav">
-<a class="logo" href="index.html"><img src="images/logos/enso.png" alt="Directive 17 enso logo">Directive 17</a>
+<a class="logo" href="index.html"><img src="images/logos/enso.webp" alt="Directive 17 enso logo">Directive 17</a>
 <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
 <span></span><span></span><span></span>
 </button>
@@ -337,8 +361,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
 <div class="m-label">Directive 17</div>
 <a href="index.html" class="m-link active" style="--i:0">Home</a><a href="why.html" class="m-link " style="--i:1">Why</a><a href="philosophy.html" class="m-link " style="--i:2">Philosophy</a><a href="companies.html" class="m-link " style="--i:3">Companies</a><a href="future.html" class="m-link " style="--i:4">Future</a><a href="build.html" class="m-link " style="--i:5">Build With Us</a><a href="joels-directive.html" class="m-link " style="--i:6">Joel's Directive</a><a href="blog/" class="m-link " style="--i:7">Joel's Blog</a>
-<div class="m-foot"><a href="mailto:joel@directive17.com">joel@directive17.com</a>
-&nbsp;&middot;&nbsp; Directive 17 &copy; 2026</div>
+<div class="m-foot">Directive 17 &copy; 2026</div>
 </nav>
 
 <div class="hero hero-home"><div class="wrap hero-flex">
@@ -347,7 +370,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <h1 class="display"><span class="w" style="--d:0.25s">The</span> <span class="w" style="--d:0.34s">Future</span> <span class="w" style="--d:0.43s">Should</span> <span class="w" style="--d:0.52s">Make</span> <span class="w" style="--d:0.61s">Life</span> <span class="w" style="--d:0.70s">Better.</span></h1>
 <p class="sub fade" style="--d:.95s">We build companies that improve the human experience.</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.png" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
 </div>
 <div class="ticker"><div class="ticker-track"><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span></div></div>
 </div>

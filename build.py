@@ -105,7 +105,7 @@ def fmt_date(d):
 CSS = """
 :root{--bg:#FBF7EC;--panel:#F4EEDD;--ink:#23392C;--deep:#203C2D;--muted:#71806B;
 --line:#E6DEC7;--ghost:#EDE5CE;--accent:#D98B33;
---serif:Georgia,'Times New Roman',serif;
+--serif:'Fraunces',Georgia,'Times New Roman',serif;
 --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
 --ease:cubic-bezier(.22,.61,.21,1)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -115,6 +115,11 @@ line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{max-width:100%}
 ::selection{background:var(--deep);color:var(--bg)}
+a:focus-visible,button:focus-visible,[role=button]:focus-visible{
+outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+/* reading progress */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);
+z-index:120;transition:width .1s linear}
 .wrap{max-width:1500px;margin:0 auto;padding:0 clamp(28px,5vw,76px)}
 /* film grain */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.045;
@@ -332,7 +337,7 @@ padding:18px;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
 .card:hover .tile{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 32px rgba(32,60,45,.16)}
 .tile-dark{background:var(--deep)}
 .tile-light{background:#FDFBF3;border:1px solid var(--line)}
-.tile img{max-width:82%;max-height:74px;object-fit:contain}
+.tile img{max-width:calc(82% * var(--ls,1));max-height:calc(74px * var(--ls,1));object-fit:contain}
 .card h3{font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--ink);
 margin-top:14px;line-height:1.35}
 .card p{color:var(--muted);font-size:.85rem;margin-top:6px}
@@ -462,6 +467,22 @@ document.documentElement.classList.add('js');
 })();
 """
 
+PROGRESS_JS = """
+(function() {
+  var bar = document.createElement('div');
+  bar.className = 'progress';
+  document.body.appendChild(bar);
+  function upd() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', upd, {passive: true});
+  window.addEventListener('resize', upd, {passive: true});
+  upd();
+})();
+"""
+
 INTRO_SCRIPT = """<script>
 try{if(sessionStorage.getItem('d17i')){document.documentElement.classList.add('skip-intro')}
 else{sessionStorage.setItem('d17i','1')}}catch(e){}
@@ -527,7 +548,7 @@ def rev(inner, delay=0.0, tag="div", cls="", style=""):
     d = f"--d:{delay:.2f}s;" if delay else ""
     return f'<{tag} class="reveal {cls}" style="{d}{style}">{inner}</{tag}>'
 
-def page(title, body, active="", depth=0, extra_js="", intro=False):
+def page(title, body, active="", depth=0, extra_js="", intro=False, path="", desc=None):
     p = "../" * depth
     links = [("Home", f"{p}index.html", active == "")]
     links += [(n["label"], f'{p}{n["href"].lstrip("/")}', n["label"] == active) for n in site["nav"]]
@@ -536,24 +557,47 @@ def page(title, body, active="", depth=0, extra_js="", intro=False):
         for i, (label, href, act) in enumerate(links))
     intro_head = INTRO_SCRIPT if intro else ""
     intro_html = ("""<div id="intro"><div class="intro-inner">
-<img src="images/logos/enso.png" alt="">
+<img src="images/logos/enso.webp" alt="">
 <div class="intro-name">Directive 17</div>
 </div></div>""" if intro else "")
     body_attr = ' style="--hd:2.2s"' if intro else ""
+    d = desc or site["subline"]  # noqa: shadow ok
+    url = f"https://{site['domain']}/{path}"
+    analytics = (f'<script data-goatcounter="https://{site["goatcounter"]}.goatcounter.com/count" '
+                 f'async src="//gc.zgo.at/count.js"></script>') if site.get("goatcounter") else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(site['subline'])}">
+<meta name="description" content="{html.escape(d)}">
+<meta name="theme-color" content="#FBF7EC">
+<link rel="canonical" href="{url}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Directive 17">
+<meta property="og:title" content="{html.escape(title)}">
+<meta property="og:description" content="{html.escape(d)}">
+<meta property="og:url" content="{url}">
+<meta property="og:image" content="https://{site['domain']}/images/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{html.escape(title)}">
+<meta name="twitter:description" content="{html.escape(d)}">
+<meta name="twitter:image" content="https://{site['domain']}/images/og-card.png">
 <link rel="icon" type="image/png" href="{p}images/logos/enso.png">
+<link rel="apple-touch-icon" href="{p}images/apple-touch-icon.png">
+<link rel="preload" as="image" href="{p}images/logos/enso.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&display=swap" rel="stylesheet">
 {intro_head}<style>{CSS}</style>
 </head>
 <body{body_attr}>
 {intro_html}
 <header><div class="wrap nav">
-<a class="logo" href="{p}index.html"><img src="{p}images/logos/enso.png" alt="Directive 17 enso logo">Directive 17</a>
+<a class="logo" href="{p}index.html"><img src="{p}images/logos/enso.webp" alt="Directive 17 enso logo">Directive 17</a>
 <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
 <span></span><span></span><span></span>
 </button>
@@ -562,19 +606,28 @@ def page(title, body, active="", depth=0, extra_js="", intro=False):
 <button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
 <div class="m-label">Directive 17</div>
 {nav}
-<div class="m-foot"><a href="mailto:{site['contact_email']}">{site['contact_email']}</a>
-&nbsp;&middot;&nbsp; Directive 17 &copy; 2026</div>
+<div class="m-foot">Directive 17 &copy; 2026</div>
 </nav>
 {body}
 <script>{SHARED_JS}{extra_js}</script>
-</body>
+{analytics}</body>
 </html>"""
+
+# optical size normalization: multiplier on each logo so all marks read the same weight
+LOGO_SCALE = {
+    "Pivt": 0.68, "Mythogenic": 0.82, "Caviar and Corndogs": 0.88,
+    "Vector": 1.12, "Twelve92": 0.95, "HumanOS": 0.92,
+    "Epirus": 0.72, "Advocate": 0.72, "LARX": 0.8, "General Fusion": 0.82,
+    "Colossal Laboratories & Biosciences": 0.95,
+}
 
 def company_card(c, depth=0, delay=0.0):
     p = "../" * depth
     dark = "Proprietary" in c.get("group", "Proprietary")
     tile_cls = "tile-dark" if dark else "tile-light"
-    logo = (f'<img src="{p}images/{c["logo"]}" alt="{html.escape(c["name"])} logo">'
+    ls = LOGO_SCALE.get(c["name"], 1.0)
+    ls_attr = f' style="--ls:{ls}"' if ls != 1.0 else ""
+    logo = (f'<img src="{p}images/{c["logo"]}"{ls_attr} alt="{html.escape(c["name"])} logo">'
             if c.get("logo") else f'<span style="font-family:var(--serif);font-size:1.4rem;'
             f'color:{"#FBF7EC" if dark else "var(--deep)"}">{html.escape(c["name"][0])}</span>')
     liner = f'<p>{html.escape(c["one_liner"])}</p>' if c.get("one_liner") else ""
@@ -609,7 +662,7 @@ home = f"""
 <h1 class="display">{words(site['tagline'], .25, .09)}</h1>
 <p class="sub fade" style="--d:.95s">{html.escape(site['subline'])}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.png" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
 </div>
 <div class="ticker"><div class="ticker-track">{tick_set}{tick_set}{tick_set}</div></div>
 </div>"""
@@ -642,7 +695,8 @@ why = f"""
 <div style="height:56px"></div>
 {belief_rows}
 </div></section>"""
-(OUT / "why.html").write_text(page(f"Why — {site['name']}", why, "Why"))
+(OUT / "why.html").write_text(page(f"Why — {site['name']}", why, "Why", path="why.html",
+    desc="Most organizations begin with markets. We begin with people."))
 
 # ---------------- philosophy
 pp = site["philosophy_page"]
@@ -673,7 +727,7 @@ philosophy = f"""
 <div class="pillars">{pillars}</div>
 </div></section>
 <div class="dark">
-<img class="watermark" src="images/logos/enso.png" alt="">
+<img class="watermark" src="images/logos/enso.webp" alt="">
 <div class="wrap">
 <div class="sec-label reveal">{html.escape(pp['human_test']['label'])}</div>
 {rev(f'<p style="color:#9FB09A;font-size:1.1rem;margin-bottom:30px">{html.escape(pp["human_test"]["intro"])}</p>', .05, tag="div")}
@@ -688,7 +742,8 @@ philosophy = f"""
 <div style="height:80px"></div>
 {rev(f'<div class="closing">{closing_html}</div>', .1)}
 </div></section>"""
-(OUT / "philosophy.html").write_text(page(f"Philosophy — {site['name']}", philosophy, "Philosophy"))
+(OUT / "philosophy.html").write_text(page(f"Philosophy — {site['name']}", philosophy, "Philosophy",
+    path="philosophy.html", desc="The Five Pillars, the Human Test, and the Directive 17 Way."))
 
 # ---------------- future
 fp = site["future_page"]
@@ -708,7 +763,8 @@ future = f"""
 <div style="height:24px"></div>
 {rev(f'<a class="btn" href="build.html">Build with us <span class="arr">&rarr;</span></a>', .2, tag="div")}
 </div></section>"""
-(OUT / "future.html").write_text(page(f"Future — {site['name']}", future, "Future"))
+(OUT / "future.html").write_text(page(f"Future — {site['name']}", future, "Future", path="future.html",
+    desc="The better question is: what future is worth building?"))
 
 # ---------------- companies
 groups = []
@@ -727,7 +783,8 @@ companies_body = f"""
 <h1 class="display" style="max-width:20ch">{words('Different companies. One philosophy.', .25, .08)}</h1>
 </div></div>
 <section style="padding-top:20px"><div class="wrap">{sections}</div></section>"""
-(OUT / "companies.html").write_text(page(f"Companies — {site['name']}", companies_body, "Companies"))
+(OUT / "companies.html").write_text(page(f"Companies — {site['name']}", companies_body, "Companies",
+    path="companies.html", desc="Different companies. One philosophy."))
 
 # ---------------- Joel's Directive: editorial chapter layout
 jd_src = (CONTENT / "pages" / "joels-directive.md").read_text()
@@ -762,11 +819,13 @@ jd_page = f"""
 </section>
 {ch_html}
 <div class="jd-end reveal"><div class="wrap">
-<img src="images/logos/enso.png" alt="">
+<img src="images/logos/enso.webp" alt="">
 <div class="m-label-line">Directive 17</div>
 </div></div>"""
 (OUT / "joels-directive.html").write_text(
-    page(f"Joel's Directive — {site['name']}", jd_page, "Joel's Directive"))
+    page(f"Joel's Directive — {site['name']}", jd_page, "Joel's Directive",
+         extra_js=PROGRESS_JS, path="joels-directive.html",
+         desc="Stop watching. Start creating. Joel's directive to everyone."))
 
 # ---------------- blog index (accordion)
 rows = "".join(f"""
@@ -788,7 +847,9 @@ blog_body = f"""
 </div></div>
 <section style="padding-top:20px"><div class="wrap">{rows}</div></section>"""
 (OUT / "blog" / "index.html").write_text(
-    page(f"Joel's Blog — {site['name']}", blog_body, "Joel's Blog", 1, extra_js=BLOG_JS))
+    page(f"Joel's Blog — {site['name']}", blog_body, "Joel's Blog", 1,
+         extra_js=BLOG_JS + PROGRESS_JS, path="blog/",
+         desc="Question more. Build more. Notes from Joel."))
 
 # ---------------- build with us
 bp = site["build_page"]
@@ -802,8 +863,29 @@ build_body = f"""
 <a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a></p>
 <p class="fade" style="--d:1.15s;margin-top:18px;font-family:var(--sans);font-size:.85rem;color:var(--muted)">{site['contact_email']}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.png" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
 </div></div>"""
-(OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us"))
+(OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us",
+    path="build.html", desc="The future is built by people who believe it can be better."))
+
+# ---------------- 404 (root-relative links: GitHub Pages serves this at any path)
+nf_body = f"""
+<div class="hero hero-home"><div class="wrap hero-flex">
+<div>
+<div class="kicker fade" style="--d:.05s">404</div>
+<h1 class="display">{words("This page doesn't exist.", .2, .08)}</h1>
+<p class="sub fade" style="--d:.8s">The future does. Let's get you back to it.</p>
+<p class="fade" style="--d:1s;margin-top:36px"><a class="btn" href="/">Back home <span class="arr">&rarr;</span></a></p>
+</div>
+<div class="hero-enso floaty"><img src="/images/logos/enso.webp" alt="Directive 17 enso"></div>
+</div></div>"""
+nf = page(f"Not Found — {site['name']}", nf_body, "", 0, path="404.html",
+          desc="This page doesn't exist. The future does.")
+nf = nf.replace('href="images/', 'href="/images/').replace('src="images/', 'src="/images/')
+nf = nf.replace('href="index.html"', 'href="/"')
+for _n in site["nav"]:
+    _h = _n["href"].lstrip("/")
+    nf = nf.replace(f'href="{_h}"', f'href="/{_h}"')
+(OUT / "404.html").write_text(nf)
 
 print(f"Built {len(list(OUT.rglob('*.html')))} pages, {len(posts)} posts, {len(companies)} companies -> docs/")
