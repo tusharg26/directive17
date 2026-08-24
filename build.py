@@ -105,7 +105,7 @@ def fmt_date(d):
 CSS = """
 :root{--bg:#FBF7EC;--panel:#F4EEDD;--ink:#23392C;--deep:#203C2D;--muted:#71806B;
 --line:#E6DEC7;--ghost:#EDE5CE;--accent:#D98B33;
---serif:'Fraunces',Georgia,'Times New Roman',serif;
+--serif:'Source Serif 4',Georgia,'Times New Roman',serif;
 --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
 --ease:cubic-bezier(.22,.61,.21,1)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -220,7 +220,6 @@ text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
 .hero-enso{flex:0 0 auto;width:min(320px,30vw)}
 .kicker{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
 letter-spacing:.24em;color:var(--accent);margin-bottom:26px;display:flex;align-items:center;gap:16px}
-.kicker::before{content:"";width:38px;height:1px;background:var(--accent);flex:0 0 auto}
 h1.display{font-family:var(--serif);font-weight:700;letter-spacing:-.02em;
 font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--deep)}
 .sub{color:var(--muted);font-size:clamp(1.15rem,1.6vw,1.45rem);max-width:46ch;margin-top:30px}
@@ -242,7 +241,6 @@ color:var(--deep);line-height:1.45}
 .ch-eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:700;
 text-transform:uppercase;letter-spacing:.22em;color:var(--muted);
 display:flex;align-items:center;gap:14px}
-.ch-eyebrow::before{content:"";width:30px;height:1px;background:var(--accent);flex:0 0 auto}
 .read-time{font-family:var(--sans);font-size:.72rem;font-weight:600;
 letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:14px}
 .chapter{padding:72px 0;border-top:1px solid var(--line)}
@@ -345,6 +343,8 @@ margin-top:14px;line-height:1.35}
 letter-spacing:.2em;color:var(--accent);margin:64px 0 30px;display:flex;align-items:center;gap:18px}
 .group-label::after{content:"";flex:1;height:1px;background:var(--line)}
 .group-label:first-of-type{margin-top:0}
+.deck-tag{font-family:var(--sans);font-size:.66rem;font-weight:700;letter-spacing:.16em;
+text-transform:uppercase;color:var(--accent);margin-top:8px}
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:.76rem;
 font-weight:700;text-transform:uppercase;letter-spacing:.16em;background:var(--deep);
@@ -591,7 +591,7 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 <link rel="preload" as="image" href="{p}images/logos/enso.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
 {intro_head}<style>{CSS}</style>
 </head>
 <body{body_attr}>
@@ -630,6 +630,12 @@ def company_card(c, depth=0, delay=0.0):
     logo = (f'<img src="{p}images/{c["logo"]}"{ls_attr} alt="{html.escape(c["name"])} logo">'
             if c.get("logo") else f'<span style="font-family:var(--serif);font-size:1.4rem;'
             f'color:{"#FBF7EC" if dark else "var(--deep)"}">{html.escape(c["name"][0])}</span>')
+    if c.get("deck"):
+        liner_extra = '<p class="deck-tag">Investor deck &rarr;</p>'
+        inner_link = f'{p}decks/{c["deck"]}.html'
+        liner = (f'<p>{html.escape(c["one_liner"])}</p>' if c.get("one_liner") else "") + liner_extra
+        inner = f'<div class="tile {tile_cls}">{logo}</div><h3>{html.escape(c["name"])}</h3>{liner}'
+        return f'<a class="card" href="{inner_link}">{inner}</a>'
     liner = f'<p>{html.escape(c["one_liner"])}</p>' if c.get("one_liner") else ""
     inner = f'<div class="tile {tile_cls}">{logo}</div><h3>{html.escape(c["name"])}</h3>{liner}'
     d = f' style="--d:{delay:.2f}s"' if delay else ""
@@ -867,6 +873,217 @@ build_body = f"""
 </div></div>"""
 (OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us",
     path="build.html", desc="The future is built by people who believe it can be better."))
+
+# ---------------- password-protected deck viewers
+DECK_CSS = """
+:root{--bg:#FBF7EC;--deep:#203C2D;--accent:#D98B33;--line:#3A5344;--cream:#F5F1E2;
+--serif:'Source Serif 4',Georgia,serif;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--deep);color:var(--cream);font-family:var(--serif);min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+padding:18px clamp(20px,3vw,44px);border-bottom:1px solid var(--line)}
+.topbar .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.05rem;
+color:var(--cream)}
+.topbar .brand img{height:32px;width:32px}
+.topbar .dtitle{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.18em;color:#8FA08A;text-align:center}
+.topbar .count{font-family:var(--sans);font-size:.78rem;font-weight:600;color:#8FA08A;
+min-width:70px;text-align:right}
+/* gate */
+.gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+background:var(--deep);z-index:50;padding:24px}
+.gate-card{text-align:center;max-width:420px;width:100%}
+.gate-card img{width:84px;margin-bottom:26px}
+.gate-card h1{font-size:clamp(1.5rem,3vw,2rem);margin-bottom:8px;letter-spacing:-.01em}
+.gate-card .glabel{font-family:var(--sans);font-size:.7rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--accent);margin-bottom:30px}
+.gate-card input{width:100%;background:#1A3226;border:1px solid var(--line);border-radius:8px;
+color:var(--cream);font-family:var(--sans);font-size:1rem;padding:15px 18px;outline:none;
+text-align:center;letter-spacing:.08em;transition:border-color .2s}
+.gate-card input:focus{border-color:var(--accent)}
+.gate-card button{margin-top:14px;width:100%;background:var(--accent);border:none;
+border-radius:8px;color:#1A2E22;font-family:var(--sans);font-size:.8rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.16em;padding:15px;cursor:pointer;transition:filter .15s}
+.gate-card button:hover{filter:brightness(1.08)}
+.gate-card .err{font-family:var(--sans);font-size:.82rem;color:#E2907B;margin-top:14px;
+min-height:1.2em}
+.gate-card .note{font-family:var(--sans);font-size:.72rem;color:#8FA08A;margin-top:22px}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.shake{animation:shake .4s}
+/* stage */
+.viewer{display:none}
+.viewer.on{display:block}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;
+height:calc(100vh - 130px);padding:20px clamp(56px,6vw,90px)}
+.stage img{max-width:100%;max-height:100%;border-radius:6px;
+box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(245,241,226,.08);
+border:1px solid var(--line);color:var(--cream);width:46px;height:46px;border-radius:50%;
+cursor:pointer;font-size:1.15rem;font-family:var(--sans);transition:background .15s;z-index:5}
+.arrow:hover{background:rgba(245,241,226,.18)}
+.arrow.prev{left:clamp(8px,1.5vw,24px)}.arrow.next{right:clamp(8px,1.5vw,24px)}
+.arrow:disabled{opacity:.25;cursor:default}
+.bottom{display:flex;align-items:center;justify-content:center;gap:20px;
+padding:0 20px 18px;font-family:var(--sans);font-size:.7rem;font-weight:600;
+text-transform:uppercase;letter-spacing:.18em;color:#8FA08A}
+.loading{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+color:#8FA08A;font-family:var(--sans);font-size:.8rem;letter-spacing:.14em}
+.loading.on{display:flex}
+@media(max-width:640px){.stage{padding:12px 8px;height:calc(100vh - 150px)}
+.arrow{width:38px;height:38px}.topbar .dtitle{display:none}}
+"""
+
+def deck_js(slug, meta):
+    sizes = meta["sizes"]
+    return """
+const META = {salt:'%s', iterations:%d, sizes:%s, pack:'%s.pack'};
+const offsets = []; let acc = 0;
+for (const s of META.sizes) { offsets.push(acc); acc += s; }
+const TOTAL = META.sizes.length;
+let key = null, cur = 1, packBuf = null, noRange = false;
+const cache = new Map();
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function deriveKey(pw) {
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw),
+    'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:b64(META.salt), iterations:META.iterations, hash:'SHA-256'},
+    km, {name:'AES-GCM', length:256}, false, ['decrypt']);
+}
+async function sliceFor(n) {
+  const start = offsets[n-1], end = start + META.sizes[n-1] - 1;
+  if (packBuf) return packBuf.slice(start, end + 1);
+  if (!noRange) {
+    try {
+      const r = await fetch(META.pack, {headers:{Range:'bytes='+start+'-'+end}});
+      if (r.status === 206) {
+        const buf = await r.arrayBuffer();
+        if (buf.byteLength === META.sizes[n-1]) return buf;
+      }
+      noRange = true;
+    } catch (e) { noRange = true; }
+  }
+  const full = await fetch(META.pack);
+  packBuf = await full.arrayBuffer();
+  return packBuf.slice(start, end + 1);
+}
+async function slideURL(n) {
+  if (cache.has(n)) return cache.get(n);
+  const blob = await sliceFor(n);
+  const iv = new Uint8Array(blob.slice(0, 12));
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, blob.slice(12));
+  const url = URL.createObjectURL(new Blob([pt], {type:'image/jpeg'}));
+  cache.set(n, url);
+  return url;
+}
+async function show(n) {
+  if (n < 1 || n > TOTAL) return;
+  cur = n;
+  document.getElementById('loading').classList.add('on');
+  const url = await slideURL(n);
+  const img = document.getElementById('slide');
+  img.src = url;
+  document.getElementById('loading').classList.remove('on');
+  document.getElementById('count').textContent = n + ' / ' + TOTAL;
+  document.getElementById('prev').disabled = (n === 1);
+  document.getElementById('next').disabled = (n === TOTAL);
+  if (n < TOTAL) slideURL(n + 1);
+}
+async function unlock() {
+  const pw = document.getElementById('pw').value;
+  const btn = document.getElementById('go');
+  const err = document.getElementById('err');
+  if (!pw) return;
+  btn.textContent = 'Unlocking\\u2026'; err.textContent = '';
+  try {
+    key = await deriveKey(pw);
+    await slideURL(1);
+    document.getElementById('gate').style.display = 'none';
+    document.querySelector('.viewer').classList.add('on');
+    show(1);
+  } catch (e) {
+    key = null;
+    err.textContent = 'Incorrect password.';
+    const card = document.querySelector('.gate-card');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  }
+  btn.textContent = 'View deck';
+}
+document.getElementById('go').addEventListener('click', unlock);
+document.getElementById('pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') unlock();
+});
+document.getElementById('prev').addEventListener('click', () => show(cur - 1));
+document.getElementById('next').addEventListener('click', () => show(cur + 1));
+document.addEventListener('keydown', e => {
+  if (!key) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+let tx = null;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  if (tx === null || !key) return;
+  const dx = e.changedTouches[0].clientX - tx;
+  if (dx < -50) show(cur + 1);
+  if (dx > 50) show(cur - 1);
+  tx = null;
+}, {passive:true});
+""" % (meta["salt"], meta["iterations"], json.dumps(sizes), slug)
+
+decks_src = CONTENT / "decks"
+if decks_src.exists():
+    (OUT / "decks").mkdir(exist_ok=True)
+    for packf in sorted(decks_src.glob("*.pack")):
+        slug = packf.stem
+        meta = json.loads((decks_src / f"{slug}.json").read_text())
+        shutil.copy(packf, OUT / "decks" / packf.name)
+        title = meta["title"]
+        viewer = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{html.escape(title)} — Investor Deck — Directive 17</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="../images/logos/enso.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700&display=swap" rel="stylesheet">
+<style>{DECK_CSS}</style>
+</head>
+<body>
+<div class="topbar">
+<a class="brand" href="../companies.html"><img src="../images/logos/enso.webp" alt="">Directive 17</a>
+<div class="dtitle">{html.escape(title)} &middot; Investor Deck</div>
+<div class="count" id="count"></div>
+</div>
+<div class="gate" id="gate">
+<div class="gate-card">
+<img src="../images/logos/enso.webp" alt="">
+<div class="glabel">Confidential &middot; Investor Deck</div>
+<h1>{html.escape(title)}</h1>
+<input type="password" id="pw" placeholder="Password" autocomplete="off" autofocus>
+<button id="go">View deck</button>
+<div class="err" id="err"></div>
+<div class="note">This deck is confidential. Please do not distribute.<br>
+Need access? <span style="color:var(--cream)">{site['contact_email']}</span></div>
+</div>
+</div>
+<div class="viewer">
+<div class="stage">
+<button class="arrow prev" id="prev" aria-label="Previous slide">&larr;</button>
+<img id="slide" alt="{html.escape(title)} slide">
+<div class="loading" id="loading">DECRYPTING&hellip;</div>
+<button class="arrow next" id="next" aria-label="Next slide">&rarr;</button>
+</div>
+<div class="bottom">Confidential &mdash; do not distribute</div>
+</div>
+<script>{deck_js(slug, meta)}</script>
+</body>
+</html>"""
+        (OUT / "decks" / f"{slug}.html").write_text(viewer)
 
 # ---------------- 404 (root-relative links: GitHub Pages serves this at any path)
 nf_body = f"""

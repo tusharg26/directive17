@@ -32,7 +32,8 @@
     "group": "Proprietary & Current Investments",
     "logo": "logos/humanos.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "deck": "humanos"
   },
   {
     "name": "Axion Entertainment",
@@ -53,7 +54,8 @@
     "group": "Proprietary & Current Investments",
     "logo": "logos/vlp.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "deck": "vlp"
   },
   {
     "name": "Mythogenic",
@@ -67,7 +69,8 @@
     "group": "Proprietary & Current Investments",
     "logo": "logos/pivt.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "deck": "pivt"
   },
   {
     "name": "Caviar and Corndogs",
