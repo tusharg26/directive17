@@ -222,6 +222,39 @@ font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--d
 /* ---------- editorial building blocks ---------- */
 section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
+/* Joel's Directive — editorial chapters */
+.jd-lede{font-family:var(--serif);font-weight:700;color:var(--accent);
+font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.2;letter-spacing:-.01em;
+max-width:24ch;margin-top:38px}
+.longform{max-width:64ch;font-size:1.07rem;line-height:1.75}
+.longform p{margin:0 0 18px}
+.longform p>strong:only-child{display:inline-block;font-size:1.3em;line-height:1.35;
+color:var(--deep);margin:8px 0}
+.longform blockquote{border-left:3px solid var(--accent);padding:8px 0 8px 26px;
+margin:30px 0;font-family:var(--serif);font-size:1.4rem;font-style:italic;
+color:var(--deep);line-height:1.45}
+.longform blockquote p{margin:0}
+.ch-eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--muted);
+display:flex;align-items:center;gap:14px}
+.ch-eyebrow::before{content:"";width:30px;height:1px;background:var(--accent);flex:0 0 auto}
+.read-time{font-family:var(--sans);font-size:.72rem;font-weight:600;
+letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:14px}
+.chapter{padding:72px 0;border-top:1px solid var(--line)}
+.ch-grid{display:grid;grid-template-columns:minmax(220px,340px) 1fr;
+gap:clamp(32px,5vw,90px);align-items:start}
+.ch-side{position:sticky;top:110px}
+.ch-num{font-family:var(--serif);font-weight:700;font-size:clamp(3.2rem,6vw,5rem);
+color:var(--ghost);line-height:1}
+.ch-title{font-family:var(--serif);font-size:clamp(1.5rem,2.3vw,2.1rem);
+color:var(--deep);margin-top:12px;letter-spacing:-.01em;max-width:14ch;line-height:1.25}
+.jd-end{text-align:center;padding:80px 0 100px;border-top:1px solid var(--line)}
+.jd-end img{width:56px;opacity:.9}
+.jd-end .m-label-line{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.3em;color:var(--muted);margin-top:20px}
+@media(max-width:860px){.ch-grid{grid-template-columns:1fr;gap:22px}
+.ch-side{position:static;display:flex;align-items:baseline;gap:16px}
+.ch-num{font-size:2.4rem}.ch-title{margin-top:0}}
 .sec-label{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
 letter-spacing:.24em;color:var(--accent);margin-bottom:34px}
 .statement{font-family:var(--serif);color:var(--deep);letter-spacing:-.015em;
@@ -696,16 +729,44 @@ companies_body = f"""
 <section style="padding-top:20px"><div class="wrap">{sections}</div></section>"""
 (OUT / "companies.html").write_text(page(f"Companies — {site['name']}", companies_body, "Companies"))
 
-# ---------------- long-form markdown pages (Joel's Directive)
-page_titles = {"joels-directive": "Joel's Directive"}
-for stem, label in page_titles.items():
-    src = CONTENT / "pages" / f"{stem}.md"
-    if src.exists():
-        body = (f'<div class="wrap"><article class="prose">'
-                f'<div class="kicker fade" style="--d:.05s">{label}</div>'
-                f'{md_to_html(src.read_text())}</article></div>')
-        (OUT / f"{stem}.html").write_text(
-            page(f"{label} — {site['name']}", body, label))
+# ---------------- Joel's Directive: editorial chapter layout
+jd_src = (CONTENT / "pages" / "joels-directive.md").read_text()
+jd_title = next(l[2:].strip() for l in jd_src.splitlines() if l.startswith("# "))
+jd_body = re.sub(r"^#\s+.*\n", "", jd_src, count=1)
+jd_lede_m = re.search(r"^\*\*(.+?)\*\*\s*$", jd_body, flags=re.M)
+jd_lede = jd_lede_m.group(1) if jd_lede_m else ""
+if jd_lede_m:
+    jd_body = jd_body.replace(jd_lede_m.group(0), "", 1)
+jd_minutes = max(1, round(len(jd_body.split()) / 200))
+jd_parts = re.split(r"^##\s+(.*)$", jd_body, flags=re.M)
+jd_intro = jd_parts[0]
+jd_chapters = [(jd_parts[i], jd_parts[i + 1]) for i in range(1, len(jd_parts), 2)]
+ch_html = "".join(f"""
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">{i+1:02d}</div>
+<h2 class="ch-title">{md_inline(t)}</h2></div>
+<div class="ch-body longform">{md_to_html(body)}</div>
+</div></section>""" for i, (t, body) in enumerate(jd_chapters))
+jd_page = f"""
+<div class="hero" style="padding-bottom:64px"><div class="wrap">
+<div class="kicker fade" style="--d:.05s">Joel's Directive</div>
+<h1 class="display" style="max-width:18ch">{words(jd_title, .25, .07)}</h1>
+<div class="jd-lede fade" style="--d:.9s">{html.escape(jd_lede)}</div>
+</div></div>
+<section class="jd-intro" style="padding-top:64px;border-top:1px solid var(--line)">
+<div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-eyebrow">From the desk of Joel</div>
+<div class="read-time">{jd_minutes} min read</div></div>
+<div class="longform">{md_to_html(jd_intro)}</div>
+</div>
+</section>
+{ch_html}
+<div class="jd-end reveal"><div class="wrap">
+<img src="images/logos/enso.png" alt="">
+<div class="m-label-line">Directive 17</div>
+</div></div>"""
+(OUT / "joels-directive.html").write_text(
+    page(f"Joel's Directive — {site['name']}", jd_page, "Joel's Directive"))
 
 # ---------------- blog index (accordion)
 rows = "".join(f"""

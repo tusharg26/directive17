@@ -126,6 +126,39 @@ font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--d
 /* ---------- editorial building blocks ---------- */
 section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
+/* Joel's Directive — editorial chapters */
+.jd-lede{font-family:var(--serif);font-weight:700;color:var(--accent);
+font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.2;letter-spacing:-.01em;
+max-width:24ch;margin-top:38px}
+.longform{max-width:64ch;font-size:1.07rem;line-height:1.75}
+.longform p{margin:0 0 18px}
+.longform p>strong:only-child{display:inline-block;font-size:1.3em;line-height:1.35;
+color:var(--deep);margin:8px 0}
+.longform blockquote{border-left:3px solid var(--accent);padding:8px 0 8px 26px;
+margin:30px 0;font-family:var(--serif);font-size:1.4rem;font-style:italic;
+color:var(--deep);line-height:1.45}
+.longform blockquote p{margin:0}
+.ch-eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--muted);
+display:flex;align-items:center;gap:14px}
+.ch-eyebrow::before{content:"";width:30px;height:1px;background:var(--accent);flex:0 0 auto}
+.read-time{font-family:var(--sans);font-size:.72rem;font-weight:600;
+letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:14px}
+.chapter{padding:72px 0;border-top:1px solid var(--line)}
+.ch-grid{display:grid;grid-template-columns:minmax(220px,340px) 1fr;
+gap:clamp(32px,5vw,90px);align-items:start}
+.ch-side{position:sticky;top:110px}
+.ch-num{font-family:var(--serif);font-weight:700;font-size:clamp(3.2rem,6vw,5rem);
+color:var(--ghost);line-height:1}
+.ch-title{font-family:var(--serif);font-size:clamp(1.5rem,2.3vw,2.1rem);
+color:var(--deep);margin-top:12px;letter-spacing:-.01em;max-width:14ch;line-height:1.25}
+.jd-end{text-align:center;padding:80px 0 100px;border-top:1px solid var(--line)}
+.jd-end img{width:56px;opacity:.9}
+.jd-end .m-label-line{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.3em;color:var(--muted);margin-top:20px}
+@media(max-width:860px){.ch-grid{grid-template-columns:1fr;gap:22px}
+.ch-side{position:static;display:flex;align-items:baseline;gap:16px}
+.ch-num{font-size:2.4rem}.ch-title{margin-top:0}}
 .sec-label{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
 letter-spacing:.24em;color:var(--accent);margin-bottom:34px}
 .statement{font-family:var(--serif);color:var(--deep);letter-spacing:-.015em;

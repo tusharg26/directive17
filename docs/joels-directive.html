@@ -126,6 +126,39 @@ font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--d
 /* ---------- editorial building blocks ---------- */
 section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
+/* Joel's Directive — editorial chapters */
+.jd-lede{font-family:var(--serif);font-weight:700;color:var(--accent);
+font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.2;letter-spacing:-.01em;
+max-width:24ch;margin-top:38px}
+.longform{max-width:64ch;font-size:1.07rem;line-height:1.75}
+.longform p{margin:0 0 18px}
+.longform p>strong:only-child{display:inline-block;font-size:1.3em;line-height:1.35;
+color:var(--deep);margin:8px 0}
+.longform blockquote{border-left:3px solid var(--accent);padding:8px 0 8px 26px;
+margin:30px 0;font-family:var(--serif);font-size:1.4rem;font-style:italic;
+color:var(--deep);line-height:1.45}
+.longform blockquote p{margin:0}
+.ch-eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--muted);
+display:flex;align-items:center;gap:14px}
+.ch-eyebrow::before{content:"";width:30px;height:1px;background:var(--accent);flex:0 0 auto}
+.read-time{font-family:var(--sans);font-size:.72rem;font-weight:600;
+letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:14px}
+.chapter{padding:72px 0;border-top:1px solid var(--line)}
+.ch-grid{display:grid;grid-template-columns:minmax(220px,340px) 1fr;
+gap:clamp(32px,5vw,90px);align-items:start}
+.ch-side{position:sticky;top:110px}
+.ch-num{font-family:var(--serif);font-weight:700;font-size:clamp(3.2rem,6vw,5rem);
+color:var(--ghost);line-height:1}
+.ch-title{font-family:var(--serif);font-size:clamp(1.5rem,2.3vw,2.1rem);
+color:var(--deep);margin-top:12px;letter-spacing:-.01em;max-width:14ch;line-height:1.25}
+.jd-end{text-align:center;padding:80px 0 100px;border-top:1px solid var(--line)}
+.jd-end img{width:56px;opacity:.9}
+.jd-end .m-label-line{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.3em;color:var(--muted);margin-top:20px}
+@media(max-width:860px){.ch-grid{grid-template-columns:1fr;gap:22px}
+.ch-side{position:static;display:flex;align-items:baseline;gap:16px}
+.ch-num{font-size:2.4rem}.ch-title{margin-top:0}}
 .sec-label{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
 letter-spacing:.24em;color:var(--accent);margin-bottom:34px}
 .statement{font-family:var(--serif);color:var(--deep);letter-spacing:-.015em;
@@ -301,9 +334,17 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <div class="m-foot"><a href="mailto:joel@directive17.com">joel@directive17.com</a>
 &nbsp;&middot;&nbsp; Directive 17 &copy; 2026</div>
 </nav>
-<div class="wrap"><article class="prose"><div class="kicker fade" style="--d:.05s">Joel's Directive</div><h1>Joel's Directive to Everyone!</h1>
-<p><strong>STOP WATCHING. START FUCKING CREATING.</strong></p>
-<p>At some point, we became a civilization of spectators.</p>
+
+<div class="hero" style="padding-bottom:64px"><div class="wrap">
+<div class="kicker fade" style="--d:.05s">Joel's Directive</div>
+<h1 class="display" style="max-width:18ch"><span class="w" style="--d:0.25s">Joel&#x27;s</span> <span class="w" style="--d:0.32s">Directive</span> <span class="w" style="--d:0.39s">to</span> <span class="w" style="--d:0.46s">Everyone!</span></h1>
+<div class="jd-lede fade" style="--d:.9s">STOP WATCHING. START FUCKING CREATING.</div>
+</div></div>
+<section class="jd-intro" style="padding-top:64px;border-top:1px solid var(--line)">
+<div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-eyebrow">From the desk of Joel</div>
+<div class="read-time">6 min read</div></div>
+<div class="longform"><p>At some point, we became a civilization of spectators.</p>
 <p>We watch other people travel.</p>
 <p>We watch other people cook.</p>
 <p>We watch other people build companies.</p>
@@ -331,9 +372,14 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Liking.</p>
 <p>Sharing.</p>
 <p>Arguing with strangers.</p>
-<p>And checking to see whether someone we haven't spoken to since high school enjoyed their omelet in Cabo.</p>
-<h2>We Have Become Professional Consumers</h2>
-<p>Everything around us is designed to get us to consume.</p>
+<p>And checking to see whether someone we haven't spoken to since high school enjoyed their omelet in Cabo.</p></div>
+</div>
+</section>
+
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">01</div>
+<h2 class="ch-title">We Have Become Professional Consumers</h2></div>
+<div class="ch-body longform"><p>Everything around us is designed to get us to consume.</p>
 <p>Consume content.</p>
 <p>Consume products.</p>
 <p>Consume opinions.</p>
@@ -352,9 +398,12 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Someone tells you what stocks you should own.</p>
 <p>Someone tells you what you should believe.</p>
 <p>And now an algorithm quietly decides which version of reality you should see next.</p>
-<p>Then we wonder why everyone seems to be thinking the same fucking thing.</p>
-<h2>Stop Reacting.</h2>
-<p>This may be the greatest intellectual disease of our time.</p>
+<p>Then we wonder why everyone seems to be thinking the same fucking thing.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">02</div>
+<h2 class="ch-title">Stop Reacting.</h2></div>
+<div class="ch-body longform"><p>This may be the greatest intellectual disease of our time.</p>
 <p>Reaction has replaced thought.</p>
 <p>Something happens and within 14 seconds everyone is expected to have an opinion.</p>
 <p>Not a considered opinion.</p>
@@ -371,9 +420,12 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>We don't even finish reading the fucking headline.</p>
 <p>We react.</p>
 <p>And somewhere in Silicon Valley, a computer says:</p>
-<blockquote><p>Excellent. He is furious. Show him twelve more.</p></blockquote>
-<h2>Question Everything.</h2>
-<p>This is the part I think we are losing.</p>
+<blockquote><p>Excellent. He is furious. Show him twelve more.</p></blockquote></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">03</div>
+<h2 class="ch-title">Question Everything.</h2></div>
+<div class="ch-body longform"><p>This is the part I think we are losing.</p>
 <p>The willingness to ask:</p>
 <p>Why?</p>
 <p>Why do we do it this way?</p>
@@ -388,9 +440,12 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <blockquote><p>This makes absolutely no fucking sense.</p></blockquote>
 <p>That person is my kind of person.</p>
 <p>Because progress rarely comes from the person who understands the rules best.</p>
-<p>It often comes from the person willing to ask why the rules exist in the first place.</p>
-<h2>And Then Came AI.</h2>
-<p>This is where things get really interesting.</p>
+<p>It often comes from the person willing to ask why the rules exist in the first place.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">04</div>
+<h2 class="ch-title">And Then Came AI.</h2></div>
+<div class="ch-body longform"><p>This is where things get really interesting.</p>
 <p>Artificial intelligence could become the greatest tool for human creativity ever invented.</p>
 <p>Or it could become the greatest excuse mankind has ever invented to stop thinking.</p>
 <p>The difference will be determined by us.</p>
@@ -412,9 +467,12 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>For the first time in history, almost anyone with curiosity, imagination, and determination can have something resembling a research department, strategy firm, engineering team, design studio, writing partner, and slightly psychotic brainstorming partner sitting on their phone.</p>
 <p>And we're using it to write emails saying:</p>
 <blockquote><p>"Thank you for circling back."</p></blockquote>
-<p>Jesus Christ.</p>
-<h2>The Next Great Divide</h2>
-<p>I don't think the next great divide will simply be between people who use AI and people who don't.</p>
+<p>Jesus Christ.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">05</div>
+<h2 class="ch-title">The Next Great Divide</h2></div>
+<div class="ch-body longform"><p>I don't think the next great divide will simply be between people who use AI and people who don't.</p>
 <p>Almost everyone will use it.</p>
 <p>The divide will be between people who use technology to consume more and people who use technology to create more.</p>
 <p>Observers and builders.</p>
@@ -435,9 +493,12 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Fix something.</p>
 <p>Teach somebody something.</p>
 <p>Invite twelve people over and put their fucking phones in a basket.</p>
-<p>Just participate in your own life.</p>
-<h2>Because You Don't Get Forever.</h2>
-<p>This may be the strangest part of all.</p>
+<p>Just participate in your own life.</p></div>
+</div></section>
+<section class="chapter"><div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="ch-num">06</div>
+<h2 class="ch-title">Because You Don't Get Forever.</h2></div>
+<div class="ch-body longform"><p>This may be the strangest part of all.</p>
 <p>We know our time here is limited.</p>
 <p>Every single one of us knows how this story eventually ends.</p>
 <p>Yet somehow we have allowed companies to build trillion-dollar businesses around helping us kill time.</p>
@@ -490,7 +551,12 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Create more.</p>
 <p>And every once in a while, put the fucking phone down.</p>
 <p>There is an entire world outside the screen.</p>
-<p>Go fuck with it.</p></article></div>
+<p>Go fuck with it.</p></div>
+</div></section>
+<div class="jd-end reveal"><div class="wrap">
+<img src="images/logos/enso.png" alt="">
+<div class="m-label-line">Directive 17</div>
+</div></div>
 <script>
 document.documentElement.classList.add('js');
 (function() {
