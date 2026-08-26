@@ -113,7 +113,7 @@ html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:17.5px;
 line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-img{max-width:100%}
+img{max-width:100%;height:auto}
 ::selection{background:var(--deep);color:var(--bg)}
 a:focus-visible,button:focus-visible,[role=button]:focus-visible{
 outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
@@ -699,7 +699,7 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 <meta name="twitter:image" content="https://{site['domain']}/images/og-card.png">
 <link rel="icon" type="image/png" href="{p}images/logos/enso.png">
 <link rel="apple-touch-icon" href="{p}images/apple-touch-icon.png">
-<link rel="preload" as="image" href="{p}images/logos/enso-md.webp">
+<link rel="preload" as="image" href="{p}images/logos/enso.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
@@ -864,7 +864,7 @@ home = f"""
 <h1 class="display">{words(site['tagline'], .25, .09)}</h1>
 <p class="sub fade" style="--d:.95s">{html.escape(site['subline'])}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso-md.webp" width="640" height="629" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
 </div>
 <button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
 <span class="sc-label">A note from the founder</span>
@@ -933,7 +933,7 @@ philosophy = f"""
 <div class="pillars">{pillars}</div>
 </div></section>
 <div class="dark">
-<img class="watermark" src="images/logos/enso-md.webp" loading="lazy" alt="">
+<img class="watermark" src="images/logos/enso.webp" loading="lazy" alt="">
 <div class="wrap">
 <div class="sec-label reveal">{html.escape(pp['human_test']['label'])}</div>
 {rev(f'<p style="color:#9FB09A;font-size:1.1rem;margin-bottom:30px">{html.escape(pp["human_test"]["intro"])}</p>', .05, tag="div")}
@@ -1073,7 +1073,7 @@ build_body = f"""
 <a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a></p>
 <p class="fade" style="--d:1.15s;margin-top:18px;font-family:var(--sans);font-size:.85rem;color:var(--muted)">{site['contact_email']}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso-md.webp" width="640" height="629" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
 </div></div>"""
 (OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us",
     path="build.html", desc="The future is built by people who believe it can be better."))
