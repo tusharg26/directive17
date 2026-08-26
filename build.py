@@ -519,6 +519,43 @@ FITHEAD_JS = """
 })();
 """
 
+CLIMAX_JS = """
+(function(){
+  var body = document.getElementById('teaser-body');
+  var climax = document.getElementById('climax');
+  var cont = document.getElementById('continue-wrap');
+  if (!climax || !cont) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function maxSize(){ return window.innerWidth < 700 ? 2.1 : 3.4; }
+  function minSize(){ return window.innerWidth < 700 ? 1.25 : 1.4; }
+  function upd(){
+    if (reduce) {
+      climax.style.fontSize = maxSize() + 'rem';
+      cont.style.opacity = 1; cont.style.transform = 'none';
+      if (body) body.style.opacity = 1;
+      return;
+    }
+    var vh = window.innerHeight || 800;
+    var pageTop = climax.getBoundingClientRect().top + window.scrollY;
+    var s0 = pageTop - vh * 1.45;
+    var s1 = document.documentElement.scrollHeight - vh;
+    var p = (s1 - s0) > 40 ? (window.scrollY - s0) / (s1 - s0) : 1;
+    p = p < 0 ? 0 : (p > 1 ? 1 : p);
+    var mn = minSize(), mx = maxSize();
+    climax.style.fontSize = (mn + (mx - mn) * p).toFixed(3) + 'rem';
+    if (body) body.style.opacity = (1 - 0.82 * p).toFixed(3);
+    var cp = (p - 0.52) / 0.33;
+    cp = cp < 0 ? 0 : (cp > 1 ? 1 : cp);
+    cont.style.opacity = cp.toFixed(3);
+    cont.style.transform = 'translateY(' + ((1 - cp) * 20).toFixed(1) + 'px)';
+  }
+  upd();
+  window.addEventListener('scroll', upd, {passive:true});
+  window.addEventListener('resize', upd, {passive:true});
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(upd);
+})();
+"""
+
 SCROLLCUE_JS = """
 (function(){
   var c = document.getElementById('scrollcue');
@@ -720,7 +757,7 @@ if site.get("domain") and site.get("live"):
 posts = sorted((parse_post(p) for p in (CONTENT / "posts").glob("*.md")),
                key=lambda x: x["date"], reverse=True)
 
-# ---------------- Founder's note (rendered into the homepage)
+# ---------------- Founder's note: homepage teaser + full page
 jd_src = (CONTENT / "pages" / "joels-directive.md").read_text()
 jd_body = re.sub(r"^#\s+.*\n", "", jd_src, count=1)
 jd_lede_m = re.search(r"^\*\*(.+?)\*\*\s*$", jd_body, flags=re.M)
@@ -729,8 +766,15 @@ if jd_lede_m:
     jd_body = jd_body.replace(jd_lede_m.group(0), "", 1)
 jd_minutes = max(1, round(len(jd_body.split()) / 200))
 jd_parts = re.split(r"^##\s+(.*)$", jd_body, flags=re.M)
-jd_intro = jd_parts[0]
+jd_intro_full = jd_parts[0].replace("<!--more-->", "")
 jd_chapters = [(jd_parts[i], jd_parts[i + 1]) for i in range(1, len(jd_parts), 2)]
+
+# teaser = intro up to the <!--more--> marker; its final paragraph is the climax line
+teaser_md = jd_parts[0].split("<!--more-->", 1)[0]
+teaser_paras = [p.strip() for p in teaser_md.strip().split("\n\n") if p.strip()]
+climax_line = teaser_paras[-1] if teaser_paras else ""
+teaser_rest = "\n\n".join(teaser_paras[:-1])
+
 ch_html = "".join(f"""
 <section class="chapter"><div class="wrap ch-grid">
 <div class="ch-side reveal"><div class="ch-num">{i+1:02d}</div>
@@ -738,20 +782,44 @@ ch_html = "".join(f"""
 <div class="ch-body longform">{md_to_html(body)}</div>
 </div></section>""" for i, (t, body) in enumerate(jd_chapters))
 
-founder_note = f"""
+note_head = f"""
 <div class="note-open" id="founder-note"><div class="wrap">
 <div class="kicker reveal">A Note from the Founder</div>
 <h2 class="display reveal note-head" style="max-width:19ch;font-size:clamp(2.1rem,5vw,4rem)">{html.escape(jd_lede)}</h2>
-</div></div>
-<section class="jd-intro" style="padding-top:56px">
-<div class="wrap ch-grid">
-<div class="ch-side reveal"><div class="note-byline">
+</div></div>"""
+
+byline = f"""<div class="ch-side reveal"><div class="note-byline">
 <img src="images/logos/enso.webp" alt="">
 <div><div class="nb-name">Joel Shapiro</div>
 <div class="nb-role">Founder</div></div>
 </div>
-<div class="read-time">{jd_minutes} min read</div></div>
-<div class="longform">{md_to_html(jd_intro)}</div>
+<div class="read-time">{jd_minutes} min read</div></div>"""
+
+# --- homepage teaser
+founder_note = f"""{note_head}
+<section class="jd-intro" style="padding-top:56px;padding-bottom:32vh">
+<div class="wrap ch-grid">
+{byline}
+<div>
+<div class="longform teaser-body" id="teaser-body">{md_to_html(teaser_rest)}</div>
+<div class="climax" id="climax">{md_inline(climax_line)}</div>
+<div class="continue-wrap" id="continue-wrap">
+<a class="btn" href="founders-note.html">Continue reading <span class="arr">&rarr;</span></a>
+</div>
+</div>
+</div>
+</section>"""
+
+# --- full note page
+full_note = f"""
+<div class="hero" style="padding-bottom:56px"><div class="wrap">
+<div class="kicker fade" style="--d:.05s">A Note from the Founder</div>
+<h1 class="display note-head" style="max-width:19ch;font-size:clamp(2.1rem,5vw,4rem)">{words(jd_lede, .25, .07)}</h1>
+</div></div>
+<section class="jd-intro" style="padding-top:56px;border-top:1px solid var(--line)">
+<div class="wrap ch-grid">
+{byline}
+<div class="longform">{md_to_html(jd_intro_full)}</div>
 </div>
 </section>
 {ch_html}
@@ -760,13 +828,18 @@ founder_note = f"""
 <div class="m-label-line">Directive 17</div>
 </div></div>"""
 
-# old page becomes a redirect so existing links still land correctly
+(OUT / "founders-note.html").write_text(
+    page(f"A Note from the Founder — {site['name']}", full_note, "", 0,
+         extra_js=FITHEAD_JS + PROGRESS_JS, path="founders-note.html",
+         desc="Stop watching. Start creating. A note from Joel Shapiro."))
+
+# legacy link -> full note page
 (OUT / "joels-directive.html").write_text(
     '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
     '<title>A Note from the Founder \u2014 Directive 17</title>'
-    '<link rel="canonical" href="https://directive17.com/#founder-note">'
-    '<meta http-equiv="refresh" content="0; url=index.html#founder-note">'
-    '<script>location.replace("index.html#founder-note")</script></head>'
+    '<link rel="canonical" href="https://directive17.com/founders-note.html">'
+    '<meta http-equiv="refresh" content="0; url=founders-note.html">'
+    '<script>location.replace("founders-note.html")</script></head>'
     '<body style="background:#FBF7EC"></body></html>')
 
 # ---------------- home: hero only, animated, intro curtain + pillar ticker
@@ -910,7 +983,7 @@ companies_body = f"""
 
 (OUT / "index.html").write_text(
     page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True,
-         extra_js=SCROLLCUE_JS + FITHEAD_JS + PROGRESS_JS))
+         extra_js=SCROLLCUE_JS + FITHEAD_JS + CLIMAX_JS + PROGRESS_JS))
 
 # ---------------- blog index (accordion)
 rows = "".join(f"""

@@ -20,6 +20,8 @@ And then, apparently exhausted from all this activity, we lie in bed and scroll 
 
 What the fuck happened to us?
 
+<!--more-->
+
 We have somehow built the most powerful collection of tools in human history—and decided the highest use for them is watching a 23-year-old explain the proper way to butter a piece of toast.
 
 Think about that.
