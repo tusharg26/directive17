@@ -607,7 +607,7 @@ BLOG_JS = """
   document.querySelectorAll('.share-btn').forEach(function(b){
     b.addEventListener('click', function(e){
       e.stopPropagation();
-      var url = location.origin + location.pathname + '#' + b.dataset.slug;
+      var url = new URL(b.dataset.slug + '.html', location.href).href;
       var done = function(msg){
         var old = b.textContent; b.textContent = msg;
         setTimeout(function(){ b.textContent = old; }, 1800);
@@ -648,7 +648,7 @@ def rev(inner, delay=0.0, tag="div", cls="", style=""):
     d = f"--d:{delay:.2f}s;" if delay else ""
     return f'<{tag} class="reveal {cls}" style="{d}{style}">{inner}</{tag}>'
 
-def page(title, body, active="", depth=0, extra_js="", intro=False, path="", desc=None):
+def page(title, body, active="", depth=0, extra_js="", intro=False, path="", desc=None, jsonld=None):
     p = "../" * depth
     links = [("Home", f"{p}index.html", active == "")]
     links += [(n["label"], f'{p}{n["href"].lstrip("/")}', n["label"] == active) for n in site["nav"]]
@@ -665,6 +665,17 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
     url = f"https://{site['domain']}/{path}"
     analytics = (f'<script data-goatcounter="https://{site["goatcounter"]}.goatcounter.com/count" '
                  f'async src="//gc.zgo.at/count.js"></script>') if site.get("goatcounter") else ""
+    org_ld = {
+        "@context": "https://schema.org", "@type": "Organization",
+        "name": "Directive 17", "url": f"https://{site['domain']}/",
+        "logo": f"https://{site['domain']}/images/logos/enso.png",
+        "description": site["subline"],
+        "email": site["contact_email"],
+        "founder": {"@type": "Person", "name": "Joel Shapiro"},
+    }
+    blocks = [org_ld] + ([jsonld] if jsonld else [])
+    ld = "".join('<script type="application/ld+json">' + json.dumps(b) + '</script>'
+                 for b in blocks)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -688,16 +699,16 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 <meta name="twitter:image" content="https://{site['domain']}/images/og-card.png">
 <link rel="icon" type="image/png" href="{p}images/logos/enso.png">
 <link rel="apple-touch-icon" href="{p}images/apple-touch-icon.png">
-<link rel="preload" as="image" href="{p}images/logos/enso.webp">
+<link rel="preload" as="image" href="{p}images/logos/enso-md.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
-{intro_head}<style>{CSS}</style>
+{ld}{intro_head}<style>{CSS}</style>
 </head>
 <body{body_attr}>
 {intro_html}
 <header><div class="wrap nav">
-<a class="logo" href="{p}index.html"><img src="{p}images/logos/enso.webp" alt="Directive 17 enso logo">Directive 17</a>
+<a class="logo" href="{p}index.html"><img src="{p}images/logos/enso-sm.webp" width="38" height="38" alt="Directive 17 enso logo">Directive 17</a>
 <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
 <span></span><span></span><span></span>
 </button>
@@ -727,7 +738,7 @@ def company_card(c, depth=0, delay=0.0):
     tile_cls = "tile-dark" if dark else "tile-light"
     ls = LOGO_SCALE.get(c["name"], 1.0)
     ls_attr = f' style="--ls:{ls}"' if ls != 1.0 else ""
-    logo = (f'<img src="{p}images/{c["logo"]}"{ls_attr} alt="{html.escape(c["name"])} logo">'
+    logo = (f'<img src="{p}images/{c["logo"]}"{ls_attr} loading="lazy" decoding="async" alt="{html.escape(c["name"])} logo">'
             if c.get("logo") else f'<span style="font-family:var(--serif);font-size:1.4rem;'
             f'color:{"#FBF7EC" if dark else "var(--deep)"}">{html.escape(c["name"][0])}</span>')
     if c.get("deck"):
@@ -789,7 +800,7 @@ note_head = f"""
 </div></div>"""
 
 byline = f"""<div class="ch-side reveal"><div class="note-byline">
-<img src="images/logos/enso.webp" alt="">
+<img src="images/logos/enso-sm.webp" width="44" height="44" loading="lazy" alt="">
 <div><div class="nb-name">Joel Shapiro</div>
 <div class="nb-role">Founder</div></div>
 </div>
@@ -824,7 +835,7 @@ full_note = f"""
 </section>
 {ch_html}
 <div class="jd-end reveal"><div class="wrap">
-<img src="images/logos/enso.webp" alt="">
+<img src="images/logos/enso-sm.webp" width="56" height="55" loading="lazy" alt="">
 <div class="m-label-line">Directive 17</div>
 </div></div>"""
 
@@ -853,7 +864,7 @@ home = f"""
 <h1 class="display">{words(site['tagline'], .25, .09)}</h1>
 <p class="sub fade" style="--d:.95s">{html.escape(site['subline'])}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso-md.webp" width="640" height="629" alt="Directive 17 enso"></div>
 </div>
 <button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
 <span class="sc-label">A note from the founder</span>
@@ -922,7 +933,7 @@ philosophy = f"""
 <div class="pillars">{pillars}</div>
 </div></section>
 <div class="dark">
-<img class="watermark" src="images/logos/enso.webp" alt="">
+<img class="watermark" src="images/logos/enso-md.webp" loading="lazy" alt="">
 <div class="wrap">
 <div class="sec-label reveal">{html.escape(pp['human_test']['label'])}</div>
 {rev(f'<p style="color:#9FB09A;font-size:1.1rem;margin-bottom:30px">{html.escape(pp["human_test"]["intro"])}</p>', .05, tag="div")}
@@ -1010,6 +1021,46 @@ blog_body = f"""
          extra_js=BLOG_JS + PROGRESS_JS, path="blog/",
          desc="I wish I was making this shit up!"))
 
+# ---------------- individual post pages (own URL, own preview, crawlable text)
+for p in posts:
+    art_ld = {
+        "@context": "https://schema.org", "@type": "BlogPosting",
+        "headline": p["title"],
+        "datePublished": p["date"],
+        "description": p["excerpt"],
+        "author": {"@type": "Person", "name": "Joel Shapiro"},
+        "publisher": {"@type": "Organization", "name": "Directive 17",
+                      "logo": {"@type": "ImageObject",
+                               "url": f"https://{site['domain']}/images/logos/enso.png"}},
+        "mainEntityOfPage": f"https://{site['domain']}/blog/{p['slug']}.html",
+        "url": f"https://{site['domain']}/blog/{p['slug']}.html",
+    }
+    words_ct = max(1, round(len(re.sub(r"<[^>]+>", " ", p["html"]).split()) / 200))
+    post_body = f"""
+<div class="hero" style="padding-bottom:52px"><div class="wrap">
+<div class="kicker fade" style="--d:.05s">{fmt_date(p['date'])}</div>
+<h1 class="display note-head" style="max-width:20ch;font-size:clamp(2rem,4.4vw,3.4rem)">{words(p['title'], .25, .07)}</h1>
+</div></div>
+<section class="jd-intro" style="padding-top:52px;border-top:1px solid var(--line)">
+<div class="wrap ch-grid">
+<div class="ch-side reveal"><div class="note-byline">
+<img src="../images/logos/enso-sm.webp" width="44" height="44" loading="lazy" alt="">
+<div><div class="nb-name">Joel Shapiro</div>
+<div class="nb-role">Joel's Blog</div></div>
+</div>
+<div class="read-time">{words_ct} min read</div></div>
+<div class="longform">{p['html']}</div>
+</div>
+</section>
+<div class="jd-end reveal"><div class="wrap">
+<img src="../images/logos/enso-sm.webp" width="56" height="55" loading="lazy" alt="">
+<div class="m-label-line"><a href="index.html">&larr; All posts</a></div>
+</div></div>"""
+    (OUT / "blog" / f"{p['slug']}.html").write_text(
+        page(f"{p['title']} — Joel's Blog — {site['name']}", post_body, "Joel's Blog", 1,
+             extra_js=FITHEAD_JS + PROGRESS_JS, path=f"blog/{p['slug']}.html",
+             desc=p["excerpt"], jsonld=art_ld))
+
 # ---------------- build with us
 bp = site["build_page"]
 build_body = f"""
@@ -1022,7 +1073,7 @@ build_body = f"""
 <a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a></p>
 <p class="fade" style="--d:1.15s;margin-top:18px;font-family:var(--sans);font-size:.85rem;color:var(--muted)">{site['contact_email']}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.webp" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso-md.webp" width="640" height="629" alt="Directive 17 enso"></div>
 </div></div>"""
 (OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us",
     path="build.html", desc="The future is built by people who believe it can be better."))
@@ -1257,5 +1308,45 @@ for _n in site["nav"]:
     _h = _n["href"].lstrip("/")
     nf = nf.replace(f'href="{_h}"', f'href="/{_h}"')
 (OUT / "404.html").write_text(nf)
+
+# ---------------- crawler files: sitemap, robots (AI bots welcome), llms.txt
+from datetime import date as _date
+_today = _date.today().isoformat()
+_urls = ["", "why.html", "philosophy.html", "companies.html", "future.html",
+         "build.html", "founders-note.html", "blog/"] + [f"blog/{p['slug']}.html" for p in posts]
+_sm = ['<?xml version="1.0" encoding="UTF-8"?>',
+       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+for u in _urls:
+    pri = "1.0" if u == "" else ("0.8" if u.startswith("blog") else "0.7")
+    _sm.append(f"<url><loc>https://{site['domain']}/{u}</loc>"
+               f"<lastmod>{_today}</lastmod><priority>{pri}</priority></url>")
+_sm.append("</urlset>")
+(OUT / "sitemap.xml").write_text("\n".join(_sm))
+
+# AI crawlers are explicitly welcomed; the confidential deck viewers are not indexed
+_ai_bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User",
+            "Claude-SearchBot", "anthropic-ai", "PerplexityBot", "Perplexity-User",
+            "Google-Extended", "Applebot-Extended", "CCBot", "Bytespider", "meta-externalagent"]
+_rb = ["# Directive 17 — all crawlers welcome, including AI assistants",
+       "User-agent: *", "Allow: /", "Disallow: /decks/", ""]
+for bot in _ai_bots:
+    _rb += [f"User-agent: {bot}", "Allow: /", "Disallow: /decks/", ""]
+_rb.append(f"Sitemap: https://{site['domain']}/sitemap.xml")
+(OUT / "robots.txt").write_text("\n".join(_rb))
+
+_ll = [f"# Directive 17", "", f"> {site['subline']} {site['tagline']}", "",
+       "Directive 17 is an early-stage venture firm founded by Joel Shapiro. Every company "
+       "begins with one question: how will this make someone's life better? Only then do we "
+       "ask whether it can become a great business.", "",
+       "## Pages", ""]
+_ll += [f"- [Why We Exist](https://{site['domain']}/why.html): Most organizations begin with markets. We begin with people.",
+        f"- [Philosophy](https://{site['domain']}/philosophy.html): The Five Pillars — happiness, health, trust, connection, human potential — and the Human Test.",
+        f"- [Companies](https://{site['domain']}/companies.html): Portfolio companies. Different companies. One philosophy.",
+        f"- [The Future We See](https://{site['domain']}/future.html): What future is worth building?",
+        f"- [Build With Us](https://{site['domain']}/build.html): Contact — {site['contact_email']}",
+        f"- [A Note from the Founder](https://{site['domain']}/founders-note.html): Joel Shapiro on creating rather than consuming.",
+        "", "## Joel's Blog", ""]
+_ll += [f"- [{p['title']}](https://{site['domain']}/blog/{p['slug']}.html): {p['excerpt']}" for p in posts]
+(OUT / "llms.txt").write_text("\n".join(_ll) + "\n")
 
 print(f"Built {len(list(OUT.rglob('*.html')))} pages, {len(posts)} posts, {len(companies)} companies -> docs/")
