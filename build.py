@@ -661,7 +661,7 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 <div class="intro-name">Directive 17</div>
 </div></div>""" if intro else "")
     body_attr = ' style="--hd:2.2s"' if intro else ""
-    d = desc or site["subline"]  # noqa: shadow ok
+    d = desc or site.get("meta_description") or site["subline"]
     url = f"https://{site['domain']}/{path}"
     analytics = (f'<script data-goatcounter="https://{site["goatcounter"]}.goatcounter.com/count" '
                  f'async src="//gc.zgo.at/count.js"></script>') if site.get("goatcounter") else ""
@@ -794,7 +794,7 @@ ch_html = "".join(f"""
 </div></section>""" for i, (t, body) in enumerate(jd_chapters))
 
 note_head = f"""
-<div class="note-open" id="founder-note"><div class="wrap">
+<div class="note-open" id="founder-note" data-nosnippet><div class="wrap">
 <div class="kicker reveal">A Note from the Founder</div>
 <h2 class="display reveal note-head" style="max-width:19ch;font-size:clamp(2.1rem,5vw,4rem)">{html.escape(jd_lede)}</h2>
 </div></div>"""
@@ -808,7 +808,7 @@ byline = f"""<div class="ch-side reveal"><div class="note-byline">
 
 # --- homepage teaser
 founder_note = f"""{note_head}
-<section class="jd-intro" style="padding-top:56px;padding-bottom:32vh">
+<section class="jd-intro" data-nosnippet style="padding-top:56px;padding-bottom:32vh">
 <div class="wrap ch-grid">
 {byline}
 <div>
@@ -1335,7 +1335,7 @@ _rb.append(f"Sitemap: https://{site['domain']}/sitemap.xml")
 (OUT / "robots.txt").write_text("\n".join(_rb))
 
 _ll = [f"# Directive 17", "", f"> {site['subline']} {site['tagline']}", "",
-       "Directive 17 is an early-stage venture firm founded by Joel Shapiro. Every company "
+       "Directive 17 is a venture firm founded by Joel Shapiro. Every company "
        "begins with one question: how will this make someone's life better? Only then do we "
        "ask whether it can become a great business.", "",
        "## Pages", ""]
