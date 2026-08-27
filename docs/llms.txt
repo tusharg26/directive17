@@ -15,6 +15,7 @@ Directive 17 is an early-stage venture firm founded by Joel Shapiro. Every compa
 
 ## Joel's Blog
 
+- [My Life Philosophy May Be Terrible Advice](https://directive17.com/blog/my-life-philosophy.html): A list of sayings that felt less like inspirational wisdom and more like somebody had been secretly following me around for decades taking notes.
 - [Apple, Psyllium & the Complete Collapse of Western Civilization](https://directive17.com/blog/apple-psyllium.html): I bought a MacBook. At almost exactly the same time, in an entirely unrelated act of spectacularly bad judgment, I added psyllium to my diet.
 - [Black Plastic](https://directive17.com/blog/black-plastic.html): A meal-prep place with a beautiful sourcing story, a nutrition person, and a transparency pitch — serving everything in black plastic.
 - [I Trust AI. I'm Starting Not to Trust the People Using It.](https://directive17.com/blog/i-trust-ai.html): Most people are worried about whether they can trust artificial intelligence. I have a different concern.
