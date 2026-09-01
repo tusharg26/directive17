@@ -11,7 +11,7 @@ Directive 17 is a venture firm founded by Joel Shapiro. Every company begins wit
 - [Companies](https://directive17.com/companies.html): Portfolio companies. Different companies. One philosophy.
 - [The Future We See](https://directive17.com/future.html): What future is worth building?
 - [Build With Us](https://directive17.com/build.html): Contact — joel@directive17.com
-- [A Note from the Founder](https://directive17.com/founders-note.html): Joel Shapiro on creating rather than consuming.
+- [A Note from the Founder](https://directive17.com/#founder-note): Joel Shapiro on why Directive 17 exists and what it invests in.
 
 ## Joel's Blog
 
@@ -21,5 +21,6 @@ Directive 17 is a venture firm founded by Joel Shapiro. Every company begins wit
 - [I Trust AI. I'm Starting Not to Trust the People Using It.](https://directive17.com/blog/i-trust-ai.html): Most people are worried about whether they can trust artificial intelligence. I have a different concern.
 - [I Haven't Even Taken Off Yet](https://directive17.com/blog/i-havent-even-taken-off-yet.html): Another travel day. More craziness. And, as I write this, the airplane hasn't even left the gate.
 - [There Are Some Things We Were Never Meant to Know](https://directive17.com/blog/some-things-we-were-never-meant-to-know.html): I would like to address one of the great architectural mistakes of our time: the unisex restaurant bathroom.
+- [Stop Watching. Start F@cking Creating.](https://directive17.com/blog/stop-watching-start-creating.html): At some point, we became a civilization of spectators. We have been handed superpowers and we are using them to watch strangers organize their refrigerators.
 - [One Second. I'm Trying to Reach You.](https://directive17.com/blog/one-second-im-trying-to-reach-you.html): A true story about traffic, modern medicine, the Philippines, and humanity's relentless pursuit of efficiency.
 - [We Have Run Out of Fish](https://directive17.com/blog/we-have-run-out-of-fish.html): One Quick Question — true stories from a world that makes less sense every day.
