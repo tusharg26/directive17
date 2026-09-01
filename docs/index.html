@@ -146,7 +146,7 @@ text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
 .hero-enso{flex:0 0 auto;width:min(320px,30vw)}
 .kicker{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
 letter-spacing:.24em;color:var(--accent);margin-bottom:26px;display:flex;align-items:center;gap:16px}
-h1.display{font-family:var(--serif);font-weight:700;letter-spacing:-.02em;
+.display{font-family:var(--serif);font-weight:700;letter-spacing:-.02em;
 font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--deep)}
 .sub{color:var(--muted);font-size:clamp(1.15rem,1.6vw,1.45rem);max-width:46ch;margin-top:30px}
 /* ---------- editorial building blocks ---------- */
@@ -154,7 +154,7 @@ section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
 
 /* scroll cue on homepage hero */
-.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:86px;
+.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:74px;
 display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;
 cursor:pointer;opacity:0;animation:fadeUp .9s var(--ease) forwards;
 animation-delay:calc(1.55s + var(--hd,0s))}
@@ -189,7 +189,11 @@ max-width:24ch;margin-top:38px}
 font-size:clamp(1.25rem,2.7vw,1.7rem);line-height:1.3;letter-spacing:-.01em;max-width:30ch;
 margin-top:8px}
 .note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
-font-size:1.05rem;margin-top:12px;max-width:52ch}
+font-size:1.05rem;margin-top:14px;max-width:52ch}
+.acc-head .note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
+font-size:1rem;margin-top:8px;max-width:52ch}
+.note-byline-inline{display:flex;align-items:center;gap:12px;margin:0 0 30px}
+.note-byline-inline img{width:38px;height:38px;object-fit:contain}
 /* post pages read like an expanded blog post */
 .longform h2{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--deep);
 margin:44px 0 16px;line-height:1.35}
@@ -411,31 +415,31 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
 </div>
 <button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
-<span class="sc-label">A note from the founder</span>
 <span class="sc-arrow">&darr;</span>
 </button>
 <div class="ticker"><div class="ticker-track"><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span><span>Happiness</span><span class="tsep">&#10022;</span><span>Health</span><span class="tsep">&#10022;</span><span>Trust</span><span class="tsep">&#10022;</span><span>Connection</span><span class="tsep">&#10022;</span><span>Human Potential</span><span class="tsep">&#10022;</span></div></div>
 </div>
 
-<div class="note-open" id="founder-note" data-nosnippet><div class="wrap">
-<div class="kicker reveal">A Note from the Founder</div>
-<h2 class="note-title reveal">Directive 17: The Investment Firm Trying to Make People Smile</h2>
-<p class="note-lede reveal">Which, apparently, is now a contrarian investment strategy.</p>
-</div></div>
-<section class="jd-intro" data-nosnippet style="padding-top:48px;padding-bottom:96px">
-<div class="wrap ch-grid">
-<div class="ch-side reveal"><div class="note-byline">
-<img src="images/logos/enso-sm.webp" width="44" height="44" loading="lazy" alt="">
-<div><div class="nb-name">Joel Shapiro</div>
-<div class="nb-role">Founder</div></div>
+<section class="note-section" data-nosnippet style="padding:70px 0 90px">
+<div class="wrap">
+<article class="acc" id="founder-note">
+<div class="acc-head" role="button" tabindex="0" aria-expanded="false">
+<div class="meta"><div class="date">A Note from the Founder</div>
+<h3>Directive 17: The Investment Firm Trying to Make People Smile</h3>
+<p class="note-lede">Which, apparently, is now a contrarian investment strategy.</p></div>
+<button class="share-btn" id="note-share" data-title="Directive 17: The Investment Firm Trying to Make People Smile">Share</button>
+<div class="chev">+</div>
 </div>
-<div class="read-time">6 min read</div></div>
-<div>
-<div class="acc-inner"><div class="acc-inner-pad" style="padding-bottom:4px"><p>I started Directive 17 with what may be the least sophisticated-sounding investment thesis in the history of finance:</p>
+<div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
+<div class="note-byline note-byline-inline">
+<img src="images/logos/enso-sm.webp" width="38" height="38" loading="lazy" alt="">
+<div><div class="nb-name">Joel Shapiro</div>
+<div class="nb-role">Founder &middot; 6 min read</div></div>
+</div>
+<p>I started Directive 17 with what may be the least sophisticated-sounding investment thesis in the history of finance:</p>
 <p>Help and teach people how to become people again.</p>
-<p>That's it.</p></div></div>
-<div class="note-more" id="note-more" hidden>
-<div class="acc-inner"><div class="acc-inner-pad" style="padding-top:0"><p>No 47-page white paper.</p>
+<p>That's it.</p>
+<p>No 47-page white paper.</p>
 <p>No chart showing a $14 trillion TAM.</p>
 <p>No consultant-created acronym that requires another slide to explain the first slide.</p>
 <p>Just people.</p>
@@ -607,12 +611,9 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Maybe it's:</p>
 <p>Helping and teaching people how to become people again.</p>
 <p>And if we can make a lot of people smile along the way?</p>
-<p>That's a return worth investing in.</p></div></div>
-</div>
-<div class="continue-wrap" id="continue-wrap">
-<button class="btn" id="note-toggle" aria-expanded="false" aria-controls="note-more">Continue reading <span class="arr">&darr;</span></button>
-</div>
-</div>
+<p>That's a return worth investing in.</p>
+</div></div></div>
+</article>
 </div>
 </section>
 <script>
@@ -670,51 +671,40 @@ document.documentElement.classList.add('js');
 })();
 
 (function(){
-  var el = document.querySelector('.note-head');
-  if (!el) return;
-  var CAP = 76;
-  function fit(){
-    if (window.innerWidth < 861) {
-      el.style.whiteSpace = '';
-      el.style.fontSize = '';
-      el.style.maxWidth = '';
-      return;
-    }
-    el.style.maxWidth = 'none';
-    el.style.whiteSpace = 'nowrap';
-    el.style.fontSize = CAP + 'px';
-    var p = el.parentElement, cs = getComputedStyle(p);
-    var avail = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    var w = el.scrollWidth;
-    if (w > avail) el.style.fontSize = Math.floor(CAP * (avail / w) * 0.985) + 'px';
+  var acc = document.getElementById('founder-note');
+  if (!acc) return;
+  var head = acc.querySelector('.acc-head');
+  var share = document.getElementById('note-share');
+  function toggle(){
+    acc.classList.toggle('open');
+    head.setAttribute('aria-expanded', acc.classList.contains('open'));
   }
-  fit();
-  window.addEventListener('resize', fit);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-})();
-
-(function(){
-  var btn = document.getElementById('note-toggle');
-  var more = document.getElementById('note-more');
-  if (!btn || !more) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  btn.addEventListener('click', function(){
-    if (!more.hidden) return;
-    more.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
-    var wrap = document.getElementById('continue-wrap');
-    if (reduce) { if (wrap) wrap.style.display = 'none'; return; }
-    var h = more.scrollHeight;
-    more.style.height = '0px';
-    more.classList.add('animating');
-    requestAnimationFrame(function(){ more.style.height = h + 'px'; });
-    more.addEventListener('transitionend', function te(){
-      more.style.height = ''; more.classList.remove('animating');
-      more.removeEventListener('transitionend', te);
-    });
-    if (wrap) { wrap.style.transition = 'opacity .3s'; wrap.style.opacity = '0';
-                setTimeout(function(){ wrap.style.display = 'none'; }, 300); }
+  head.addEventListener('click', function(e){
+    if (e.target.closest('.share-btn')) return;
+    toggle();
   });
+  head.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+  if (share) share.addEventListener('click', function(e){
+    e.stopPropagation();
+    var url = location.origin + location.pathname + '#founder-note';
+    var done = function(msg){ var old = share.textContent; share.textContent = msg;
+      setTimeout(function(){ share.textContent = old; }, 1800); };
+    if (navigator.share) { navigator.share({title: share.dataset.title, url: url}).catch(function(){}); }
+    else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
+        function(){ window.prompt('Copy this link:', url); });
+    } else { window.prompt('Copy this link:', url); }
+  });
+  function openFromHash(){
+    if (location.hash !== '#founder-note') return;
+    acc.classList.add('open');
+    head.setAttribute('aria-expanded','true');
+    setTimeout(function(){ acc.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
 })();
 
 (function() {

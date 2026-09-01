@@ -220,7 +220,7 @@ text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
 .hero-enso{flex:0 0 auto;width:min(320px,30vw)}
 .kicker{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
 letter-spacing:.24em;color:var(--accent);margin-bottom:26px;display:flex;align-items:center;gap:16px}
-h1.display{font-family:var(--serif);font-weight:700;letter-spacing:-.02em;
+.display{font-family:var(--serif);font-weight:700;letter-spacing:-.02em;
 font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--deep)}
 .sub{color:var(--muted);font-size:clamp(1.15rem,1.6vw,1.45rem);max-width:46ch;margin-top:30px}
 /* ---------- editorial building blocks ---------- */
@@ -228,7 +228,7 @@ section{padding:90px 0}
 .rule{border:none;border-top:1px solid var(--line)}
 
 /* scroll cue on homepage hero */
-.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:86px;
+.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:74px;
 display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;
 cursor:pointer;opacity:0;animation:fadeUp .9s var(--ease) forwards;
 animation-delay:calc(1.55s + var(--hd,0s))}
@@ -263,7 +263,11 @@ max-width:24ch;margin-top:38px}
 font-size:clamp(1.25rem,2.7vw,1.7rem);line-height:1.3;letter-spacing:-.01em;max-width:30ch;
 margin-top:8px}
 .note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
-font-size:1.05rem;margin-top:12px;max-width:52ch}
+font-size:1.05rem;margin-top:14px;max-width:52ch}
+.acc-head .note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
+font-size:1rem;margin-top:8px;max-width:52ch}
+.note-byline-inline{display:flex;align-items:center;gap:12px;margin:0 0 30px}
+.note-byline-inline img{width:38px;height:38px;object-fit:contain}
 /* post pages read like an expanded blog post */
 .longform h2{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--deep);
 margin:44px 0 16px;line-height:1.35}
@@ -557,6 +561,45 @@ CLIMAX_JS = """
 })();
 """
 
+NOTESHARE_JS = """
+(function(){
+  var acc = document.getElementById('founder-note');
+  if (!acc) return;
+  var head = acc.querySelector('.acc-head');
+  var share = document.getElementById('note-share');
+  function toggle(){
+    acc.classList.toggle('open');
+    head.setAttribute('aria-expanded', acc.classList.contains('open'));
+  }
+  head.addEventListener('click', function(e){
+    if (e.target.closest('.share-btn')) return;
+    toggle();
+  });
+  head.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+  if (share) share.addEventListener('click', function(e){
+    e.stopPropagation();
+    var url = location.origin + location.pathname + '#founder-note';
+    var done = function(msg){ var old = share.textContent; share.textContent = msg;
+      setTimeout(function(){ share.textContent = old; }, 1800); };
+    if (navigator.share) { navigator.share({title: share.dataset.title, url: url}).catch(function(){}); }
+    else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
+        function(){ window.prompt('Copy this link:', url); });
+    } else { window.prompt('Copy this link:', url); }
+  });
+  function openFromHash(){
+    if (location.hash !== '#founder-note') return;
+    acc.classList.add('open');
+    head.setAttribute('aria-expanded','true');
+    setTimeout(function(){ acc.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+})();
+"""
+
 SCROLLCUE_JS = """
 (function(){
   var c = document.getElementById('scrollcue');
@@ -769,7 +812,7 @@ if site.get("domain") and site.get("live"):
 posts = sorted((parse_post(p) for p in (CONTENT / "posts").glob("*.md")),
                key=lambda x: x["date"], reverse=True)
 
-# ---------------- Founder's note: lives entirely on the homepage, expands inline
+# ---------------- Founder's note: a blog-style row on the landing page that opens in place
 fn_src = (CONTENT / "pages" / "founders-note.md").read_text()
 fn_title = next(l[2:].strip() for l in fn_src.splitlines() if l.startswith("# "))
 fn_body = re.sub(r"^#\s+.*\n", "", fn_src, count=1)
@@ -777,50 +820,48 @@ fn_lede_m = re.search(r"^\*\*(.+?)\*\*\s*$", fn_body, flags=re.M)
 fn_lede = fn_lede_m.group(1) if fn_lede_m else ""
 if fn_lede_m:
     fn_body = fn_body.replace(fn_lede_m.group(0), "", 1)
+fn_body = fn_body.replace("<!--more-->", "")
 fn_minutes = max(1, round(len(fn_body.split()) / 200))
-fn_teaser_md, fn_rest_md = fn_body.split("<!--more-->", 1)
-
-byline = f"""<div class="ch-side reveal"><div class="note-byline">
-<img src="images/logos/enso-sm.webp" width="44" height="44" loading="lazy" alt="">
-<div><div class="nb-name">Joel Shapiro</div>
-<div class="nb-role">Founder</div></div>
-</div>
-<div class="read-time">{fn_minutes} min read</div></div>"""
 
 founder_note = f"""
-<div class="note-open" id="founder-note" data-nosnippet><div class="wrap">
-<div class="kicker reveal">A Note from the Founder</div>
-<h2 class="note-title reveal">{md_inline(fn_title)}</h2>
-<p class="note-lede reveal">{html.escape(fn_lede)}</p>
-</div></div>
-<section class="jd-intro" data-nosnippet style="padding-top:48px;padding-bottom:96px">
-<div class="wrap ch-grid">
-{byline}
-<div>
-<div class="acc-inner"><div class="acc-inner-pad" style="padding-bottom:4px">{md_to_html(fn_teaser_md)}</div></div>
-<div class="note-more" id="note-more" hidden>
-<div class="acc-inner"><div class="acc-inner-pad" style="padding-top:0">{md_to_html(fn_rest_md)}</div></div>
+<section class="note-section" data-nosnippet style="padding:70px 0 90px">
+<div class="wrap">
+<article class="acc" id="founder-note">
+<div class="acc-head" role="button" tabindex="0" aria-expanded="false">
+<div class="meta"><div class="date">A Note from the Founder</div>
+<h3>{md_inline(fn_title)}</h3>
+<p class="note-lede">{html.escape(fn_lede)}</p></div>
+<button class="share-btn" id="note-share" data-title="{html.escape(fn_title, quote=True)}">Share</button>
+<div class="chev">+</div>
 </div>
-<div class="continue-wrap" id="continue-wrap">
-<button class="btn" id="note-toggle" aria-expanded="false" aria-controls="note-more">Continue reading <span class="arr">&darr;</span></button>
+<div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
+<div class="note-byline note-byline-inline">
+<img src="images/logos/enso-sm.webp" width="38" height="38" loading="lazy" alt="">
+<div><div class="nb-name">Joel Shapiro</div>
+<div class="nb-role">Founder &middot; {fn_minutes} min read</div></div>
 </div>
-</div>
+{md_to_html(fn_body)}
+</div></div></div>
+</article>
 </div>
 </section>"""
 
-# old URLs: the note now lives on the homepage; the directive is now a blog post
-def _redirect(fname, target, title):
-    (OUT / fname).write_text(
-        '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
-        f'<title>{title} \u2014 Directive 17</title>'
-        f'<link rel="canonical" href="https://directive17.com/{target}">'
-        f'<meta http-equiv="refresh" content="0; url={target}">'
-        f'<script>location.replace("{target}")</script></head>'
-        '<body style="background:#FBF7EC"></body></html>')
+# no page of its own — old links land on the landing-page row
+(OUT / "founders-note.html").write_text(
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+    '<title>A Note from the Founder \u2014 Directive 17</title>'
+    '<link rel="canonical" href="https://directive17.com/">'
+    '<meta http-equiv="refresh" content="0; url=index.html#founder-note">'
+    '<script>location.replace("index.html#founder-note")</script></head>'
+    '<body style="background:#FBF7EC"></body></html>')
 
-_redirect("founders-note.html", "index.html#founder-note", "A Note from the Founder")
-_redirect("joels-directive.html", "blog/stop-watching-start-creating.html",
-          "Stop Watching. Start F@cking Creating.")
+(OUT / "joels-directive.html").write_text(
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+    '<title>Stop Watching. Start F@cking Creating. \u2014 Directive 17</title>'
+    '<link rel="canonical" href="https://directive17.com/blog/stop-watching-start-creating.html">'
+    '<meta http-equiv="refresh" content="0; url=blog/stop-watching-start-creating.html">'
+    '<script>location.replace("blog/stop-watching-start-creating.html")</script></head>'
+    '<body style="background:#FBF7EC"></body></html>')
 
 # ---------------- home: hero only, animated, intro curtain + pillar ticker
 tick_set = "".join(
@@ -836,7 +877,6 @@ home = f"""
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
 </div>
 <button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
-<span class="sc-label">A note from the founder</span>
 <span class="sc-arrow">&darr;</span>
 </button>
 <div class="ticker"><div class="ticker-track">{tick_set}{tick_set}{tick_set}</div></div>
@@ -963,7 +1003,7 @@ companies_body = f"""
 
 (OUT / "index.html").write_text(
     page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True,
-         extra_js=SCROLLCUE_JS + FITHEAD_JS + CLIMAX_JS + PROGRESS_JS))
+         extra_js=SCROLLCUE_JS + NOTESHARE_JS + PROGRESS_JS))
 
 # ---------------- blog index (accordion)
 rows = "".join(f"""
