@@ -183,8 +183,16 @@ float 7s ease-in-out 1.8s infinite}
 *{scroll-behavior:auto!important}}
 /* ---------- hero ---------- */
 .hero{padding:110px 0 90px}
-.hero-home{min-height:calc(100vh - 75px);display:flex;align-items:center;padding:40px 0 110px;
-position:relative}
+.hero-home{min-height:calc(100vh - 75px);display:flex;flex-direction:column;
+justify-content:center;padding:40px 0 120px;position:relative}
+.note-inline{width:100%;margin-top:clamp(34px,5.5vh,68px);border-top:1px solid var(--line);
+opacity:0;animation:fadeUp .9s var(--ease) forwards;animation-delay:calc(1.25s + var(--hd,0s))}
+.note-inline .acc-head{padding:24px 0 0}
+.note-inline .acc-head .meta h3{margin-top:6px}
+.acc-bare{border:none}
+.acc-bare:first-of-type{border-top:none}
+.note-body-section{padding:0}
+.note-body-section .acc-inner-pad{padding:34px 0 90px}
 /* intro curtain (homepage, once per session) */
 #intro{position:fixed;inset:0;background:var(--deep);z-index:200;display:flex;
 align-items:center;justify-content:center;animation:introLift .9s var(--ease) 2s forwards}
@@ -410,7 +418,7 @@ margin-top:8px;letter-spacing:-.01em;transition:color .2s;line-height:1.3}
 .chev{flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;
 display:flex;align-items:center;justify-content:center;color:var(--muted);
 transition:transform .4s var(--ease),color .2s,border-color .2s;font-size:.95rem}
-.acc.open .chev{transform:rotate(45deg);color:var(--accent);border-color:var(--accent)}
+.acc.open .chev,.note-inline.open .chev{transform:rotate(45deg);color:var(--accent);border-color:var(--accent)}
 .share-btn{flex:0 0 auto;font-family:var(--sans);font-size:.66rem;font-weight:700;
 text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:none;
 border:1px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer;
@@ -563,19 +571,33 @@ CLIMAX_JS = """
 
 NOTESHARE_JS = """
 (function(){
-  var acc = document.getElementById('founder-note');
-  if (!acc) return;
-  var head = acc.querySelector('.acc-head');
+  var head = document.getElementById('note-head');
+  var body = document.getElementById('founder-note');
+  if (!head || !body) return;
+  var btn = head.querySelector('.acc-head');
   var share = document.getElementById('note-share');
-  function toggle(){
-    acc.classList.toggle('open');
-    head.setAttribute('aria-expanded', acc.classList.contains('open'));
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function navH(){ var n = document.querySelector('header'); return n ? n.getBoundingClientRect().height : 0; }
+  function setOpen(open){
+    head.classList.toggle('open', open);
+    body.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
   }
-  head.addEventListener('click', function(e){
+  function scrollToBody(){
+    var sec = body.closest('.note-body-section') || body;
+    var y = sec.getBoundingClientRect().top + window.pageYOffset - navH() - 18;
+    window.scrollTo({top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth'});
+  }
+  function toggle(){
+    var open = !body.classList.contains('open');
+    setOpen(open);
+    if (open) requestAnimationFrame(function(){ requestAnimationFrame(scrollToBody); });
+  }
+  btn.addEventListener('click', function(e){
     if (e.target.closest('.share-btn')) return;
     toggle();
   });
-  head.addEventListener('keydown', function(e){
+  btn.addEventListener('keydown', function(e){
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
   });
   if (share) share.addEventListener('click', function(e){
@@ -591,9 +613,8 @@ NOTESHARE_JS = """
   });
   function openFromHash(){
     if (location.hash !== '#founder-note') return;
-    acc.classList.add('open');
-    head.setAttribute('aria-expanded','true');
-    setTimeout(function(){ acc.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+    setOpen(true);
+    setTimeout(scrollToBody, 90);
   }
   openFromHash();
   window.addEventListener('hashchange', openFromHash);
@@ -823,10 +844,8 @@ if fn_lede_m:
 fn_body = fn_body.replace("<!--more-->", "")
 fn_minutes = max(1, round(len(fn_body.split()) / 200))
 
-founder_note = f"""
-<section class="note-section" data-nosnippet style="padding:70px 0 90px">
-<div class="wrap">
-<article class="acc" id="founder-note">
+note_head = f"""
+<div class="wrap note-inline" id="note-head">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">A Note from the Founder</div>
 <h3>{md_inline(fn_title)}</h3>
@@ -834,6 +853,12 @@ founder_note = f"""
 <button class="share-btn" id="note-share" data-title="{html.escape(fn_title, quote=True)}">Share</button>
 <div class="chev">+</div>
 </div>
+</div>"""
+
+note_body = f"""
+<section class="note-body-section" data-nosnippet>
+<div class="wrap">
+<div class="acc acc-bare" id="founder-note">
 <div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
 <div class="note-byline note-byline-inline">
 <img src="images/logos/enso-sm.webp" width="38" height="38" loading="lazy" alt="">
@@ -842,7 +867,7 @@ founder_note = f"""
 </div>
 {md_to_html(fn_body)}
 </div></div></div>
-</article>
+</div>
 </div>
 </section>"""
 
@@ -876,12 +901,10 @@ home = f"""
 </div>
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
 </div>
-<button class="scrollcue" id="scrollcue" aria-label="Scroll to the note from the founder">
-<span class="sc-arrow">&darr;</span>
-</button>
+{note_head}
 <div class="ticker"><div class="ticker-track">{tick_set}{tick_set}{tick_set}</div></div>
 </div>
-{founder_note}"""
+{note_body}"""
 
 
 # ---------------- why
