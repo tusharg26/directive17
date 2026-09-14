@@ -899,7 +899,7 @@ home = f"""
 <h1 class="display">{words(site['tagline'], .25, .09)}</h1>
 <p class="sub fade" style="--d:.95s">{html.escape(site['subline'])}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="1114" height="1098" alt="Directive 17 enso"></div>
 </div>
 {note_head}
 <div class="ticker"><div class="ticker-track">{tick_set}{tick_set}{tick_set}</div></div>
@@ -1105,7 +1105,7 @@ build_body = f"""
 <a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a></p>
 <p class="fade" style="--d:1.15s;margin-top:18px;font-family:var(--sans);font-size:.85rem;color:var(--muted)">{site['contact_email']}</p>
 </div>
-<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="855" height="840" alt="Directive 17 enso"></div>
+<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="1114" height="1098" alt="Directive 17 enso"></div>
 </div></div>"""
 (OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us",
     path="build.html", desc="The future is built by people who believe it can be better."))
