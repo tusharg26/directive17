@@ -191,6 +191,19 @@ opacity:0;animation:fadeUp .9s var(--ease) forwards;animation-delay:calc(1.25s +
 .note-inline .acc-head .meta h3{margin-top:6px}
 .acc-bare{border:none}
 .acc-bare:first-of-type{border-top:none}
+.new-post{display:inline-flex;align-items:center;gap:12px;margin-top:22px;
+padding:9px 18px 9px 14px;border:1px solid var(--line);border-radius:999px;
+background:rgba(217,139,51,.05);transition:border-color .3s var(--ease),background .3s var(--ease),transform .3s var(--ease)}
+.new-post:hover{border-color:var(--accent);background:rgba(217,139,51,.12);transform:translateY(-1px)}
+.new-post .np-tag{font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.16em;
+text-transform:uppercase;color:var(--accent);white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.new-post .np-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);
+animation:npPulse 2.4s var(--ease) infinite}
+@keyframes npPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}
+.new-post .np-title{font-family:var(--serif);font-size:.98rem;color:var(--deep);line-height:1.35}
+.new-post .np-arrow{color:var(--accent);font-size:1rem;transition:transform .3s var(--ease)}
+.new-post:hover .np-arrow{transform:translateX(3px)}
+@media(prefers-reduced-motion:reduce){.new-post .np-tag::before{animation:none}}
 .note-body-section{padding:0}
 .note-body-section .acc-inner-pad{padding:34px 0 90px}
 /* intro curtain (homepage, once per session) */
@@ -272,7 +285,7 @@ font-size:clamp(1.25rem,2.7vw,1.7rem);line-height:1.3;letter-spacing:-.01em;max-
 margin-top:8px}
 .note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
 font-size:1.05rem;margin-top:14px;max-width:52ch}
-.acc-head .note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
+.acc-head .note-lede{font-family:var(--serif);font-style:italic;color:var(--ink);
 font-size:1rem;margin-top:8px;max-width:52ch}
 .note-byline-inline{display:flex;align-items:center;gap:12px;margin:0 0 30px}
 .note-byline-inline img{width:38px;height:38px;object-fit:contain}
@@ -460,6 +473,10 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 .hero{padding:70px 0 60px}section{padding:64px 0}
 .hero-flex{flex-direction:column-reverse;align-items:flex-start;gap:38px}
 .hero-enso{width:132px}
+.new-post{flex-wrap:wrap;border-radius:16px;gap:6px 10px;padding:12px 16px;max-width:100%}
+.new-post .np-tag{flex:1 0 100%}
+.new-post .np-title{flex:1 1 auto;min-width:0}
+
 .split{grid-template-columns:1fr;gap:18px}
 .split .side{position:static}
 .qgrid{grid-template-columns:1fr;gap:26px;margin:44px 0}
@@ -844,6 +861,16 @@ if fn_lede_m:
 fn_body = fn_body.replace("<!--more-->", "")
 fn_minutes = max(1, round(len(fn_body.split()) / 200))
 
+newest = posts[0] if posts else None
+note_alert = ""
+if newest:
+    note_alert = (
+        '<a class="new-post" href="blog/{slug}.html">'
+        '<span class="np-tag">New post</span>'
+        '<span class="np-title">{title}</span>'
+        '<span class="np-arrow" aria-hidden="true">&#8594;</span></a>'
+    ).format(slug=newest["slug"], title=md_inline(newest["title"]))
+
 note_head = f"""
 <div class="wrap note-inline" id="note-head">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
@@ -853,6 +880,7 @@ note_head = f"""
 <button class="share-btn" id="note-share" data-title="{html.escape(fn_title, quote=True)}">Share</button>
 <div class="chev">+</div>
 </div>
+{note_alert}
 </div>"""
 
 note_body = f"""
