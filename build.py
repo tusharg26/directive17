@@ -155,9 +155,24 @@ width:0;background:var(--accent);transition:width .35s var(--ease)}
 .menu-overlay a.m-link:hover{color:var(--accent)}
 .menu-overlay a.m-link:hover::after{width:100%}
 .menu-overlay a.m-link.active{color:var(--accent)}
-.m-foot{position:absolute;bottom:34px;left:max(9vw,36px);font-family:var(--sans);
-font-size:.78rem;letter-spacing:.06em;color:#8FA08A}
+.m-foot{position:absolute;bottom:34px;left:max(9vw,36px);right:max(9vw,36px);
+font-family:var(--sans);font-size:.78rem;letter-spacing:.06em;color:#8FA08A;
+display:flex;flex-direction:column;align-items:flex-start;gap:18px}
 .m-foot a{color:#D8DDCF}.m-foot a:hover{color:var(--accent)}
+.m-social{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+border-radius:50%;border:1px solid rgba(245,241,226,.26);color:#F5F1E2;
+opacity:0;transform:translateY(16px);
+transition:opacity .5s var(--ease),transform .5s var(--ease),border-color .25s,color .25s,background .25s}
+.menu-overlay.open .m-social{opacity:1;transform:none;transition-delay:.42s}
+.m-social svg{width:18px;height:18px;fill:currentColor;display:block}
+.m-social:hover{color:var(--deep);background:var(--accent);border-color:var(--accent)}
+.cta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;
+border-radius:50%;border:1px solid var(--line);color:var(--deep);flex:0 0 auto;
+transition:background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease),transform .3s var(--ease)}
+.icon-btn svg{width:20px;height:20px;fill:currentColor;display:block}
+.icon-btn:hover{background:var(--deep);color:var(--bg);border-color:var(--deep);transform:translateY(-2px)}
+@media(prefers-reduced-motion:reduce){.m-social{opacity:1;transform:none}}
 .menu-close{position:absolute;top:24px;right:max(9vw,36px);background:none;border:none;
 cursor:pointer;color:#F5F1E2;font-size:2.3rem;line-height:1;font-family:var(--serif);
 transition:transform .4s var(--ease),color .2s}
@@ -799,7 +814,7 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 <button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
 <div class="m-label">Directive 17</div>
 {nav}
-<div class="m-foot">Directive 17 &copy; 2026</div>
+<div class="m-foot"><a class="m-social" href="{site['linkedin']}" target="_blank" rel="noopener" aria-label="Directive 17 on LinkedIn">{LI_SVG}</a><div class="m-copy">Directive 17 &copy; 2026</div></div>
 </nav>
 {body}
 <script>{SHARED_JS}{extra_js}</script>
@@ -807,6 +822,10 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 </html>"""
 
 # optical size normalization: multiplier on each logo so all marks read the same weight
+LI_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+  '<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>'
+  '</svg>')
+
 LOGO_SCALE = {
     "Pivt": 0.68, "Mythogenic": 0.82, "Caviar and Corndogs": 0.88,
     "Vector": 1.12, "Twelve92": 0.95, "HumanOS": 0.92,
@@ -1129,8 +1148,10 @@ build_body = f"""
 <div class="kicker fade" style="--d:.05s">Build With Us</div>
 <h1 class="display">{words(bp['headline'], .25, .1)}</h1>
 <p class="sub fade" style="--d:.7s">{html.escape(bp['body'])}</p>
-<p class="fade" style="--d:.95s;margin-top:40px">
-<a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a></p>
+<div class="fade cta-row" style="--d:.95s;margin-top:40px">
+<a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a>
+<a class="icon-btn" href="{site['linkedin']}" target="_blank" rel="noopener" aria-label="Directive 17 on LinkedIn">{LI_SVG}</a>
+</div>
 <p class="fade" style="--d:1.15s;margin-top:18px;font-family:var(--sans);font-size:.85rem;color:var(--muted)">{site['contact_email']}</p>
 </div>
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" width="1114" height="1098" alt="Directive 17 enso"></div>

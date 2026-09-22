@@ -78,9 +78,24 @@ width:0;background:var(--accent);transition:width .35s var(--ease)}
 .menu-overlay a.m-link:hover{color:var(--accent)}
 .menu-overlay a.m-link:hover::after{width:100%}
 .menu-overlay a.m-link.active{color:var(--accent)}
-.m-foot{position:absolute;bottom:34px;left:max(9vw,36px);font-family:var(--sans);
-font-size:.78rem;letter-spacing:.06em;color:#8FA08A}
+.m-foot{position:absolute;bottom:34px;left:max(9vw,36px);right:max(9vw,36px);
+font-family:var(--sans);font-size:.78rem;letter-spacing:.06em;color:#8FA08A;
+display:flex;flex-direction:column;align-items:flex-start;gap:18px}
 .m-foot a{color:#D8DDCF}.m-foot a:hover{color:var(--accent)}
+.m-social{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+border-radius:50%;border:1px solid rgba(245,241,226,.26);color:#F5F1E2;
+opacity:0;transform:translateY(16px);
+transition:opacity .5s var(--ease),transform .5s var(--ease),border-color .25s,color .25s,background .25s}
+.menu-overlay.open .m-social{opacity:1;transform:none;transition-delay:.42s}
+.m-social svg{width:18px;height:18px;fill:currentColor;display:block}
+.m-social:hover{color:var(--deep);background:var(--accent);border-color:var(--accent)}
+.cta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;
+border-radius:50%;border:1px solid var(--line);color:var(--deep);flex:0 0 auto;
+transition:background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease),transform .3s var(--ease)}
+.icon-btn svg{width:20px;height:20px;fill:currentColor;display:block}
+.icon-btn:hover{background:var(--deep);color:var(--bg);border-color:var(--deep);transform:translateY(-2px)}
+@media(prefers-reduced-motion:reduce){.m-social{opacity:1;transform:none}}
 .menu-close{position:absolute;top:24px;right:max(9vw,36px);background:none;border:none;
 cursor:pointer;color:#F5F1E2;font-size:2.3rem;line-height:1;font-family:var(--serif);
 transition:transform .4s var(--ease),color .2s}
@@ -422,7 +437,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
 <div class="m-label">Directive 17</div>
 <a href="../index.html" class="m-link " style="--i:0">Home</a><a href="../why.html" class="m-link " style="--i:1">Why</a><a href="../philosophy.html" class="m-link " style="--i:2">Philosophy</a><a href="../companies.html" class="m-link " style="--i:3">Companies</a><a href="../future.html" class="m-link " style="--i:4">Future</a><a href="../build.html" class="m-link " style="--i:5">Build With Us</a><a href="../blog/" class="m-link active" style="--i:6">Joel's Blog</a>
-<div class="m-foot">Directive 17 &copy; 2026</div>
+<div class="m-foot"><a class="m-social" href="https://www.linkedin.com/company/directive17" target="_blank" rel="noopener" aria-label="Directive 17 on LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a><div class="m-copy">Directive 17 &copy; 2026</div></div>
 </nav>
 
 <div class="hero" style="padding-bottom:70px"><div class="wrap">
@@ -431,7 +446,186 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p class="sub fade" style="--d:1.05s">I wish I was making this shit up!</p>
 </div></div>
 <section style="padding-top:20px"><div class="wrap">
-<article class="acc reveal" id="what-could-go-wrong" style="--d:0.00s">
+<article class="acc reveal" id="one-hat-at-a-time" style="--d:0.00s">
+<div class="acc-head" role="button" tabindex="0" aria-expanded="false">
+<div class="meta"><div class="date">September 22, 2026</div>
+<h3>Changing the World, “One” Hat at a Time</h3></div>
+<button class="share-btn" data-slug="one-hat-at-a-time" data-title="Changing the World, “One” Hat at a Time">Share</button>
+<div class="chev">+</div>
+</div>
+<div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad"><p>A few weeks ago, a young professional golfer asked me to sponsor him in last week’s PGA Tour event, the Biltmore Championship.</p>
+<p>I said, “Of course.”</p>
+<p>He then asked me what I wanted his “sponsored by me” hat to say.</p>
+<p>This was my first mistake.</p>
+<p>I didn’t really pay attention.</p>
+<p>Had I understood the magnitude of the opportunity, I could have put something profound on his forehead.</p>
+<p>“WHAT COULD GO WRONG?”</p>
+<p>“BAD DECISIONS MAKE GREAT STORIES.”</p>
+<p>Or perhaps simply:</p>
+<p>“FUCK IT.”</p>
+<p>Instead, because I failed to provide any obnoxious instructions, he did something considerably more responsible.</p>
+<p>He put Directive 17 and our logo on the hat.</p>
+<p>And damn—it looked pretty cool.</p>
+<p>I was proud of it.</p>
+<p>More importantly, I was proud of the kid wearing it.</p>
+<p>His initials are MD. And this kid can really play. He had actually won a mini-tour event just to earn his way into this tournament.</p>
+<p>So as we got closer to the event, I sent a few emails to friends and family telling them not to be surprised if MD did really well.</p>
+<p>That was apparently hilarious.</p>
+<p>The responses started coming.</p>
+<p>“Are you out of your mind?”</p>
+<p>“Are you crazy?”</p>
+<p>And my personal favorite:</p>
+<p>“You could have bought another couple bottles of wine for that!”</p>
+<p>Okay.</p>
+<p>That one hurt.</p>
+<p>Mostly because depending on the wine, it was mathematically accurate.</p>
+<p>But then I started thinking about it.</p>
+<h2>WHAT EXACTLY ARE WE LAUGHING AT?</h2>
+<p>I gave a young guy a chance to try to make it to the big leagues.</p>
+<p>That’s it.</p>
+<p>Isn’t that the dream of virtually every kid who has ever picked up a golf club, baseball bat, football, basketball, hockey stick—or probably a fucking pickleball paddle now?</p>
+<p>How many movies have we made about exactly this?</p>
+<p>The baseball player who gets called up from nowhere.</p>
+<p>The football player nobody thought was big enough.</p>
+<p>The boxer who gets one shot.</p>
+<p>The golfer who gets into the tournament nobody expected him to get into.</p>
+<p>Hollywood has made approximately 14,000 versions of this movie.</p>
+<p>We watch them.</p>
+<p>We cry.</p>
+<p>We cheer.</p>
+<p>We tell our kids:</p>
+<p>“Never give up on your dreams.”</p>
+<p>Then somebody actually tries it in real life and we say:</p>
+<p>“What an idiot.”</p>
+<p>Human beings are fucking fascinating.</p>
+<p>And it got me thinking about all the people who have been laughed at.</p>
+<p>Elon Musk watched rockets blow up.</p>
+<p>Not metaphorically.</p>
+<p>Actual fucking rockets.</p>
+<p>Hundreds of millions of dollars exploding in the sky while the entire world watched.</p>
+<p>SpaceX came frighteningly close to running out of money.</p>
+<p>Musk kept going.</p>
+<p>Tom Brady?</p>
+<p>NFL scouts saw a slow, skinny quarterback who didn’t look particularly athletic.</p>
+<p>That worked out okay.</p>
+<p>Walt Disney?</p>
+<p>His first animation company went bankrupt. He was famously told early in his career that he lacked imagination.</p>
+<p>Apparently Mickey Mouse didn’t get the memo.</p>
+<p>And then there were two guys named Brian Chesky and Joe Gebbia.</p>
+<p>Their brilliant idea?</p>
+<p>Let complete strangers sleep in your house.</p>
+<p>Fantastic.</p>
+<p>Nothing creepy about that whatsoever.</p>
+<p>Imagine pitching Airbnb before Airbnb existed.</p>
+<p>“So our business model is that when a stranger comes to town, instead of staying at the Marriott, they sleep in Steve’s spare bedroom.”</p>
+<p>“Who the fuck is Steve?”</p>
+<p>“Exactly.”</p>
+<p>People laughed.</p>
+<p>Then Airbnb became Airbnb.</p>
+<p>I could go on forever.</p>
+<p>Because almost every interesting thing in the world began with somebody proposing something that sounded ridiculous to somebody else.</p>
+<h2>MAYBE WE’RE LAUGHING AT THE WRONG PEOPLE</h2>
+<p>Perhaps the people we should occasionally laugh at are the people who have never tried anything.</p>
+<p>Never risked anything.</p>
+<p>Never built anything.</p>
+<p>Never backed anybody.</p>
+<p>Never walked into a room with an idea everyone thought was insane.</p>
+<p>Never failed spectacularly.</p>
+<p>Never had their friends ask:</p>
+<p>“What the fuck were you thinking?”</p>
+<p>They’ve never experienced the incredible satisfaction of being catastrophically wrong.</p>
+<p>Because apparently their role in civilization is Director of Hindsight.</p>
+<p>These are also the people who love saying:</p>
+<p>“SEE! I TOLD YOU!”</p>
+<p>You invested in a friend’s company and it failed?</p>
+<p>“See! I told you!”</p>
+<p>You backed somebody and it didn’t work?</p>
+<p>“See! I told you!”</p>
+<p>You tried something new and lost money?</p>
+<p>“SEE! I FUCKING TOLD YOU!”</p>
+<p>Congratulations.</p>
+<p>You predicted that a risky thing contained risk.</p>
+<p>Warren Buffett, everybody.</p>
+<p>Hey, dipshit:</p>
+<p>They gave someone a chance.</p>
+<p>Maybe the company failed.</p>
+<p>Maybe the investment went to zero.</p>
+<p>Maybe the golfer missed the cut.</p>
+<p>Maybe the restaurant closed.</p>
+<p>Maybe the rocket exploded.</p>
+<p>Maybe the timing sucked.</p>
+<p>Maybe the idea was brilliant and the execution sucked.</p>
+<p>Maybe the execution was brilliant and the idea sucked.</p>
+<p>Maybe everybody involved was simply a fucking idiot.</p>
+<p>So what?</p>
+<p>They tried.</p>
+<p>I particularly love when people who live in glass houses throw rocks.</p>
+<p>And there are a remarkable number of people living in glass houses who apparently own fucking catapults.</p>
+<h2>EVERYTHING AROUND YOU STARTED WITH SOMEONE SAYING “WHY NOT?”</h2>
+<p>Look around you.</p>
+<p>Almost everything you touch today exists because somebody, somewhere, said:</p>
+<p>“Why not?”</p>
+<p>“Why can’t we?”</p>
+<p>Or my personal favorite:</p>
+<p>“Fuck it. Let’s try.”</p>
+<p>Some succeeded immediately.</p>
+<p>Most didn’t.</p>
+<p>Some failed five times.</p>
+<p>Some failed fifty times.</p>
+<p>Some were too early.</p>
+<p>Some were too late.</p>
+<p>Some had the wrong partner.</p>
+<p>Some ran out of money.</p>
+<p>Some got lucky.</p>
+<p>Some were unbelievably good.</p>
+<p>And sometimes the stars simply aligned and some crazy son of a bitch who refused to quit changed an industry.</p>
+<p>That’s how progress works.</p>
+<p>It’s messy.</p>
+<h2>FAILURE IS GOOD</h2>
+<p>I actually believe failure is one of the greatest educational institutions on Earth.</p>
+<p>Unfortunately, tuition can be fucking expensive.</p>
+<p>But you learn.</p>
+<p>You learn about business.</p>
+<p>You learn about money.</p>
+<p>You learn about people.</p>
+<p>You learn who disappears when things go badly.</p>
+<p>You learn who shows up.</p>
+<p>And most importantly, you learn about yourself.</p>
+<p>The bigger the failure, the more knowledge you tend to walk away with.</p>
+<p>And then there are the truly monumental fuck-ups.</p>
+<p>Those are priceless.</p>
+<p>Because twenty years later, nobody wants to hear the story about the investment where you made 11%.</p>
+<p>They want to hear about the time you nearly went bankrupt, got chased by an alligator, accidentally bought something you didn’t understand, ended up dealing with international police—or watched your rocket explode on television.</p>
+<p>The biggest fuck-ups always make the best stories.</p>
+<p>Which brings me back to the hat.</p>
+<p>I have no idea where MD’s journey ends.</p>
+<p>That’s the entire fucking point.</p>
+<p>But for one week, a young professional golfer who has spent an enormous part of his life chasing a dream got another shot at it.</p>
+<p>And Directive 17 got to be on his hat.</p>
+<p>I’m proud of that.</p>
+<p>I’m proud of him for trying.</p>
+<p>And I’d do it again tomorrow.</p>
+<p>In fact, I think I’m going to.</p>
+<p>So here’s my offer.</p>
+<p>If you’re chasing something you genuinely believe in…</p>
+<p>If you’re trying something other people think is crazy…</p>
+<p>If you’re building something…</p>
+<p>Creating something…</p>
+<p>Helping somebody…</p>
+<p>Taking a shot nobody thinks you should take…</p>
+<p>Or, in some small way, trying to make the world a happier place…</p>
+<p>Tell me about it.</p>
+<p>Maybe I’ll help.</p>
+<p>Maybe I won’t.</p>
+<p>Maybe your idea is completely fucking insane.</p>
+<p>But I promise you one thing:</p>
+<p>I’m not going to laugh at you for trying.</p>
+<p>And who knows?</p>
+<p>You might just get a hat.</p>
+<p>DIRECTIVE 17</p>
+<p>Changing the world, “one” hat at a time.</p></div></div></div>
+</article>
+<article class="acc reveal" id="what-could-go-wrong" style="--d:0.06s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">September 16, 2026</div>
 <h3>What Could Go Wrong?</h3></div>
@@ -629,7 +823,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>I’ll let you know.</p>
 <p>Assuming someone can find my phone.</p></div></div></div>
 </article>
-<article class="acc reveal" id="my-life-philosophy" style="--d:0.06s">
+<article class="acc reveal" id="my-life-philosophy" style="--d:0.12s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 27, 2026</div>
 <h3>My Life Philosophy May Be Terrible Advice</h3></div>
@@ -799,7 +993,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>That really might last forever.</p>
 <p>And if I'm lucky, I'm nowhere near done creating mine.</p></div></div></div>
 </article>
-<article class="acc reveal" id="apple-psyllium" style="--d:0.12s">
+<article class="acc reveal" id="apple-psyllium" style="--d:0.18s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 25, 2026</div>
 <h3>Apple, Psyllium &amp; the Complete Collapse of Western Civilization</h3></div>
@@ -926,7 +1120,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>And apparently, if you don't drink enough water…</p>
 <p>so does fiber.</p></div></div></div>
 </article>
-<article class="acc reveal" id="black-plastic" style="--d:0.18s">
+<article class="acc reveal" id="black-plastic" style="--d:0.24s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 25, 2026</div>
 <h3>Black Plastic</h3></div>
@@ -1045,7 +1239,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>One man's ongoing attempt to understand how we became technologically advanced enough to create artificial intelligence, autonomous vehicles and reusable spacecraft—</p>
 <p>but somehow putting healthy chicken into a healthy fucking container remains an unsolved problem.</p></div></div></div>
 </article>
-<article class="acc reveal" id="i-trust-ai" style="--d:0.24s">
+<article class="acc reveal" id="i-trust-ai" style="--d:0.30s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 20, 2026</div>
 <h3>I Trust AI. I&#x27;m Starting Not to Trust the People Using It.</h3></div>
@@ -1216,7 +1410,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Because I’m not particularly afraid that artificial intelligence is going to take over the world.</p>
 <p>I’m increasingly concerned that humans are simply going to hand it the keys.</p></div></div></div>
 </article>
-<article class="acc reveal" id="i-havent-even-taken-off-yet" style="--d:0.30s">
+<article class="acc reveal" id="i-havent-even-taken-off-yet" style="--d:0.36s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 19, 2026</div>
 <h3>I Haven&#x27;t Even Taken Off Yet</h3></div>
@@ -1287,7 +1481,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>The doors haven't even closed yet.</p>
 <p><strong>I cannot wait to see what happens after takeoff.</strong></p></div></div></div>
 </article>
-<article class="acc reveal" id="some-things-we-were-never-meant-to-know" style="--d:0.36s">
+<article class="acc reveal" id="some-things-we-were-never-meant-to-know" style="--d:0.42s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 13, 2026</div>
 <h3>There Are Some Things We Were Never Meant to Know</h3></div>
@@ -1360,7 +1554,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Because there are certain things about each other…</p>
 <p>we were simply never meant to know.</p></div></div></div>
 </article>
-<article class="acc reveal" id="stop-watching-start-creating" style="--d:0.42s">
+<article class="acc reveal" id="stop-watching-start-creating" style="--d:0.48s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 11, 2026</div>
 <h3>Stop Watching. Start F@cking Creating.</h3></div>
@@ -1557,7 +1751,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>There is an entire world outside the screen.</p>
 <p>Go fuck with it.</p></div></div></div>
 </article>
-<article class="acc reveal" id="one-second-im-trying-to-reach-you" style="--d:0.48s">
+<article class="acc reveal" id="one-second-im-trying-to-reach-you" style="--d:0.54s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 9, 2026</div>
 <h3>One Second. I&#x27;m Trying to Reach You.</h3></div>
@@ -1828,7 +2022,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <p>Because apparently...</p>
 <p>that would be inefficient</p></div></div></div>
 </article>
-<article class="acc reveal" id="we-have-run-out-of-fish" style="--d:0.54s">
+<article class="acc reveal" id="we-have-run-out-of-fish" style="--d:0.60s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">August 9, 2026</div>
 <h3>We Have Run Out of Fish</h3></div>
