@@ -1,0 +1,62 @@
+# Directive 17 — all crawlers welcome, including AI assistants
+User-agent: *
+Allow: /
+Disallow: /decks/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /decks/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /decks/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /decks/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /decks/
+
+User-agent: Claude-User
+Allow: /
+Disallow: /decks/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /decks/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /decks/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /decks/
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /decks/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /decks/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /decks/
+
+User-agent: CCBot
+Allow: /
+Disallow: /decks/
+
+User-agent: Bytespider
+Allow: /
+Disallow: /decks/
+
+User-agent: meta-externalagent
+Allow: /
+Disallow: /decks/
+
+Sitemap: https://directive17.com/sitemap.xml

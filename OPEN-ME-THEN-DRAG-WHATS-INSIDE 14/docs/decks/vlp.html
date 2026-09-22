@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vertical Longevity Pharmaceuticals — Investor Deck — Directive 17</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="../images/logos/enso.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBF7EC;--deep:#203C2D;--accent:#D98B33;--line:#3A5344;--cream:#F5F1E2;
+--serif:'Source Serif 4',Georgia,serif;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--deep);color:var(--cream);font-family:var(--serif);min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+padding:18px clamp(20px,3vw,44px);border-bottom:1px solid var(--line)}
+.topbar .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.05rem;
+color:var(--cream)}
+.topbar .brand img{height:32px;width:32px}
+.topbar .dtitle{font-family:var(--sans);font-size:.72rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.18em;color:#8FA08A;text-align:center}
+.topbar .count{font-family:var(--sans);font-size:.78rem;font-weight:600;color:#8FA08A;
+min-width:70px;text-align:right}
+/* gate */
+.gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+background:var(--deep);z-index:50;padding:24px}
+.gate-card{text-align:center;max-width:420px;width:100%}
+.gate-card img{width:84px;margin-bottom:26px}
+.gate-card h1{font-size:clamp(1.5rem,3vw,2rem);margin-bottom:8px;letter-spacing:-.01em}
+.gate-card .glabel{font-family:var(--sans);font-size:.7rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.22em;color:var(--accent);margin-bottom:30px}
+.gate-card input{width:100%;background:#1A3226;border:1px solid var(--line);border-radius:8px;
+color:var(--cream);font-family:var(--sans);font-size:1rem;padding:15px 18px;outline:none;
+text-align:center;letter-spacing:.08em;transition:border-color .2s}
+.gate-card input:focus{border-color:var(--accent)}
+.gate-card button{margin-top:14px;width:100%;background:var(--accent);border:none;
+border-radius:8px;color:#1A2E22;font-family:var(--sans);font-size:.8rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.16em;padding:15px;cursor:pointer;transition:filter .15s}
+.gate-card button:hover{filter:brightness(1.08)}
+.gate-card .err{font-family:var(--sans);font-size:.82rem;color:#E2907B;margin-top:14px;
+min-height:1.2em}
+.gate-card .note{font-family:var(--sans);font-size:.72rem;color:#8FA08A;margin-top:22px}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.shake{animation:shake .4s}
+/* stage */
+.viewer{display:none}
+.viewer.on{display:block}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;
+height:calc(100vh - 130px);padding:20px clamp(56px,6vw,90px)}
+.stage img{max-width:100%;max-height:100%;border-radius:6px;
+box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(245,241,226,.08);
+border:1px solid var(--line);color:var(--cream);width:46px;height:46px;border-radius:50%;
+cursor:pointer;font-size:1.15rem;font-family:var(--sans);transition:background .15s;z-index:5}
+.arrow:hover{background:rgba(245,241,226,.18)}
+.arrow.prev{left:clamp(8px,1.5vw,24px)}.arrow.next{right:clamp(8px,1.5vw,24px)}
+.arrow:disabled{opacity:.25;cursor:default}
+.bottom{display:flex;align-items:center;justify-content:center;gap:20px;
+padding:0 20px 18px;font-family:var(--sans);font-size:.7rem;font-weight:600;
+text-transform:uppercase;letter-spacing:.18em;color:#8FA08A}
+.loading{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+color:#8FA08A;font-family:var(--sans);font-size:.8rem;letter-spacing:.14em}
+.loading.on{display:flex}
+@media(max-width:640px){.stage{padding:12px 8px;height:calc(100vh - 150px)}
+.arrow{width:38px;height:38px}.topbar .dtitle{display:none}}
+</style>
+</head>
+<body>
+<div class="topbar">
+<a class="brand" href="../companies.html"><img src="../images/logos/enso.webp" alt="">Directive 17</a>
+<div class="dtitle">Vertical Longevity Pharmaceuticals &middot; Investor Deck</div>
+<div class="count" id="count"></div>
+</div>
+<div class="gate" id="gate">
+<div class="gate-card">
+<img src="../images/logos/enso.webp" alt="">
+<div class="glabel">Confidential &middot; Investor Deck</div>
+<h1>Vertical Longevity Pharmaceuticals</h1>
+<input type="password" id="pw" placeholder="Password" autocomplete="off" autofocus>
+<button id="go">View deck</button>
+<div class="err" id="err"></div>
+<div class="note">This deck is confidential. Please do not distribute.<br>
+Need access? <span style="color:var(--cream)">joel@directive17.com</span></div>
+</div>
+</div>
+<div class="viewer">
+<div class="stage">
+<button class="arrow prev" id="prev" aria-label="Previous slide">&larr;</button>
+<img id="slide" alt="Vertical Longevity Pharmaceuticals slide">
+<div class="loading" id="loading">DECRYPTING&hellip;</div>
+<button class="arrow next" id="next" aria-label="Next slide">&rarr;</button>
+</div>
+<div class="bottom">Confidential &mdash; do not distribute</div>
+</div>
+<script>
+const META = {salt:'kA8T7cJWDXu19wPKSG/26w==', iterations:300000, sizes:[95259, 102652, 110938, 114593, 90954, 98745, 100795, 104602, 114765, 101186, 106557, 134678, 97956, 195002, 121796, 91678, 105141, 114302, 64525, 96762, 126765, 102345, 131703, 95738, 98374, 95931, 107065, 109105, 108634, 130966, 112181, 133282, 89738, 117958], pack:'vlp.pack'};
+const offsets = []; let acc = 0;
+for (const s of META.sizes) { offsets.push(acc); acc += s; }
+const TOTAL = META.sizes.length;
+let key = null, cur = 1, packBuf = null, noRange = false;
+const cache = new Map();
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function deriveKey(pw) {
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw),
+    'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:b64(META.salt), iterations:META.iterations, hash:'SHA-256'},
+    km, {name:'AES-GCM', length:256}, false, ['decrypt']);
+}
+async function sliceFor(n) {
+  const start = offsets[n-1], end = start + META.sizes[n-1] - 1;
+  if (packBuf) return packBuf.slice(start, end + 1);
+  if (!noRange) {
+    try {
+      const r = await fetch(META.pack, {headers:{Range:'bytes='+start+'-'+end}});
+      if (r.status === 206) {
+        const buf = await r.arrayBuffer();
+        if (buf.byteLength === META.sizes[n-1]) return buf;
+      }
+      noRange = true;
+    } catch (e) { noRange = true; }
+  }
+  const full = await fetch(META.pack);
+  packBuf = await full.arrayBuffer();
+  return packBuf.slice(start, end + 1);
+}
+async function slideURL(n) {
+  if (cache.has(n)) return cache.get(n);
+  const blob = await sliceFor(n);
+  const iv = new Uint8Array(blob.slice(0, 12));
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, blob.slice(12));
+  const url = URL.createObjectURL(new Blob([pt], {type:'image/jpeg'}));
+  cache.set(n, url);
+  return url;
+}
+async function show(n) {
+  if (n < 1 || n > TOTAL) return;
+  cur = n;
+  document.getElementById('loading').classList.add('on');
+  const url = await slideURL(n);
+  const img = document.getElementById('slide');
+  img.src = url;
+  document.getElementById('loading').classList.remove('on');
+  document.getElementById('count').textContent = n + ' / ' + TOTAL;
+  document.getElementById('prev').disabled = (n === 1);
+  document.getElementById('next').disabled = (n === TOTAL);
+  if (n < TOTAL) slideURL(n + 1);
+}
+async function unlock() {
+  const pw = document.getElementById('pw').value;
+  const btn = document.getElementById('go');
+  const err = document.getElementById('err');
+  if (!pw) return;
+  btn.textContent = 'Unlocking\u2026'; err.textContent = '';
+  try {
+    key = await deriveKey(pw);
+    await slideURL(1);
+    document.getElementById('gate').style.display = 'none';
+    document.querySelector('.viewer').classList.add('on');
+    show(1);
+  } catch (e) {
+    key = null;
+    err.textContent = 'Incorrect password.';
+    const card = document.querySelector('.gate-card');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  }
+  btn.textContent = 'View deck';
+}
+document.getElementById('go').addEventListener('click', unlock);
+document.getElementById('pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') unlock();
+});
+document.getElementById('prev').addEventListener('click', () => show(cur - 1));
+document.getElementById('next').addEventListener('click', () => show(cur + 1));
+document.addEventListener('keydown', e => {
+  if (!key) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+let tx = null;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  if (tx === null || !key) return;
+  const dx = e.changedTouches[0].clientX - tx;
+  if (dx < -50) show(cur + 1);
+  if (dx > 50) show(cur - 1);
+  tx = null;
+}, {passive:true});
+</script>
+</body>
+</html>
