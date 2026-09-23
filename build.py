@@ -201,7 +201,7 @@ float 7s ease-in-out 1.8s infinite}
 .hero-home{min-height:calc(100vh - 75px);display:flex;flex-direction:column;
 justify-content:center;padding:40px 0 120px;position:relative}
 .note-inline{width:100%;margin-top:clamp(34px,5.5vh,68px);border-top:1px solid var(--line);
-opacity:0;animation:fadeUp .9s var(--ease) forwards;animation-delay:calc(1.25s + var(--hd,0s))}
+opacity:0;animation:fadeUp .9s var(--ease) forwards;animation-delay:calc(1.05s + var(--hd,0s))}
 .note-inline .acc-head{padding:24px 0 0}
 .note-inline .acc-head .meta h3{margin-top:6px}
 .acc-bare{border:none}
@@ -944,7 +944,6 @@ home = f"""
 <div>
 <div class="kicker fade" style="--d:.05s">Directive 17</div>
 <h1 class="display">{words(site['tagline'], .25, .09)}</h1>
-<p class="sub fade" style="--d:.95s">{html.escape(site['subline'])}</p>
 </div>
 <div class="hero-enso floaty"><img src="images/logos/enso.webp" width="1114" height="1098" alt="Directive 17 enso"></div>
 </div>
@@ -1121,13 +1120,7 @@ for p in posts:
 <h1 class="display note-head" style="max-width:20ch;font-size:clamp(2rem,4.4vw,3.4rem)">{words(p['title'], .25, .07)}</h1>
 </div></div>
 <section class="jd-intro" style="padding-top:52px;border-top:1px solid var(--line)">
-<div class="wrap ch-grid">
-<div class="ch-side reveal"><div class="note-byline">
-<img src="../images/logos/enso-sm.webp" width="44" height="44" loading="lazy" alt="">
-<div><div class="nb-name">Joel Shapiro</div>
-<div class="nb-role">Joel's Blog</div></div>
-</div>
-<div class="read-time">{words_ct} min read</div></div>
+<div class="wrap">
 <div class="longform">{p['html']}</div>
 </div>
 </section>
