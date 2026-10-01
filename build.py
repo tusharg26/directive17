@@ -827,7 +827,7 @@ LI_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
   '</svg>')
 
 LOGO_SCALE = {
-    "Pivt": 0.68, "Mythogenic": 0.82, "Caviar and Corndogs": 0.88,
+    "Pivt": 0.68, "Mythogenic": 0.82, "Caviar and Corndogs": 0.98,
     "Vector": 1.12, "Twelve92": 0.95, "HumanOS": 0.92,
     "Epirus": 0.72, "Advocate": 0.72, "LARX": 0.8, "General Fusion": 0.82,
     "Colossal Laboratories & Biosciences": 0.95,
