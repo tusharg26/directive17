@@ -438,6 +438,8 @@ color:var(--bg);padding:16px 32px;border-radius:8px;transition:all .3s var(--eas
 .acc-head{display:flex;align-items:center;gap:18px;width:100%;padding:30px 0;cursor:pointer;
 background:none;border:none;text-align:left;font:inherit;color:inherit}
 .acc-head .meta{flex:1;min-width:0}
+.acc-head h3,.new-post .np-title{overflow-wrap:break-word}
+.fit-1line wbr{display:none}
 .acc-head .date{font-family:var(--sans);font-size:.7rem;font-weight:600;color:var(--muted);
 text-transform:uppercase;letter-spacing:.18em}
 .acc-head h3{font-family:var(--serif);font-size:clamp(1.25rem,2.7vw,1.7rem);color:var(--deep);
@@ -555,12 +557,14 @@ FITHEAD_JS = """
   if (!el) return;
   var CAP = 76;
   function fit(){
-    if (window.innerWidth < 861) {
+    if (document.documentElement.clientWidth < 861) {
+      el.classList.remove('fit-1line');
       el.style.whiteSpace = '';
       el.style.fontSize = '';
       el.style.maxWidth = '';
       return;
     }
+    el.classList.add('fit-1line');
     el.style.maxWidth = 'none';
     el.style.whiteSpace = 'nowrap';
     el.style.fontSize = CAP + 'px';
@@ -736,9 +740,17 @@ BLOG_JS = """
 # ---------------------------------------------------------------- helpers
 def words(text, start=0.15, step=0.07):
     """Split text into word spans with staggered rise-in delays."""
-    out = []
-    for i, w in enumerate(text.split()):
-        out.append(f'<span class="w" style="--d:{start + i*step:.2f}s">{html.escape(w)}</span>')
+    out, i = [], 0
+    for w in text.split():
+        # long slash-joined tokens (e.g. "He/She/It/...") get a break point after
+        # each slash so they can wrap on narrow screens instead of shrinking
+        parts = [x + "/" for x in w.split("/")[:-1]] + [w.split("/")[-1]]
+        spans = []
+        for part in parts:
+            if not part: continue
+            spans.append(f'<span class="w" style="--d:{start + i*step:.2f}s">{html.escape(part)}</span>')
+            i += 1
+        out.append("<wbr>".join(spans))
     return " ".join(out)
 
 def rev(inner, delay=0.0, tag="div", cls="", style=""):
@@ -888,7 +900,7 @@ if newest:
         '<span class="np-tag">New post</span>'
         '<span class="np-title">{title}</span>'
         '<span class="np-arrow" aria-hidden="true">&#8594;</span></a>'
-    ).format(slug=newest["slug"], title=md_inline(newest["title"]))
+    ).format(slug=newest["slug"], title=md_inline(newest["title"]).replace("/", "/<wbr>"))
 
 note_head = f"""
 <div class="wrap note-inline" id="note-head">
@@ -1079,7 +1091,7 @@ rows = "".join(f"""
 <article class="acc reveal" id="{p['slug']}" style="--d:{.06*i:.2f}s">
 <div class="acc-head" role="button" tabindex="0" aria-expanded="false">
 <div class="meta"><div class="date">{fmt_date(p['date'])}</div>
-<h3>{html.escape(p['title'])}</h3></div>
+<h3>{html.escape(p['title']).replace('/', '/<wbr>')}</h3></div>
 <button class="share-btn" data-slug="{p['slug']}" data-title="{html.escape(p['title'], quote=True)}">Share</button>
 <div class="chev">+</div>
 </div>
