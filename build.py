@@ -892,12 +892,18 @@ if fn_lede_m:
 fn_body = fn_body.replace("<!--more-->", "")
 fn_minutes = max(1, round(len(fn_body.split()) / 200))
 
-newest = posts[0] if posts else None
+# Landing-page blog pill: shows the post named in site.json "featured_post"
+# (a slug, e.g. "my-life-philosophy"); if that's blank or missing, the newest post.
+_feat = (site.get("featured_post") or "").strip()
+newest = next((x for x in posts if x["slug"] == _feat), None) if _feat else None
+np_label = "From the blog" if newest else "New post"
+if newest is None:
+    newest = posts[0] if posts else None
 note_alert = ""
 if newest:
     note_alert = (
         '<a class="new-post" href="blog/{slug}.html">'
-        '<span class="np-tag">New post</span>'
+        '<span class="np-tag">' + np_label + '</span>'
         '<span class="np-title">{title}</span>'
         '<span class="np-arrow" aria-hidden="true">&#8594;</span></a>'
     ).format(slug=newest["slug"], title=md_inline(newest["title"]).replace("/", "/<wbr>"))
