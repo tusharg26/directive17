@@ -21,6 +21,30 @@ OUT = ROOT / "docs"
 site = json.loads((CONTENT / "site.json").read_text())
 companies = json.loads((CONTENT / "companies.json").read_text())
 
+# Company overview pages: content/companies/<slug>.md holds the overview copy,
+# one paragraph per blank-line-separated block (used verbatim). A company gets an
+# overview page (and an "Overview" button on the Companies page) only if that file exists.
+for _c in companies:
+    _f = CONTENT / "companies" / f'{_c.get("slug", "")}.md'
+    if _c.get("slug") and _f.exists():
+        _c["overview_paras"] = [b.strip() for b in re.split(r"\n\s*\n", _f.read_text(encoding="utf-8")) if b.strip()]
+
+def img_size(path):
+    """(width, height) of a PNG or WebP file, read from its header (no dependencies)."""
+    import struct
+    d = Path(path).read_bytes()[:40]
+    if d[:8] == b"\x89PNG\r\n\x1a\n":
+        return struct.unpack(">II", d[16:24])
+    if d[:4] == b"RIFF" and d[8:12] == b"WEBP":
+        kind = d[12:16]
+        if kind == b"VP8X":
+            return (1 + int.from_bytes(d[24:27], "little"), 1 + int.from_bytes(d[27:30], "little"))
+        if kind == b"VP8 ":
+            w, h = struct.unpack("<HH", d[26:30]); return (w & 0x3FFF, h & 0x3FFF)
+        if kind == b"VP8L":
+            b0 = int.from_bytes(d[21:25], "little"); return ((b0 & 0x3FFF) + 1, ((b0 >> 14) & 0x3FFF) + 1)
+    return (1, 1)
+
 # ---------------------------------------------------------------- markdown
 def md_inline(s):
     s = html.escape(s, quote=False)
@@ -423,6 +447,64 @@ letter-spacing:.2em;color:var(--accent);margin:64px 0 30px;display:flex;align-it
 .group-label:first-of-type{margin-top:0}
 .deck-tag{font-family:var(--sans);font-size:.66rem;font-weight:700;letter-spacing:.16em;
 text-transform:uppercase;color:var(--accent);margin-top:8px}
+/* company "Overview" button: revealed on hover/focus, always visible on touch */
+.card-wrap{position:relative}
+.card-wrap .tile{position:relative}
+.card-wrap:hover .tile{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 32px rgba(32,60,45,.16)}
+.card-wrap .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+opacity:0;transition:opacity .3s var(--ease)}
+.card-wrap .tile-dark::after{background:rgba(16,32,24,.5)}
+.card-wrap .tile-light::after{background:rgba(251,247,236,.72)}
+.ov-btn{position:absolute;left:50%;top:56px;z-index:2;transform:translate(-50%,-50%);
+font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+padding:10px 20px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;
+box-shadow:0 6px 18px rgba(16,32,24,.22);
+transition:opacity .3s var(--ease),transform .35s var(--ease),background .2s,color .2s}
+.ov-btn.ov-on-dark{background:var(--bg);color:var(--deep)}
+.ov-btn.ov-on-light{background:var(--deep);color:var(--bg)}
+.ov-btn:hover{background:var(--accent);color:var(--deep)}
+.ov-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.card-wrap:focus-within .ov-btn{opacity:1;pointer-events:auto}
+.card-wrap:focus-within .tile::after{opacity:1}
+@media(hover:hover){
+.card-wrap:hover .ov-btn{opacity:1;pointer-events:auto;transform:translate(-50%,calc(-50% - 6px))}
+.card-wrap:hover .tile::after{opacity:1}}
+@media(hover:none){
+/* touch: no hover, so the control sits under the name as a link, styled like "Investor deck" */
+.card-wrap{text-align:center}
+.ov-btn,.ov-btn.ov-on-dark,.ov-btn.ov-on-light,.ov-btn:hover{position:static;transform:none;opacity:1;pointer-events:auto;
+display:inline-block;background:none;color:var(--muted);box-shadow:none;border-radius:6px;
+font-size:.85rem;letter-spacing:.16em;padding:6px 10px;margin-top:0}
+.ov-btn::after{content:" \\2192"}
+.card-wrap:focus-within .tile::after{opacity:0}}
+@media(prefers-reduced-motion:reduce){.ov-btn,.card-wrap .tile::after{transition:none}}
+/* company overview pages (centered editorial) */
+.ov{padding:46px 0 96px}
+.ov-wrap{max-width:1500px;margin:0 auto;padding:0 clamp(22px,5vw,76px)}
+.ov-back{font-family:var(--sans);font-size:.84rem;color:var(--accent);display:inline-flex;gap:8px;
+align-items:center;transition:color .2s}
+.ov-back:hover,.ov-foot a:hover{color:var(--deep)}
+.ov-head{text-align:center;margin-top:26px}
+.ov-logo{display:flex;justify-content:center;align-items:center}
+.ov-logo img{width:var(--w);height:var(--h);max-width:100%;object-fit:contain}
+.ov-logo-dark{background:var(--deep);border-radius:16px;width:min(390px,100%);height:160px;margin:0 auto;padding:20px}
+.ov-name{font-family:var(--serif);font-weight:700;color:var(--deep);letter-spacing:-.015em;line-height:1.1;
+font-size:clamp(2.125rem,1.4rem + 2.2vw,3rem);margin-top:24px}
+.ov-body{max-width:760px;margin:34px auto 0;text-align:left;font-family:var(--serif);
+font-size:18px;line-height:1.72;color:var(--ink)}
+.ov-body p+p{margin-top:1.25em}
+.ov-foot{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px 28px;
+margin-top:64px;padding-top:24px;border-top:1px solid var(--line);
+font-family:var(--sans);font-size:.88rem}
+.ov-foot a{color:var(--accent);transition:color .2s}
+@media(max-width:820px){
+.ov{padding:26px 0 72px}
+.ov-head{margin-top:18px}
+.ov-logo img{width:calc(var(--w) * .74);height:calc(var(--h) * .74)}
+.ov-logo-dark{height:122px;width:min(310px,100%);padding:14px;border-radius:14px}
+.ov-name{margin-top:16px}
+.ov-body{margin-top:24px;font-size:16.5px;line-height:1.68}
+.ov-foot{margin-top:48px;font-size:.84rem}}
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:.76rem;
 font-weight:700;text-transform:uppercase;letter-spacing:.16em;background:var(--deep);
@@ -846,6 +928,21 @@ LOGO_SCALE = {
 }
 
 def company_card(c, depth=0, delay=0.0):
+    """Companies-page card. Companies with an overview get the legacy card wrapped
+    with a hover/focus/touch "Overview" button; others render exactly as before."""
+    if not c.get("overview_paras"):
+        return legacy_company_card(c, depth, delay)
+    p = "../" * depth
+    card = legacy_company_card(c, depth, 0.0, wrapped=True)
+    tone = "ov-on-dark" if "Proprietary" in c.get("group", "Proprietary") else "ov-on-light"
+    has_reveal = not c.get("deck")          # deck cards never had the reveal animation
+    d = f' style="--d:{delay:.2f}s"' if (delay and has_reveal) else ""
+    name = c.get("overview_name") or c["name"]
+    return (f'<div class="card-wrap{" reveal" if has_reveal else ""}"{d}>{card}'
+            f'<a class="ov-btn {tone}" href="{p}companies/{c["slug"]}.html" '
+            f'aria-label="{html.escape(name, quote=True)} overview">Overview</a></div>')
+
+def legacy_company_card(c, depth=0, delay=0.0, wrapped=False):
     p = "../" * depth
     dark = "Proprietary" in c.get("group", "Proprietary")
     tile_cls = "tile-dark" if dark else "tile-light"
@@ -864,7 +961,11 @@ def company_card(c, depth=0, delay=0.0):
     inner = f'<div class="tile {tile_cls}">{logo}</div><h3>{html.escape(c["name"])}</h3>{liner}'
     d = f' style="--d:{delay:.2f}s"' if delay else ""
     if c.get("url"):
+        if wrapped:
+            return f'<a class="card" href="{c["url"]}" target="_blank" rel="noopener">{inner}</a>'
         return f'<a class="card reveal" href="{c["url"]}" target="_blank" rel="noopener"{d}>{inner}</a>'
+    if wrapped:
+        return f'<div class="card">{inner}</div>'
     return f'<div class="card reveal"{d}>{inner}</div>'
 
 # ---------------------------------------------------------------- build
@@ -1087,6 +1188,50 @@ companies_body = f"""
 <section style="padding-top:20px"><div class="wrap">{sections}</div></section>"""
 (OUT / "companies.html").write_text(page(f"Companies — {site['name']}", companies_body, "Companies",
     path="companies.html", desc="Different companies. One philosophy."))
+
+# ---------------- company overview pages: docs/companies/<slug>.html (one template, per-company copy)
+ov_companies = [c for c in companies if c.get("overview_paras")]
+(OUT / "companies").mkdir(exist_ok=True)
+
+def ov_logo_size(c):
+    """Size logos by visual area (not just width) so square and wide marks feel equally weighted."""
+    w, h = img_size(CONTENT / "images" / c["logo"])
+    r = w / h
+    gm = 150 if c.get("overview_logo_bg") != "dark" else 140   # target sqrt(w*h) in px
+    dw, dh = gm * r ** 0.5, gm / r ** 0.5
+    k = min(1, 340 / dw, 130 / dh) if c.get("overview_logo_bg") != "dark" else min(1, 300 / dw, 116 / dh)
+    return round(dw * k), round(dh * k)
+
+for i, c in enumerate(ov_companies):
+    nxt = ov_companies[(i + 1) % len(ov_companies)]
+    name = c.get("overview_name") or c["name"]
+    nname = nxt.get("overview_name") or nxt["name"]
+    lw, lh = ov_logo_size(c)
+    dark_bg = c.get("overview_logo_bg") == "dark"
+    logo = (f'<img src="../images/{c["logo"]}" alt="{html.escape(name, quote=True)} logo" '
+            f'width="{lw}" height="{lh}" style="--w:{lw}px;--h:{lh}px" decoding="async">')
+    paras = "".join(f"<p>{html.escape(t, quote=False)}</p>" for t in c["overview_paras"])
+    first = re.split(r"(?<=[.!?])\s", c["overview_paras"][0], maxsplit=1)[0]
+    body = f"""
+<section class="ov"><div class="ov-wrap">
+<a class="ov-back fade" style="--d:.05s" href="../companies.html"><span aria-hidden="true">&larr;</span> All companies</a>
+<div class="ov-head">
+<div class="ov-logo{' ov-logo-dark' if dark_bg else ''} fade" style="--d:.12s">{logo}</div>
+<h1 class="ov-name fade" style="--d:.22s">{html.escape(name)}</h1>
+</div>
+<div class="ov-body fade" style="--d:.34s">{paras}</div>
+<nav class="ov-foot" aria-label="Company navigation">
+<a href="../companies.html">All companies</a>
+<a href="{nxt['slug']}.html">Next company: {html.escape(nname)} <span aria-hidden="true">&rarr;</span></a>
+</nav>
+</div></section>"""
+    ld = {"@context": "https://schema.org", "@type": "WebPage", "name": f"{name} — Directive 17",
+          "url": f"https://{site['domain']}/companies/{c['slug']}.html",
+          "about": {"@type": "Organization", "name": name, "description": " ".join(c["overview_paras"])},
+          "isPartOf": {"@type": "WebSite", "name": "Directive 17", "url": f"https://{site['domain']}/"}}
+    (OUT / "companies" / f"{c['slug']}.html").write_text(
+        page(f"{name} — {site['name']}", body, "Companies", 1,
+             path=f"companies/{c['slug']}.html", desc=first, jsonld=ld))
 
 (OUT / "index.html").write_text(
     page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True,
@@ -1405,7 +1550,8 @@ for _n in site["nav"]:
 from datetime import date as _date
 _today = _date.today().isoformat()
 _urls = ["", "why.html", "philosophy.html", "companies.html", "future.html",
-         "build.html", "blog/"] + [f"blog/{p['slug']}.html" for p in posts]
+         "build.html", "blog/"] + [f"blog/{p['slug']}.html" for p in posts] \
+        + [f"companies/{c['slug']}.html" for c in companies if c.get("overview_paras")]
 _sm = ['<?xml version="1.0" encoding="UTF-8"?>',
        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
 for u in _urls:
@@ -1437,7 +1583,10 @@ _ll += [f"- [Why We Exist](https://{site['domain']}/why.html): Most organization
         f"- [The Future We See](https://{site['domain']}/future.html): What future is worth building?",
         f"- [Build With Us](https://{site['domain']}/build.html): Contact — {site['contact_email']}",
         f"- [A Note from the Founder](https://{site['domain']}/#founder-note): Joel Shapiro on why Directive 17 exists and what it invests in.",
-        "", "## Joel's Blog", ""]
+        "", "## Companies", ""]
+_ll += [f"- [{c.get('overview_name') or c['name']}](https://{site['domain']}/companies/{c['slug']}.html): "
+        f"{c['overview_paras'][0]}" for c in companies if c.get("overview_paras")]
+_ll += ["", "## Joel's Blog", ""]
 _ll += [f"- [{p['title']}](https://{site['domain']}/blog/{p['slug']}.html): {p['excerpt']}" for p in posts]
 (OUT / "llms.txt").write_text("\n".join(_ll) + "\n")
 

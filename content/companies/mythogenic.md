@@ -1,0 +1,3 @@
+Mythogenic is developing MythOS, a browser-based world builder that turns ideas, prompts, maps, and creative briefs into rich, editable 3D environments. Its applications span gaming, entertainment, film and cinema, as well as simulation and training. Creators can shape a world’s geography, structures, narrative, and rules within a shared environment that remains open to revision as the project develops.
+
+MythOS is designed to track how the parts of a world relate to one another, so a change to a landscape, location, or scenario can be carried through the surrounding environment. This gives teams a way to develop coherent worlds while retaining control over their creative decisions.

@@ -1,0 +1,3 @@
+Twelve92 is being developed as an invitation-only private community centered on exceptional dining, wine, and shared experiences. A thoughtfully selected membership brings together people with different backgrounds and interests, with intimate gatherings and programming shaped around the community. Personal attention is central to the experience, from being recognized when you arrive to enjoying food, occasions, and introductions chosen with you in mind.
+
+Through the concierge, that relationship extends into members’ lives beyond the venue. One trusted concierge team comes to know their tastes and preferences, bringing the same personal care to a thoughtfully planned journey, a special experience, or a dinner party at home.

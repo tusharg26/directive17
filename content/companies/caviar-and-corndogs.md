@@ -1,0 +1,3 @@
+Caviar & Corndogs is creating an experiential market and hospitality destination built around the pleasures of food, discovery, and gathering. Guests can watch bread and pasta being made, taste seasonal ingredients, meet visiting artisans, and explore a carefully selected collection of food and wine. Hands-on classes, intimate tastings, and communal dinners turn a visit into something to take part in and remember.
+
+The experience extends into guests’ own celebrations, with a team that helps plan menus, pair wines, and bring together food, flowers, and table styling. From an impromptu dinner with friends to a special occasion, Caviar & Corndogs makes it easier to host something memorable and enjoy being part of it.

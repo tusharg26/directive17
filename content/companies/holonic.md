@@ -1,0 +1,3 @@
+Holonic uses deterministic AI to modernize critical software while preserving the business rules and behavior that organizations depend on. Its CodeIntent platform maps how existing systems work, capturing the logic, relationships, and constraints embedded in their code. That understanding gives organizations a structured foundation for moving complex legacy systems onto modern technology.
+
+After modernization, CodeIntent remains in place as a governance layer. It makes subsequent changes by developers and AI tools traceable and reviewable, helping teams understand what has changed, verify what should remain consistent, and identify decisions that require human judgment.

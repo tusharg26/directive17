@@ -1,0 +1,3 @@
+Firefly.love is developing a conversational archive of a person’s life, preserving their stories, voice, values, and experiences for the people closest to them. Guided interviews help individuals capture the memories and perspectives that can be difficult to record without a starting point. AI organizes that material into an archive that families can explore through conversation.
+
+Relatives can ask about a childhood memory, a family tradition, or the experiences behind a piece of advice, with responses grounded in the recorded material. The experience is designed to preserve the personal details of someone’s life and make it accessible across generations.

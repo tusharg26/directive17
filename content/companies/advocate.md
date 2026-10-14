@@ -1,0 +1,3 @@
+Advocate helps people whose medical conditions limit their ability to work navigate the Social Security disability benefits process. It combines technology with a dedicated support team to organize medical evidence, prepare applications, and guide applicants through the requirements of a claim. Disability specialists, clinical support staff, and case managers contribute to the process, helping people understand what is needed and what comes next.
+
+Support continues after an application is submitted, including assistance with appeals when a claim is denied. By bringing documentation, case preparation, and ongoing communication into one coordinated service, Advocate helps applicants manage a process that can otherwise be difficult to navigate alone.

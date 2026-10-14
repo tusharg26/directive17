@@ -1,0 +1,3 @@
+Pivt helps employees build personal connections as they navigate relocation, new roles, and other career transitions. Its platform matches people with peers and trained buddies based on shared experiences, location, and professional circumstances. Guided conversations, community groups, and local connections give employees practical ways to establish a support network as they settle into unfamiliar surroundings.
+
+For employers, Pivt provides tools to organize these relationships and understand participation, employee sentiment, and program engagement. Its work extends across relocation and onboarding, with additional applications in mentorship and leadership development, making peer support a more deliberate part of the employee experience.

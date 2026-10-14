@@ -4,28 +4,34 @@
     "group": "Proprietary & Current Investments",
     "logo": "logos/holonic.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "holonic"
   },
   {
     "name": "Firefly.love",
     "group": "Proprietary & Current Investments",
     "logo": "logos/firefly-love.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "firefly-love",
+    "overview_logo_bg": "dark"
   },
   {
     "name": "Twelve92",
     "group": "Proprietary & Current Investments",
     "logo": "logos/twelve92.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "twelve92",
+    "overview_logo_bg": "dark"
   },
   {
     "name": "The Story District",
     "group": "Proprietary & Current Investments",
     "logo": "logos/story-district.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "the-story-district"
   },
   {
     "name": "HumanOS",
@@ -33,14 +39,18 @@
     "logo": "logos/humanos.webp",
     "one_liner": "",
     "url": "",
-    "deck": "humanos"
+    "deck": "humanos",
+    "slug": "humanos",
+    "overview_logo_bg": "dark"
   },
   {
     "name": "Vector",
     "group": "Proprietary & Current Investments",
     "logo": "logos/vector.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "vector",
+    "overview_logo_bg": "dark"
   },
   {
     "name": "Vertical Longevity Pharmaceuticals",
@@ -48,14 +58,18 @@
     "logo": "logos/vlp.webp",
     "one_liner": "",
     "url": "",
-    "deck": "vlp"
+    "deck": "vlp",
+    "slug": "vertical-longevity-pharmaceuticals",
+    "overview_logo_bg": "dark"
   },
   {
     "name": "Mythogenic",
     "group": "Proprietary & Current Investments",
     "logo": "logos/mythogenic.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "mythogenic",
+    "overview_logo_bg": "dark"
   },
   {
     "name": "Pivt",
@@ -63,48 +77,57 @@
     "logo": "logos/pivt.webp",
     "one_liner": "",
     "url": "",
-    "deck": "pivt"
+    "deck": "pivt",
+    "slug": "pivt"
   },
   {
     "name": "Caviar and Corndogs",
     "group": "Proprietary & Current Investments",
     "logo": "logos/caviar-corndogs.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "caviar-and-corndogs",
+    "overview_logo_bg": "dark",
+    "overview_name": "Caviar & Corndogs"
   },
   {
     "name": "Colossal Laboratories & Biosciences",
     "group": "Recent Passive Investments Made by Principals",
     "logo": "logos/colossal.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "colossal"
   },
   {
     "name": "LARX",
     "group": "Recent Passive Investments Made by Principals",
     "logo": "logos/larx.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "larx"
   },
   {
     "name": "Epirus",
     "group": "Recent Passive Investments Made by Principals",
     "logo": "logos/epirus.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "epirus"
   },
   {
     "name": "General Fusion",
     "group": "Recent Passive Investments Made by Principals",
     "logo": "logos/general-fusion.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "general-fusion"
   },
   {
     "name": "Advocate",
     "group": "Recent Passive Investments Made by Principals",
     "logo": "logos/advocate.webp",
     "one_liner": "",
-    "url": ""
+    "url": "",
+    "slug": "advocate"
   }
 ]

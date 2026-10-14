@@ -1,0 +1,3 @@
+LARX brings imagery, video, sensor feeds, and operational information into a single intelligence platform. Using AI to interpret visual and spatial data, it helps analysts and decision-makers search across sources, understand changing conditions, and work from a shared view of an environment. Users can explore information through plain-language queries, making complex data more accessible across technical and operational teams.
+
+The platform supports applications in defense, infrastructure, environmental monitoring, and other settings where teams need to understand what is happening as conditions change. It is also designed to operate where bandwidth is limited or infrastructure is unreliable.

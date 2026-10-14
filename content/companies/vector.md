@@ -1,0 +1,3 @@
+Vector is building a living, evidence-backed professional profile designed to replace the static résumé. It brings together the substance of a person’s work, the skills they develop, the responsibilities they take on, and the judgment they demonstrate. By following those changes over time, Vector creates a more complete picture of professional identity, including the direction, momentum, and trajectory of a person’s career.
+
+Each assessment is designed to connect back to dated evidence, giving employers a clearer basis for understanding someone’s capabilities and potential. As experience accumulates, the profile evolves, making room for growth that a list of titles and past roles can struggle to convey.

@@ -1,0 +1,3 @@
+Epirus develops directed-energy technology to defend against drones and coordinated autonomous attacks. Its Leonidas system uses high-power microwaves to disable drone electronics and is designed to engage multiple threats at once. Powered by electricity, the system supports repeated engagements as part of a broader defense around a protected site or asset.
+
+Epirus combines this technology with sensing, mission planning, and connections to existing command-and-control systems. Together, these components help teams assess coverage, detect approaching threats, and coordinate a response, with human operators authorizing engagements. The modular approach allows the system to be configured around different locations and operational needs.

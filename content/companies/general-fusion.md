@@ -1,0 +1,3 @@
+General Fusion is developing technology to make fusion energy a practical source of commercial electricity. Its Magnetized Target Fusion approach combines magnetized plasma, mechanical compression, and liquid metal systems. In the proposed power plant design, liquid metal would protect the machine and capture heat from the fusion reaction for conversion into electricity.
+
+The company is advancing this approach through prototypes and large-scale demonstration equipment, testing the physics and engineering needed for a future power plant. Its development work focuses on bringing these systems together in a design intended to deliver reliable, carbon-free power and integrate with existing electricity infrastructure.

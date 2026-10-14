@@ -1,0 +1,3 @@
+Colossal develops biotechnology for de-extinction and species conservation, combining genetics, reproductive biology, and computational research. Its programs include efforts to restore characteristics of lost species such as the woolly mammoth, thylacine, and dodo, while developing the scientific tools needed to pursue those goals.
+
+The technologies behind that work also have applications for animals facing extinction today. Through research and conservation partnerships, Colossal is working on genetic preservation, reproductive challenges, and the recovery of threatened populations. Its activities connect laboratory development with efforts to protect biodiversity and restore species within their natural environments.

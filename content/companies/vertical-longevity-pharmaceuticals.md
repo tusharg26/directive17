@@ -1,0 +1,3 @@
+Vertical Longevity Pharmaceuticals is developing a vaccine platform designed to help the immune system recognize and clear senescent cells associated with aging and chronic disease. Its lead candidate, VLP-1, uses virus-like particle technology to direct that immune response, with an initial research focus on atherosclerosis, the buildup of plaque in arteries.
+
+The company’s broader development plan explores whether the approach could be applied to additional age-related conditions. VLP-1 remains in preclinical development, with research focused on establishing the evidence needed to advance its safety, effectiveness, and eventual clinical evaluation.
