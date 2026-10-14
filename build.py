@@ -493,6 +493,10 @@ font-size:clamp(2.125rem,1.4rem + 2.2vw,3rem);margin-top:24px}
 .ov-body{max-width:760px;margin:34px auto 0;text-align:left;font-family:var(--serif);
 font-size:18px;line-height:1.72;color:var(--ink)}
 .ov-body p+p{margin-top:1.25em}
+.ov-body .ov-site{margin-top:1.9em;font-family:var(--sans);font-size:.92rem}
+.ov-site a{color:var(--accent);border-bottom:1px solid rgba(217,139,51,.35);padding-bottom:2px;
+transition:color .2s,border-color .2s}
+.ov-site a:hover{color:var(--deep);border-color:var(--deep)}
 .ov-foot{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px 28px;
 margin-top:64px;padding-top:24px;border-top:1px solid var(--line);
 font-family:var(--sans);font-size:.88rem}
@@ -1211,6 +1215,11 @@ for i, c in enumerate(ov_companies):
     logo = (f'<img src="../images/{c["logo"]}" alt="{html.escape(name, quote=True)} logo" '
             f'width="{lw}" height="{lh}" style="--w:{lw}px;--h:{lh}px" decoding="async">')
     paras = "".join(f"<p>{html.escape(t, quote=False)}</p>" for t in c["overview_paras"])
+    site_link = ""
+    if c.get("website"):
+        host = re.sub(r"^https?://(www\.)?", "", c["website"]).rstrip("/")
+        site_link = (f'<p class="ov-site"><a href="{html.escape(c["website"], quote=True)}" target="_blank" '
+                     f'rel="noopener">Visit {html.escape(host)} <span aria-hidden="true">&#8599;</span></a></p>')
     first = re.split(r"(?<=[.!?])\s", c["overview_paras"][0], maxsplit=1)[0]
     body = f"""
 <section class="ov"><div class="ov-wrap">
@@ -1219,7 +1228,7 @@ for i, c in enumerate(ov_companies):
 <div class="ov-logo{' ov-logo-dark' if dark_bg else ''} fade" style="--d:.12s">{logo}</div>
 <h1 class="ov-name fade" style="--d:.22s">{html.escape(name)}</h1>
 </div>
-<div class="ov-body fade" style="--d:.34s">{paras}</div>
+<div class="ov-body fade" style="--d:.34s">{paras}{site_link}</div>
 <nav class="ov-foot" aria-label="Company navigation">
 <a href="../companies.html">All companies</a>
 <a href="{nxt['slug']}.html">Next company: {html.escape(nname)} <span aria-hidden="true">&rarr;</span></a>
@@ -1227,7 +1236,8 @@ for i, c in enumerate(ov_companies):
 </div></section>"""
     ld = {"@context": "https://schema.org", "@type": "WebPage", "name": f"{name} — Directive 17",
           "url": f"https://{site['domain']}/companies/{c['slug']}.html",
-          "about": {"@type": "Organization", "name": name, "description": " ".join(c["overview_paras"])},
+          "about": {"@type": "Organization", "name": name, "description": " ".join(c["overview_paras"]),
+                    **({"url": c["website"]} if c.get("website") else {})},
           "isPartOf": {"@type": "WebSite", "name": "Directive 17", "url": f"https://{site['domain']}/"}}
     (OUT / "companies" / f"{c['slug']}.html").write_text(
         page(f"{name} — {site['name']}", body, "Companies", 1,
