@@ -1220,7 +1220,10 @@ for i, c in enumerate(ov_companies):
         host = re.sub(r"^https?://(www\.)?", "", c["website"]).rstrip("/")
         site_link = (f'<p class="ov-site"><a href="{html.escape(c["website"], quote=True)}" target="_blank" '
                      f'rel="noopener">Visit {html.escape(host)} <span aria-hidden="true">&#8599;</span></a></p>')
-    first = re.split(r"(?<=[.!?])\s", c["overview_paras"][0], maxsplit=1)[0]
+    _sents = re.split(r"(?<=[.!?])\s", c["overview_paras"][0])
+    first = _sents[0]
+    if len(first) < 80 and len(_sents) > 1:   # very short opener -> add the next sentence
+        first = f"{first} {_sents[1]}"
     body = f"""
 <section class="ov"><div class="ov-wrap">
 <a class="ov-back fade" style="--d:.05s" href="../companies.html"><span aria-hidden="true">&larr;</span> All companies</a>
