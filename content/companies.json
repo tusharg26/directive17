@@ -39,7 +39,6 @@
     "logo": "logos/humanos.webp",
     "one_liner": "",
     "url": "",
-    "deck": "humanos",
     "slug": "humanos",
     "overview_logo_bg": "dark"
   },
@@ -58,7 +57,6 @@
     "logo": "logos/vlp.webp",
     "one_liner": "",
     "url": "",
-    "deck": "vlp",
     "slug": "vertical-longevity-pharmaceuticals",
     "overview_logo_bg": "dark"
   },
@@ -77,7 +75,6 @@
     "logo": "logos/pivt.webp",
     "one_liner": "",
     "url": "",
-    "deck": "pivt",
     "slug": "pivt"
   },
   {
