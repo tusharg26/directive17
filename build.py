@@ -658,6 +658,12 @@ FITHEAD_JS = """
     var avail = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     var w = el.scrollWidth;
     if (w > avail) el.style.fontSize = Math.floor(CAP * (avail / w) * 0.985) + 'px';
+    // very long titles: one line would be too small to read, so wrap at a large size instead
+    if (parseFloat(el.style.fontSize) < 40) {
+      el.classList.remove('fit-1line');
+      el.style.whiteSpace = 'normal';
+      el.style.fontSize = '56px';
+    }
   }
   fit();
   window.addEventListener('resize', fit);
@@ -1001,7 +1007,7 @@ fn_minutes = max(1, round(len(fn_body.split()) / 200))
 # (a slug, e.g. "my-life-philosophy"); if that's blank or missing, the newest post.
 _feat = (site.get("featured_post") or "").strip()
 newest = next((x for x in posts if x["slug"] == _feat), None) if _feat else None
-np_label = "From the blog" if newest else "New post"
+np_label = (site.get("featured_label") or "From the blog") if newest else "New post"
 if newest is None:
     newest = posts[0] if posts else None
 note_alert = ""

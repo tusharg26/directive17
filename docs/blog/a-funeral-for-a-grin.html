@@ -706,6 +706,12 @@ document.documentElement.classList.add('js');
     var avail = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     var w = el.scrollWidth;
     if (w > avail) el.style.fontSize = Math.floor(CAP * (avail / w) * 0.985) + 'px';
+    // very long titles: one line would be too small to read, so wrap at a large size instead
+    if (parseFloat(el.style.fontSize) < 40) {
+      el.classList.remove('fit-1line');
+      el.style.whiteSpace = 'normal';
+      el.style.fontSize = '56px';
+    }
   }
   fit();
   window.addEventListener('resize', fit);
