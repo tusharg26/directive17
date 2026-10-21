@@ -7,7 +7,7 @@
 <meta name="description" content="A very old friend of mine died a couple of years ago. I had lunch with him last week. So, overall, he seems to be doing much better.">
 <meta name="theme-color" content="#FBF7EC">
 <link rel="canonical" href="https://directive17.com/blog/a-funeral-for-a-grin.html">
-<meta property="og:type" content="website">
+<meta property="og:type" content="article">
 <meta property="og:site_name" content="Directive 17">
 <meta property="og:title" content="A Funeral For A Grin — Joel&#x27;s Blog — Directive 17">
 <meta property="og:description" content="A very old friend of mine died a couple of years ago. I had lunch with him last week. So, overall, he seems to be doing much better.">
@@ -439,6 +439,8 @@ text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:none
 border:1px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer;
 transition:all .25s var(--ease);white-space:nowrap}
 .share-btn:hover{color:var(--bg);border-color:var(--deep);background:var(--deep)}
+.post-share{margin-top:26px}
+.post-share-end{margin:0 0 22px}
 .acc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--ease)}
 .acc.open .acc-body{grid-template-rows:1fr}
 .acc-inner{overflow:hidden;min-height:0;max-width:68ch}
@@ -507,6 +509,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 <div class="hero" style="padding-bottom:52px"><div class="wrap">
 <div class="kicker fade" style="--d:.05s">October 1, 2026</div>
 <h1 class="display note-head" style="max-width:20ch;font-size:clamp(2rem,4.4vw,3.4rem)"><span class="w" style="--d:0.25s">A</span> <span class="w" style="--d:0.32s">Funeral</span> <span class="w" style="--d:0.39s">For</span> <span class="w" style="--d:0.46s">A</span> <span class="w" style="--d:0.53s">Grin</span></h1>
+<div class="post-share fade" style="--d:.5s"><button class="share-btn post-share-btn" type="button" data-url="https://directive17.com/blog/a-funeral-for-a-grin.html" data-title="A Funeral For A Grin">Share this post</button></div>
 </div></div>
 <section class="jd-intro" style="padding-top:52px;border-top:1px solid var(--line)">
 <div class="wrap">
@@ -639,6 +642,7 @@ text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
 </section>
 <div class="jd-end reveal"><div class="wrap">
 <img src="../images/logos/enso-sm.webp" width="56" height="55" loading="lazy" alt="">
+<div class="post-share post-share-end"><button class="share-btn post-share-btn" type="button" data-url="https://directive17.com/blog/a-funeral-for-a-grin.html" data-title="A Funeral For A Grin">Share this post</button></div>
 <div class="m-label-line"><a href="index.html">&larr; All posts</a></div>
 </div></div>
 <script>
@@ -730,6 +734,26 @@ document.documentElement.classList.add('js');
   window.addEventListener('scroll', upd, {passive: true});
   window.addEventListener('resize', upd, {passive: true});
   upd();
+})();
+
+(function(){
+  document.querySelectorAll('.post-share-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var url = b.dataset.url, old = b.textContent;
+      var done = function(msg){ b.textContent = msg; setTimeout(function(){ b.textContent = old; }, 1800); };
+      var copy = function(){
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
+            function(){ window.prompt('Copy this link:', url); });
+        } else { window.prompt('Copy this link:', url); }
+      };
+      if (navigator.share) {
+        navigator.share({title: b.dataset.title, url: url}).catch(function(err){
+          if (!err || err.name !== 'AbortError') copy();
+        });
+      } else { copy(); }
+    });
+  });
 })();
 </script>
 <script data-goatcounter="https://tushargidadhubli.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></body>

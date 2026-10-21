@@ -540,6 +540,8 @@ text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:none
 border:1px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer;
 transition:all .25s var(--ease);white-space:nowrap}
 .share-btn:hover{color:var(--bg);border-color:var(--deep);background:var(--deep)}
+.post-share{margin-top:26px}
+.post-share-end{margin:0 0 22px}
 .acc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--ease)}
 .acc.open .acc-body{grid-template-rows:1fr}
 .acc-inner{overflow:hidden;min-height:0;max-width:68ch}
@@ -668,6 +670,28 @@ FITHEAD_JS = """
   fit();
   window.addEventListener('resize', fit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+"""
+
+POSTSHARE_JS = """
+(function(){
+  document.querySelectorAll('.post-share-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var url = b.dataset.url, old = b.textContent;
+      var done = function(msg){ b.textContent = msg; setTimeout(function(){ b.textContent = old; }, 1800); };
+      var copy = function(){
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
+            function(){ window.prompt('Copy this link:', url); });
+        } else { window.prompt('Copy this link:', url); }
+      };
+      if (navigator.share) {
+        navigator.share({title: b.dataset.title, url: url}).catch(function(err){
+          if (!err || err.name !== 'AbortError') copy();
+        });
+      } else { copy(); }
+    });
+  });
 })();
 """
 
@@ -849,7 +873,7 @@ def rev(inner, delay=0.0, tag="div", cls="", style=""):
     d = f"--d:{delay:.2f}s;" if delay else ""
     return f'<{tag} class="reveal {cls}" style="{d}{style}">{inner}</{tag}>'
 
-def page(title, body, active="", depth=0, extra_js="", intro=False, path="", desc=None, jsonld=None):
+def page(title, body, active="", depth=0, extra_js="", intro=False, path="", desc=None, jsonld=None, og_type="website"):
     p = "../" * depth
     links = [("Home", f"{p}index.html", active == "")]
     links += [(n["label"], f'{p}{n["href"].lstrip("/")}', n["label"] == active) for n in site["nav"]]
@@ -886,7 +910,7 @@ def page(title, body, active="", depth=0, extra_js="", intro=False, path="", des
 <meta name="description" content="{html.escape(d)}">
 <meta name="theme-color" content="#FBF7EC">
 <link rel="canonical" href="{url}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="Directive 17">
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(d)}">
@@ -1296,10 +1320,14 @@ for p in posts:
         "url": f"https://{site['domain']}/blog/{p['slug']}.html",
     }
     words_ct = max(1, round(len(re.sub(r"<[^>]+>", " ", p["html"]).split()) / 200))
+    _post_url = f"https://{site['domain']}/blog/{p['slug']}.html"
+    share_btn = (f'<button class="share-btn post-share-btn" type="button" data-url="{_post_url}" '
+                 f'data-title="{html.escape(p["title"])}">Share this post</button>')
     post_body = f"""
 <div class="hero" style="padding-bottom:52px"><div class="wrap">
 <div class="kicker fade" style="--d:.05s">{fmt_date(p['date'])}</div>
 <h1 class="display note-head" style="max-width:20ch;font-size:clamp(2rem,4.4vw,3.4rem)">{words(p['title'], .25, .07)}</h1>
+<div class="post-share fade" style="--d:.5s">{share_btn}</div>
 </div></div>
 <section class="jd-intro" style="padding-top:52px;border-top:1px solid var(--line)">
 <div class="wrap">
@@ -1308,12 +1336,13 @@ for p in posts:
 </section>
 <div class="jd-end reveal"><div class="wrap">
 <img src="../images/logos/enso-sm.webp" width="56" height="55" loading="lazy" alt="">
+<div class="post-share post-share-end">{share_btn}</div>
 <div class="m-label-line"><a href="index.html">&larr; All posts</a></div>
 </div></div>"""
     (OUT / "blog" / f"{p['slug']}.html").write_text(
         page(f"{p['title']} — Joel's Blog — {site['name']}", post_body, "Joel's Blog", 1,
-             extra_js=FITHEAD_JS + PROGRESS_JS, path=f"blog/{p['slug']}.html",
-             desc=p["excerpt"], jsonld=art_ld))
+             extra_js=FITHEAD_JS + PROGRESS_JS + POSTSHARE_JS, path=f"blog/{p['slug']}.html",
+             desc=p["excerpt"], jsonld=art_ld, og_type="article"))
 
 # ---------------- build with us
 bp = site["build_page"]
