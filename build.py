@@ -113,6 +113,7 @@ def parse_post(path):
         "title": meta.get("title", slug.replace("-", " ").title()),
         "date": meta.get("date", ""),
         "excerpt": meta.get("excerpt", ""),
+        "order": int(meta.get("order", "0") or 0),
         "slug": slug,
         "html": md_to_html(body.strip()),
     }
@@ -1013,8 +1014,9 @@ if (CONTENT / "images").exists():
 if site.get("domain") and site.get("live"):
     (OUT / "CNAME").write_text(site["domain"])
 
-posts = sorted((parse_post(p) for p in (CONTENT / "posts").glob("*.md")),
-               key=lambda x: x["date"], reverse=True)
+# newest first; for posts on the same date, a higher frontmatter "order" comes first, then filename
+posts = sorted((parse_post(p) for p in sorted((CONTENT / "posts").glob("*.md"))),
+               key=lambda x: (x["date"], x["order"]), reverse=True)
 
 # ---------------- Founder's note: a blog-style row on the landing page that opens in place
 fn_src = (CONTENT / "pages" / "founders-note.md").read_text()

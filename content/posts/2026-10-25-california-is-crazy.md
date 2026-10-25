@@ -1,0 +1,518 @@
+---
+title: CALIFORNIA IS CRAZY!
+date: 2026-10-25
+order: 1
+excerpt: Where Common Sense Goes to Die—After Filing an Environmental Impact Report.
+---
+
+Where Common Sense Goes to Die—After Filing an Environmental Impact Report.
+
+I spent the weekend in California.
+
+Beautiful weather. Beautiful ocean. Beautiful people.
+
+And apparently, a statewide competition to see who can turn ordinary life into a graduate seminar on emotional damage.
+
+I was there for about 15 minutes, and I was convinced California isn’t actually a state.
+
+It’s a 163,000-square-mile lifestyle experiment with beachfront property, venture capital, and no control group.
+
+And the subjects are running the lab.
+
+Now, before anyone gets offended, let me be perfectly clear.
+
+I kinda like California.
+
+I love the beaches. I love the mountains. I love the restaurants. I love the weather.
+
+I just have one question.
+
+WHAT THE ACTUAL FUCK HAPPENED TO EVERYONE’S BRAIN?
+
+Somewhere along the way, California decided that common sense was discriminatory, personal responsibility was oppressive, and reality was merely one of several available subscription plans.
+
+And everyone apparently clicked “Accept.”
+
+Well, not everyone.
+
+There are still normal people here.
+
+They’re just hiding in their houses, whispering things like, “I think men and women are different,” while checking whether Alexa is legally allowed to report them.
+
+Let’s Start With the Environment.
+
+California is going to save the planet.
+
+One paper straw at a time.
+
+I ordered a drink and received a paper straw that began decomposing before I finished my first sip.
+
+Apparently, saving the sea turtles requires me to drink iced tea through a miniature toilet-paper roll.
+
+But here’s where this shit gets absolutely spectacular.
+
+A published study tested 20 brands of paper straws.
+
+NINETY FUCKING PERCENT OF THE BRANDS TESTED CONTAINED PFAS—THE SO-CALLED FOREVER CHEMICALS.
+
+Let me make sure I understand this.
+
+We got rid of plastic straws because they were bad for the environment.
+
+So we replaced them with paper straws that can contain chemicals that persist in the environment.
+
+And the paper straw dissolves in my drink.
+
+THE STRAW IS BIODEGRADABLE. THE CHEMICALS AREN’T.
+
+Who the fuck came up with this?
+
+Somewhere in Sacramento, there’s probably a committee celebrating the environmental benefits of a product that simultaneously disintegrates in your mouth and potentially introduces forever chemicals into the conversation.
+
+This is not environmental policy.
+
+This is a fucking Saturday Night Live sketch with a government pension.
+
+And it gets better.
+
+Take out food arrives in a plastic-lined container.
+
+Hot food.
+
+Grease.
+
+Steam.
+
+Exactly the conditions that can cause certain food-contact materials to release chemicals or shed microscopic plastic particles.
+
+So let me understand the science.
+
+My straw must be paper to protect the ocean.
+
+But my $37 organic, sustainably harvested, emotionally fulfilled chicken can sit in packaging that may transfer chemicals into my dinner?
+
+WE’RE SAVING THE FUCKING FISH WHILE SEASONING OURSELVES WITH THE CONTAINER.
+
+And the container has a little green leaf printed on it.
+
+Because apparently printing a picture of nature on something makes it environmentally responsible.
+
+I think I’m going to start selling cigarettes in recycled cardboard boxes.
+
+With a picture of a tree.
+
+We’ll call them Sustainable Lung Destruction.
+
+California will probably give me a tax credit.
+
+I asked for a plastic bag.
+
+The cashier looked at me like I’d requested a baby-seal-clubbing demonstration.
+
+Apparently, I was supposed to bring my own reusable bag.
+
+I’m visiting from Georgia.
+
+Should I have packed a fucking grocery bag between my underwear and toothbrush?
+
+And if I forget it, I’m not buying a bag.
+
+I’m buying a $4.99 “reusable lifestyle accessory” that will sit in my trunk until the next time I forget it.
+
+The Cars. Oh, This Is Fucking Priceless.
+
+California wants everyone driving electric vehicles.
+
+Fantastic.
+
+I’m all for innovation.
+
+But here’s a little problem.
+
+Depending on how you measure poverty and account for California’s astronomical cost of living, roughly a third of Californians are living in poverty or struggling just above it.
+
+These are people trying to figure out how to pay rent, buy groceries, and keep the lights on.
+
+And California’s solution?
+
+BUY AN ELECTRIC FUCKING CAR!
+
+Brilliant!
+
+“Excuse me, Governor. I can’t afford my apartment.”
+
+“Have you considered purchasing a $70,000 electric SUV?”
+
+“Sir, I have $43 in my checking account.”
+
+“Wonderful! Would you like the upgraded battery?”
+
+“Can I get food stamps?”
+
+“No, but we can offer you a charging-station rebate.”
+
+And where exactly are people living in apartments supposed to charge these things?
+
+Run a 300-foot extension cord from their third-floor bedroom?
+
+Perhaps they can charge their cars using the positive energy generated by their emotional-support dogs.
+
+But here’s where California reaches a level of economic genius normally reserved for people who invest their retirement savings in magic beans.
+
+CALIFORNIA MAKES BILLIONS OF DOLLARS FROM GASOLINE TAXES.
+
+Billions.
+
+Money that helps pay for roads and transportation.
+
+So California is aggressively pushing people to stop buying gasoline.
+
+Which means, if the plan succeeds, an important source of transportation revenue shrinks.
+
+Think about that.
+
+The government is essentially saying:
+
+“WE DEMAND THAT YOU STOP BUYING THE PRODUCT THAT GENERATES BILLIONS OF DOLLARS FOR US!”
+
+And then, when the revenue starts disappearing:
+
+“OH FUCK! WHERE DID ALL THE MONEY GO?”
+
+It’s like owning a liquor store, launching a statewide campaign against drinking, and then wondering why your business is failing.
+
+So now California has to figure out how to replace the revenue.
+
+Maybe they’ll tax electricity.
+
+Maybe they’ll tax miles driven.
+
+Maybe they’ll tax charging stations.
+
+Maybe they’ll introduce a new Environmental Transportation Happiness Assessment.
+
+Or perhaps they’ll just tax the paper straws.
+
+THEY’VE CREATED A BUSINESS MODEL WHERE SUCCESS IS A FINANCIAL PROBLEM AND FAILURE IS AN ENVIRONMENTAL PROBLEM.
+
+That’s not a strategy.
+
+That’s a fucking hostage situation with solar panels.
+
+Meanwhile, someone driving a $100,000 electric car is sitting in traffic for 45 minutes behind 37,000 other people doing exactly the same thing.
+
+Congratulations.
+
+You’ve eliminated tailpipe emissions while simultaneously eliminating three hours of your life.
+
+And don’t even think about honking.
+
+You might trigger somebody’s emotional-support Chihuahua, who is already processing the trauma of a yellow traffic light.
+
+The car has self-driving technology, but the driver still needs a therapist to merge.
+
+Speaking of Emotional-Support Animals.
+
+I saw a dog in a stroller.
+
+Not an old dog.
+
+Not an injured dog.
+
+A perfectly healthy dog.
+
+In a stroller.
+
+Wearing sunglasses.
+
+The dog looked embarrassed.
+
+The owner looked proud.
+
+I swear to God, the dog was looking at me as if to say, “Please help me. I used to chase squirrels. Now I’m attending fucking Pilates.”
+
+At this rate, California dogs will soon have therapists, personal pronouns, retirement accounts, and a podcast about boundaries.
+
+Meanwhile, their owners will be sleeping in the backyard because the dog needs his personal space.
+
+The dog doesn’t walk anymore.
+
+He has a mobility consultant.
+
+The Restaurants.
+
+I love great food.
+
+But ordering dinner in California has become a hostage negotiation conducted by people who don’t technically believe in hostages.
+
+“Is that gluten-free?”
+
+“Is it dairy-free?”
+
+“Is it vegan?”
+
+“Was the chicken pasture-raised?”
+
+“Was the chicken emotionally supported?”
+
+“Did the chicken have a happy childhood?”
+
+“Did anyone explain to the chicken that it was going to become dinner?”
+
+Jesus Christ.
+
+I JUST WANT A FUCKING CHICKEN SANDWICH.
+
+And the prices!
+
+I ordered a coffee.
+
+Seven dollars.
+
+Would you like oat milk?
+
+Another dollar.
+
+Would you like an extra shot?
+
+Two dollars.
+
+Would you like to tip?
+
+The screen offered me 20%, 25%, or 30%.
+
+For handing me a cup of coffee.
+
+The barista turned the screen around like I was bidding on a house.
+
+I’m surprised there wasn’t an additional option to contribute to the barista’s student-loan forgiveness program, carbon offset, and emotional-support kombucha.
+
+The Politics.
+
+California has somehow perfected the art of solving problems by creating three larger problems and appointing a committee to study the original one.
+
+Housing is too expensive?
+
+Make it harder to build housing.
+
+Energy is too expensive?
+
+Make energy more complicated.
+
+Traffic is terrible?
+
+Remove a lane.
+
+Businesses are leaving?
+
+Raise their costs and hold a press conference about economic opportunity.
+
+Gas tax revenue might decline?
+
+Tell everyone to stop buying gas.
+
+Paper straws contain forever chemicals?
+
+Form a committee to study whether the chemicals identify as permanent.
+
+It’s fucking brilliant.
+
+If California were a publicly traded company, the shareholders would have fired management, replaced the board, and sold the furniture.
+
+Instead, everyone gets a new committee.
+
+A task force.
+
+A commission.
+
+And a 400-page report explaining why the solution requires another $11 billion and a pilot program.
+
+I’m beginning to believe California’s state motto should be:
+
+“We Have a Solution for Every Problem. Unfortunately, It’s Another Problem.”
+
+And Then There’s the Language.
+
+You can’t just say something anymore.
+
+You have to consider whether what you’re about to say might emotionally injure someone who isn’t even in the conversation, hasn’t heard you, and may not exist yet.
+
+I asked someone a simple question.
+
+They responded, “I need to honor my truth.”
+
+Your truth?
+
+What happened to THE truth?
+
+Apparently, California now has more truths than Starbucks locations, and every one of them needs its own parking space.
+
+I can’t wait until someone gets pulled over for speeding.
+
+“Officer, I appreciate your perspective, but in my lived experience, I was only going 35.”
+
+“Sir, you were going 97.”
+
+“That’s your truth. Please respect mine.”
+
+Case dismissed.
+
+The officer then offers a restorative-justice circle to the speed limit.
+
+Everyone Is Healing From Something.
+
+I overheard someone say they were taking a break from work to “reconnect with their authentic self.”
+
+What the fuck does that even mean?
+
+Were they previously operating as somebody else?
+
+Was there a temporary replacement employee named Chad?
+
+I’ve been working for more than four decades.
+
+Apparently, I’ve been doing it wrong.
+
+I should have spent more time manifesting abundance, protecting my energy, and establishing boundaries with people who expect me to actually accomplish something.
+
+I heard another person say, “I’m currently not available for anything that doesn’t serve my highest vibration.”
+
+Wonderful.
+
+I’m currently not available for anyone who says “highest vibration” without referring to a washing machine.
+
+At some point, “I don’t want to do it” became a wellness philosophy.
+
+But Here’s What Really Gets Me.
+
+California is filled with incredibly smart, creative, innovative people.
+
+Some of the greatest companies in the history of the world were built here.
+
+These people invented technologies that changed humanity.
+
+They created industries.
+
+They put computers in our pockets, transformed medicine, revolutionized entertainment, and made it possible for me to have an intelligent conversation with a machine.
+
+And yet somehow, they haven’t figured out how to make a fucking paper straw last longer than six minutes.
+
+How is that possible?
+
+You can build a rocket that lands itself.
+
+But you can’t build an affordable apartment.
+
+You can develop artificial intelligence.
+
+But apparently natural intelligence is becoming optional.
+
+You can create a car that drives itself.
+
+But you can’t figure out how to make traffic move.
+
+You can put a satellite into orbit, but not a trash can where people can find it.
+
+You can invent the technology that transforms the global automotive industry.
+
+But you can’t figure out how to replace the gas-tax revenue when everyone actually buys the cars.
+
+And you can spend decades eliminating potentially dangerous chemicals from our lives, only to discover them in the environmentally friendly fucking straw.
+
+THIS IS THE MOST INTELLIGENT INSANE ASYLUM EVER CREATED.
+
+And the best part?
+
+Everyone thinks everyone else is crazy.
+
+The left thinks the right is crazy.
+
+The right thinks the left is crazy.
+
+The vegans think the meat eaters are crazy.
+
+The meat eaters think the vegans are crazy.
+
+The landlords think the tenants are crazy.
+
+The tenants think the landlords are evil.
+
+The electric-car owners think the gasoline drivers are destroying the planet.
+
+The gasoline drivers think the electric-car owners are destroying the power grid.
+
+The paper-straw manufacturers think they’re saving the world.
+
+The chemists are wondering what the fuck is in the straws.
+
+And the dog in the stroller thinks everybody is crazy.
+
+For once, I’m siding with the dog.
+
+At least he knows he’s being pushed around.
+
+My Final Thoughts.
+
+As most people know, I wake up every morning smiling.
+
+I love people.
+
+I love innovation.
+
+I love solving problems.
+
+And I genuinely believe the world should be a happier, better place.
+
+Which is precisely why California fascinates me.
+
+This state has more natural beauty, more money, more talent, more innovation, and more potential than almost anywhere on earth.
+
+And somehow, it’s managed to turn everyday life into an Olympic event in competitive absurdity.
+
+But I will say this.
+
+I had a fantastic weekend.
+
+The sun was shining.
+
+The ocean was beautiful.
+
+The food was wonderful.
+
+And everywhere I turned, there was another absolutely unbelievable situation that made me laugh.
+
+In fact, I’m starting to think California might be the happiest place on earth.
+
+Not because everyone is happy.
+
+But because it’s physically impossible to spend 48 hours here without laughing your fucking ass off.
+
+I went there for a relaxing weekend.
+
+I left with enough material for a Netflix comedy special, a doctoral thesis on collective insanity, and possibly a prescription for Xanax.
+
+And if anyone in California is offended by this blog, please understand:
+
+I respect your feelings.
+
+I honor your journey.
+
+I acknowledge your lived experience.
+
+And I sincerely apologize for any disruption to your emotional ecosystem.
+
+Now please get your fucking dog out of the stroller.
+
+He wants to walk.
+
+And so do I.
+
+Preferably back to Georgia.
+
+Have a wonderful day, California!
+
+And remember:
+
+Just because you’re offended doesn’t mean you’re right.
+
+Sometimes it just means you’re in California!
