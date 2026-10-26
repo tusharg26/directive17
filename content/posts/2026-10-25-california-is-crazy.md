@@ -1,5 +1,5 @@
 ---
-title: CALIFORNIA IS CRAZY!
+title: California Dreaming... and waking up laughing.
 date: 2026-10-25
 order: 1
 excerpt: Where Common Sense Goes to Die—After Filing an Environmental Impact Report.

@@ -89,11 +89,8 @@ def md_to_html(text):
             flush_para()
             if not lst or lst["tag"] != "ul": flush_list(); lst = {"tag": "ul", "items": []}
             lst["items"].append(m.group(1)); continue
-        m = re.match(r"^\d+\.\s+(.*)", s)
-        if m:
-            flush_para()
-            if not lst or lst["tag"] != "ol": flush_list(); lst = {"tag": "ol", "items": []}
-            lst["items"].append(m.group(1)); continue
+        # numbered lines ("1. Collecting Limes.") stay as ordinary paragraphs, exactly as typed —
+        # Joel separates numbered items with paragraphs, which would break an HTML list's numbering
         para.append(s)
     flush_para(); flush_list()
     return "\n".join(out)
