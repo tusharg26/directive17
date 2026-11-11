@@ -159,24 +159,23 @@
     var place = function () {
       if (!L) return;
       pls.forEach(function (x, i) {
-        var q = L.tI.at(t / PER + i / pls.length); x._a = q[2];
+        var q = L.tI.at(t / PER + i / pls.length);
         x.style.transform = 'translate(' + (q[0] - L.dI / 2).toFixed(1) + 'px,' + (q[1] - L.dI / 2).toFixed(1) + 'px)';
       });
-      if (L.phone) {
-        var best = null, bd = 9; pls.forEach(function (x) { var dd = Math.abs(Math.atan2(Math.sin(x._a + Math.PI / 2), Math.cos(x._a + Math.PI / 2))); if (dd < bd) { bd = dd; best = x; } });
-        pls.forEach(function (x) { x.classList.toggle('top', x === best); });
-        var nm = best && (lit || best).getAttribute('data-name');
-        if (nm && capI && capI.textContent !== nm) capI.textContent = nm;
+      // phones: no company is marked or named until one is lit (hover or keyboard); a tap opens its overview straight away
+      if (L.phone && capI) {
+        var nm = lit ? lit.getAttribute('data-name') : '';
+        if (capI.textContent !== nm) capI.textContent = nm;
       }
     };
     (function tick(now) { var dt = Math.min(50, now - last); last = now; if (!paused && !RM) { t += dt; place(); } requestAnimationFrame(tick); })(last);
-    // on phones the line under the ring names the company that is lit (or, when none is, the one passing the top)
+    // on phones the line under the ring names the company that is lit, and is empty when none is
     var light = function (x) {
       clearTimeout(offT); paused = true; lit = x; orb.classList.add('pointing'); pls.forEach(function (y) { y.classList.toggle('on', y === x); });
       cg.textContent = x.getAttribute('data-group'); cn.textContent = x.getAttribute('data-name'); fit();
       if (capI && L && L.phone) capI.textContent = x.getAttribute('data-name');
     };
-    // back to how the page first looked: nothing lit, the ring drifting again, the caption following the top of the ring
+    // back to how the page first looked: nothing lit, the ring drifting again, nothing named under it on phones
     var reset = function () {
       clearTimeout(offT); paused = false; lit = null; orb.classList.remove('pointing');
       pls.forEach(function (y) { y.classList.remove('on'); }); place();
