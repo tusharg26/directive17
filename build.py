@@ -206,6 +206,15 @@ NAV_STYLES = ["--i:0;--ux:0.0000;--uy:-0.4625", "--i:1;--ax:0.4005;--uy:-0.2312"
               "--i:3;--ux:0.0000;--uy:0.4625", "--i:4;--ax:0.4005;--uy:0.2312", "--i:5;--ax:0.4005;--uy:-0.2313"]
 ENSO_HD = img_size(CONTENT / "images" / "logos" / "enso-hd.webp")
 
+# the opening curtain on the home page: forest green, the enso turns in and the name settles under it, then it lifts away.
+# Shown once per browser session (not on a link straight to a section, not with reduced motion, never without JavaScript).
+INTRO_HEAD = ("<script>try{var h=document.documentElement;if(!sessionStorage.getItem('d17i')&&!location.hash&&"
+              "!matchMedia('(prefers-reduced-motion: reduce)').matches)h.classList.add('intro-on');"
+              "sessionStorage.setItem('d17i','1')}catch(e){}</script>\n")
+INTRO_HTML = ('<div id="intro" aria-hidden="true"><div class="intro-in">'
+              f'<img src="/images/logos/enso-hd.webp" alt="" width="{ENSO_HD[0]}" height="{ENSO_HD[1]}">'
+              f'<div class="intro-name">{esc(site["name"])}</div></div></div>\n')
+
 
 def nav(prefix, current):
     n = len(site["nav"])
@@ -229,15 +238,20 @@ def nav(prefix, current):
             f'<div class="mcopy">{esc(site["name"])} &copy; {date.today().year}</div></nav>')
 
 
-def page(path, data_page, title, desc, body, current="", og_type="website", lds=(), head_extra="", ring=False):
-    """A full page. path is relative to the site root (e.g. 'blog/x.html')."""
+def page(path, data_page, title, desc, body, current="", og_type="website", lds=(), head_extra="", ring=False,
+         dark_top=False, intro=False):
+    """A full page. path is relative to the site root (e.g. 'blog/x.html').
+    dark_top: the page opens on a forest section, so the top bar starts light-on-dark (no flash, no reliance on the script).
+    intro: the opening curtain (home page, first visit in a session)."""
     depth = path.count("/")
     prefix = "/" if path == "404.html" else "../" * depth
     canon = URL + "/" + re.sub(r"(^|/)index\.html$", r"\1", path)
     t, d = esc(title), esc(desc)
     head = (
-        "<!DOCTYPE html>\n<html lang=\"en\">\n<head>" + ('<base href="/">' if path == "404.html" else "") + "\n"
+        "<!DOCTYPE html>\n<html lang=\"en\"" + (' class="ondark"' if dark_top else "") + ">\n<head>"
+        + ('<base href="/">' if path == "404.html" else "") + "\n"
         '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        + (INTRO_HEAD if intro else "") +
         f"<title>{t}</title>\n<meta name=\"description\" content=\"{d}\">\n<meta name=\"theme-color\" content=\"#FBF7EC\">\n"
         f'<link rel="canonical" href="{canon}">\n<meta property="og:type" content="{og_type}">\n'
         f'<meta property="og:site_name" content="{esc(site["name"])}">\n<meta property="og:title" content="{t}">\n'
@@ -251,7 +265,9 @@ def page(path, data_page, title, desc, body, current="", og_type="website", lds=
         + head_extra +
         '<link rel="stylesheet" href="/assets/site.css">\n' + NOSCRIPT + "\n" + ld(ORG) + "".join(ld(x) for x in lds) + "\n</head>\n")
     chrome = (
-        f'<body data-page="{data_page}">\n<a class="skip" href="#main">Skip to content</a>\n<header class="bar" id="bar">\n'
+        f'<body data-page="{data_page}">\n' + (INTRO_HTML if intro else "")
+        + '<a class="skip" href="#main">Skip to content</a>\n'
+        + ('<header class="bar inv" id="bar">\n' if dark_top else '<header class="bar" id="bar">\n') +
         f'  <a class="brand" href="{prefix}index.html" aria-label="{esc(site["name"])} home"><img id="navEnso" src="/images/logos/enso-sm.webp" alt="" width="36" height="36"><span>{esc(site["name"])}</span></a>\n'
         '  <button class="burger" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span></button>\n'
         "</header>\n" + nav(prefix, current) + "\n"
@@ -336,7 +352,7 @@ home = f"""
 </div></section>
 """
 t, d = pmeta("home")
-page("index.html", "home", t, d, home,
+page("index.html", "home", t, d, home, intro=True,
      lds=[{"@context": "https://schema.org", "@type": "WebSite", "@id": URL + "/#website", "name": site["name"],
            "alternateName": [site["name"].replace(" ", "")], "url": URL + "/", "inLanguage": "en",
            "publisher": {"@id": URL + "/#organization"}}],
@@ -452,7 +468,7 @@ build = f"""
 </div></div>
 """
 t, d = pmeta("build", email=EMAIL)
-page("build.html", "build", t, d, build, current="/build.html",
+page("build.html", "build", t, d, build, current="/build.html", dark_top=True,
      lds=[crumbs(HOME_CRUMB, (seo["pages"]["build"]["crumb"], URL + "/build.html"))])
 
 # ---------------- companies (orbit + list + overview drawer) and one page per company
@@ -531,7 +547,7 @@ def join_names(names):
 
 co_desc = seo["pages"]["companies"]["description_intro"] + "".join(
     f' {g}: {join_names([c["show"] for c in companies if c["group"] == g])}.' for g in groups)
-page("companies.html", "companies", seo["pages"]["companies"]["title"], co_desc, cos, current="/companies.html",
+page("companies.html", "companies", seo["pages"]["companies"]["title"], co_desc, cos, current="/companies.html", dark_top=True,
      lds=[{"@context": "https://schema.org", "@type": "ItemList", "name": g,
            "numberOfItems": sum(1 for c in companies if c["group"] == g),
            "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": c["show"], "url": f'{URL}/companies/{c["slug"]}.html'}

@@ -537,3 +537,48 @@ body.menu-open{overflow:hidden;padding-right:var(--sbw,0px)}
 .note-full .endmark{max-width:680px;margin:44px 0 0}
 @media (max-width:700px){.note-full .nf-body{padding:0 clamp(28px,4vw,56px) 36px}}
 @media (prefers-reduced-motion:reduce){.note-full,.note-full.open{transition:none}}
+
+
+/* =====================================================================
+   v17 — fixes:
+   1. upright phones and tablets: the home cover's tagline (and the line
+      under it) sit on the screen's centre line, which is also the centre
+      of the enso as drawn;
+   2. phones: the circular menu is centred on the enso as drawn, and
+      upright phones get a larger enso with the six links evenly around it;
+   3. Build With Us on one column: the enso and the words are centred;
+   4. the opening curtain on the home page (first visit in a session).
+   ===================================================================== */
+@media (orientation:portrait) and (max-width:1100px){
+  .iris .hc{left:50%;top:var(--cy)}
+  .iris .sub{left:0}
+}
+
+@media (max-width:760px){
+  .circle .spin{left:calc(50% - var(--sw) * 50%);top:calc(50% - var(--sw) * 50%);transform-origin:50% 50%}
+}
+@media (max-width:760px) and (orientation:portrait){
+  .circle{--sw:.58;--rs:1;--ry:1;--ek:.2165}
+  .circle a.item.c{--ty:calc(var(--cw) * var(--uy) * .86)}
+  .circle a.item.r,.circle a.item.l{--ty:calc(var(--cw) * var(--uy) * 1.5)}
+}
+
+@media (max-width:860px) and (orientation:portrait),(max-width:860px) and (min-height:521px){
+  .build .wrap{text-align:center}
+  .build .enso-wrap{justify-self:center}
+  .build .lede{margin-left:auto;margin-right:auto}
+  .build .actions{justify-content:center}
+}
+
+#intro{display:none}
+.intro-on #intro{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:var(--deep);
+  transition:transform .9s var(--ease);animation:introLift .9s var(--ease) 6s forwards}
+.intro-on #intro.lift{transform:translateY(-101%)}
+@keyframes introLift{to{transform:translateY(-101%)}}
+#intro .intro-in{text-align:center}
+#intro img{display:block;width:clamp(90px,12vw,140px);height:auto;margin:0 auto;opacity:0;animation:introEnso 1.25s var(--ease) .15s forwards}
+@keyframes introEnso{from{opacity:0;transform:scale(.5) rotate(-170deg)}to{opacity:1;transform:none}}
+#intro .intro-name{font-family:var(--sans);font-size:.78rem;font-weight:700;text-transform:uppercase;color:var(--bg);margin-top:26px;
+  opacity:0;letter-spacing:.6em;padding-left:.6em;animation:introName 1s var(--ease) .55s forwards}
+@keyframes introName{from{opacity:0;letter-spacing:.6em;padding-left:.6em}to{opacity:1;letter-spacing:.3em;padding-left:.3em}}
+@media (prefers-reduced-motion:reduce){#intro{display:none!important}}

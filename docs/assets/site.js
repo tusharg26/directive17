@@ -23,8 +23,32 @@
   })();
 
   /* ---------- headline word reveal */
-  requestAnimationFrame(function () { requestAnimationFrame(function () { body.classList.add('shown'); }); });
-  setTimeout(function () { body.classList.add('done'); }, RM ? 0 : 2800);
+  var reveal = function () {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { body.classList.add('shown'); }); });
+    setTimeout(function () { body.classList.add('done'); }, RM ? 0 : 2800);
+  };
+
+  /* ---------- opening curtain (home page, first visit in a session; switched on in the page head): it stays at least
+     1.9s so the enso and the name finish arriving, lifts once the cover's enso and the fonts are ready (never later
+     than 4.5s), and the headline words come in as it lifts */
+  var intro = d.getElementById('intro');
+  if (intro && root.classList.contains('intro-on')) {
+    var lifted = false;
+    var lift = function () {
+      if (lifted) return; lifted = true;
+      intro.classList.add('lift'); reveal();
+      setTimeout(function () { if (intro.parentNode) intro.parentNode.removeChild(intro); root.classList.remove('intro-on'); }, 1000);
+    };
+    var ready = function () { setTimeout(lift, Math.max(0, 1900 - performance.now())); };
+    var waits = [];
+    var heroImg = $('#ens img'); if (heroImg && heroImg.decode) waits.push(heroImg.decode().catch(function () {}));
+    if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready.catch(function () {}));
+    if (window.Promise) Promise.all(waits).then(ready, ready); else ready();
+    setTimeout(lift, 4500);
+  } else {
+    if (intro) intro.parentNode.removeChild(intro);
+    reveal();
+  }
 
   /* ---------- 'we don't' lines: detect wrapping so the strike follows every line */
   var nts = $$('.way .nt');
@@ -141,18 +165,27 @@
       if (L.phone) {
         var best = null, bd = 9; pls.forEach(function (x) { var dd = Math.abs(Math.atan2(Math.sin(x._a + Math.PI / 2), Math.cos(x._a + Math.PI / 2))); if (dd < bd) { bd = dd; best = x; } });
         pls.forEach(function (x) { x.classList.toggle('top', x === best); });
-        if (best && capI && capI.textContent !== best.getAttribute('data-name')) capI.textContent = best.getAttribute('data-name');
+        var nm = best && (lit || best).getAttribute('data-name');
+        if (nm && capI && capI.textContent !== nm) capI.textContent = nm;
       }
     };
     (function tick(now) { var dt = Math.min(50, now - last); last = now; if (!paused && !RM) { t += dt; place(); } requestAnimationFrame(tick); })(last);
+    // on phones the line under the ring names the company that is lit (or, when none is, the one passing the top)
     var light = function (x) {
       clearTimeout(offT); paused = true; lit = x; orb.classList.add('pointing'); pls.forEach(function (y) { y.classList.toggle('on', y === x); });
       cg.textContent = x.getAttribute('data-group'); cn.textContent = x.getAttribute('data-name'); fit();
+      if (capI && L && L.phone) capI.textContent = x.getAttribute('data-name');
     };
-    var unlight = function () { clearTimeout(offT); offT = setTimeout(function () { paused = false; lit = null; orb.classList.remove('pointing'); pls.forEach(function (y) { y.classList.remove('on'); }); }, 160); };
+    // back to how the page first looked: nothing lit, the ring drifting again, the caption following the top of the ring
+    var reset = function () {
+      clearTimeout(offT); paused = false; lit = null; orb.classList.remove('pointing');
+      pls.forEach(function (y) { y.classList.remove('on'); }); place();
+    };
+    var unlight = function () { clearTimeout(offT); offT = setTimeout(reset, 160); };
+    var quiet = false;   // set while focus is handed back to a company after its overview closes, so it isn't lit again
     pls.forEach(function (x) {
       x.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') light(x); });
-      x.addEventListener('pointerleave', unlight); x.addEventListener('focus', function () { light(x); }); x.addEventListener('blur', unlight);
+      x.addEventListener('pointerleave', unlight); x.addEventListener('focus', function () { if (!quiet) light(x); }); x.addEventListener('blur', unlight);
     });
     // overview panel (moved to <body> so it sits above the top bar)
     var drawer = $('#drawer'), scrim = $('#scrim'), BASE = (d.baseURI || location.href).replace(/[#?].*$/, '').replace(/[^/]*$/, '');
@@ -172,9 +205,18 @@
       var cb = $('[data-close]', drawer); if (cb) cb.focus({ preventScroll: true });
       return true;
     };
+    // closing an overview puts the Companies page back the way it first looked (no company left selected). Keyboard users get
+    // focus back on the company they opened, without lighting it; after a click or tap focus simply leaves the panel
+    var kbd = false;
+    addEventListener('keydown', function () { kbd = true; }, true);
+    addEventListener('pointerdown', function () { kbd = false; }, true);
     var shut = function () {
+      var wasOpen = root.classList.contains('dopen'), back = opener; opener = null;
       root.classList.remove('dopen'); lockPad(false); drawer.setAttribute('aria-hidden', 'true'); if (mainEl) mainEl.removeAttribute('inert');
-      if (opener && opener.isConnected) opener.focus({ preventScroll: true }); opener = null;
+      if (!wasOpen) return;
+      reset();
+      if (kbd && back && back.isConnected) { quiet = true; back.focus({ preventScroll: true }); quiet = false; }
+      else if (drawer.contains(d.activeElement)) d.activeElement.blur();
     };
     var closeD = function () {
       if (!root.classList.contains('dopen')) return;
@@ -273,11 +315,16 @@
   /* ---------- scroll-driven bits */
   var hooks = [];
   var bar = $('#bar'), navEnso = $('#navEnso'), iris = $('#iris');
+  // light-on-dark top bar while a forest section sits under it. Found by position, not by hit-testing: while the page-to-page
+  // fade is still playing, hit-testing only finds the page itself, which left the menu button dark-on-dark (invisible) on the
+  // Companies and Build pages until the page was scrolled
   var barTone = function () {
     if (!bar) return;
-    var els = d.elementsFromPoint(innerWidth / 2, bar.offsetHeight + 2);
-    var under = null; for (var i = 0; i < els.length; i++) if (!bar.contains(els[i])) { under = els[i]; break; }
-    var onDark = !!(under && under.closest('.dark,.stick.dk'));
+    var x = innerWidth / 2, y = bar.offsetHeight + 2, onDark = false, ds = d.querySelectorAll('.dark,.stick.dk');
+    for (var i = 0; i < ds.length && !onDark; i++) {
+      var r = ds[i].getBoundingClientRect();
+      onDark = r.top <= y && r.bottom > y && r.left <= x && r.right > x;
+    }
     bar.classList.toggle('inv', onDark); root.classList.toggle('ondark', onDark);
   };
   var lastY = scrollY, vel = 0;
@@ -328,6 +375,8 @@
   }
   onScroll();
   addEventListener('load', onScroll);
+  addEventListener('pageshow', onScroll);
+  if (d.fonts && d.fonts.ready) d.fonts.ready.then(onScroll);
 
   /* ---------- Companies: the tile glow follows the cursor */
   $$('.card, .prow').forEach(function (el) {
