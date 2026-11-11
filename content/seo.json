@@ -1,0 +1,50 @@
+{
+  "org_description": "Directive 17 is an investment firm founded by Joel Shapiro. We build companies that improve the human experience.",
+  "og_image_alt": "Directive 17 — The Future Should Make Life Better.",
+  "pages": {
+    "home": {
+      "title": "Directive 17 — Investment Firm | The Future Should Make Life Better.",
+      "description": "Directive 17 is an investment firm founded by Joel Shapiro. We build companies that improve the human experience, so that progress makes everyday life healthier, kinder, happier, more connected, more trusting, and more human."
+    },
+    "why": {
+      "title": "Why We Exist — Directive 17",
+      "description": "Most organizations begin with markets. We begin with people. Directive 17 builds enduring companies that genuinely improve people's lives.",
+      "crumb": "Why We Exist"
+    },
+    "philosophy": {
+      "title": "Philosophy: The Five Pillars and the Human Test — Directive 17",
+      "description": "The Five Pillars — happiness, health, trust, connection and human potential — the Human Test, and the Directive 17 Way. Every company begins with one question: how will this make someone's life better?",
+      "crumb": "Philosophy"
+    },
+    "future": {
+      "title": "The Future We See — Directive 17",
+      "description": "What future is worth building? Artificial intelligence, biology, mental wellness, medicine, food, and entertainment will reshape the next century. Directive 17 exists to help ensure that progress makes everyday life healthier, kinder, happier, more connected, more trusting, and more human.",
+      "crumb": "The Future We See"
+    },
+    "build": {
+      "title": "Build With Us — Directive 17",
+      "description": "The future is built by people who believe it can be better. Start a conversation with Directive 17: {email}.",
+      "crumb": "Build With Us"
+    },
+    "404": {
+      "title": "Not Found — Directive 17",
+      "description": "This page doesn't exist. The future does."
+    },
+    "companies": {
+      "title": "Our Companies — Directive 17",
+      "description_intro": "Different companies. One philosophy.",
+      "crumb": "Companies"
+    },
+    "blog": {
+      "title": "Joel's Tales from Weird Side — Joel's Blog — Directive 17",
+      "description": "{blog_title}: the blog of Joel Shapiro, founder of Directive 17. {blog_tagline}",
+      "crumb": "Joel's Blog"
+    },
+    "note": {
+      "description": "A Note from the Founder, by Joel Shapiro. {title}. {lede}",
+      "crumb": "A Note from the Founder"
+    }
+  },
+  "post_title": "{title} — Joel's Blog — Directive 17",
+  "company_title": "{name} — Directive 17"
+}

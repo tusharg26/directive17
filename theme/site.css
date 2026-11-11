@@ -1,0 +1,539 @@
+@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:200 900;font-display:block;src:url(/assets/fonts/source-serif-4.woff2) format('woff2')}@font-face{font-family:'Source Serif 4';font-style:italic;font-weight:200 900;font-display:block;src:url(/assets/fonts/source-serif-4-italic.woff2) format('woff2')}@font-face{font-family:'Inter Tight';font-style:normal;font-weight:100 900;font-display:swap;src:url(/assets/fonts/inter-tight.woff2) format('woff2')}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{
+  --bg:#FBF7EC;--panel:#F4EEDD;--ink:#23392C;--deep:#203C2D;--deep2:#2C5240;--deepline:#3A5344;
+  --muted:#44533F;--mutedtext:#3F4E3B;--sage:#9FB09A;--sageOnDark:#C7D1C1;--accent:#D98B33;--accenttext:#8C5212;--accentdark:#E3A052;
+  --line:#E6DEC7;--ghost:#EDE5CE;--ghosttext:#D3C9AE;
+  --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --sans:'Inter Tight','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --ease:cubic-bezier(.2,.7,.1,1);--gut:clamp(20px,5vw,72px);--max:1320px;
+  /* one vertical rhythm for every page: text always starts the same distance under the bar */
+  --barH:84px;--top:calc(var(--barH) + clamp(24px,4.6vh,52px));--heroEnd:clamp(26px,3.4vw,48px);
+  --gap:clamp(40px,4.6vw,66px);--end:clamp(44px,5vw,72px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.42;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .38  0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+::selection{background:var(--accent);color:var(--bg)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.label{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accenttext)}
+.dark .label,.on-dark .label{color:var(--accentdark)}
+/* page and section titles: the same amber small caps, at a size that reads easily (still well below the statements) */
+.label.tl{font-size:clamp(13px,calc(.5rem + .55vw),17px);letter-spacing:.16em;line-height:1.35}
+main{position:relative;z-index:1}
+
+/* ---------- top bar: always visible; three-bar menu button, no label */
+.bar{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+  padding:16px var(--gut);color:var(--deep);transition:background .35s,box-shadow .35s,color .35s}
+.bar.solid{background:var(--bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 1px 0 var(--line)}
+.bar.inv{color:var(--bg)}
+.bar.inv.solid{background:var(--deep);box-shadow:0 1px 0 var(--deepline)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:650;font-size:17px;letter-spacing:-.01em;color:inherit}
+.brand img{width:36px;height:36px;will-change:transform}
+.burger{width:52px;height:52px;display:grid;place-items:center;background:none;border:0;cursor:pointer;color:inherit;margin-right:-12px}
+.burger span{position:relative;display:block;width:28px;height:2px;background:currentColor;border-radius:2px;transition:background .2s}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:28px;height:2px;background:currentColor;border-radius:2px;transition:transform .45s var(--ease),top .45s var(--ease)}
+.burger span::before{top:-8px}.burger span::after{top:8px}
+.menu-open .burger span{background:transparent}
+.menu-open .burger span::before{top:0;transform:rotate(45deg)}
+.menu-open .burger span::after{top:0;transform:rotate(-45deg)}
+.menu-open .bar{background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;color:var(--bg)}
+
+/* ---------- circular menu: the enso turns its brush tail toward the item you're about to click.
+   The ring is centred in the space under the top bar. Items at the top and bottom are centred on the ring; items on the
+   right all start, and items on the left all end, the same distance from the enso, so the two halves mirror each other. */
+.menu{position:fixed;inset:0;z-index:55;background:#18301F;color:var(--bg);display:grid;place-items:center;padding-top:var(--barH);opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s}
+.menu-open .menu{opacity:1;visibility:visible}
+/* --cw ring box, --sw enso size (share of the box), --rs ring scale, --ry extra height of the ring, --ek how far side items are pulled in,
+   --if the type size shared by the items around the enso and the Contact button inside it.
+   One centre for everything: Contact sits at the exact middle of the ring (on the Why / Future axis). The enso's brush is thicker on the
+   left, so its clear middle is not the middle of the picture; the point equally far from its left, right and top inner edges is
+   53.6% across / 52.2% down, and the picture is placed, and turns, about that point. */
+.circle{position:relative;--cw:min(calc((100svh - var(--barH)) * .9),80vw);--sw:.58;--rs:1;--ry:1;--ek:.105;--if:clamp(1.13rem,min(2.35vw,4.52vh),2.17rem);width:var(--cw);aspect-ratio:1}
+.circle .spin{position:absolute;left:calc(50% - var(--sw) * 53.6%);top:calc(50% - var(--sw) * 52.2%);width:calc(var(--sw) * 100%);height:calc(var(--sw) * 100%);transform-origin:53.6% 52.2%;transform:rotate(var(--rot,0deg));transition:transform .9s cubic-bezier(.34,1.4,.5,1)}
+.circle .spin img{width:100%;height:100%;object-fit:contain;-webkit-mask:conic-gradient(from 150deg,#000 var(--a),transparent calc(var(--a) + 18deg));mask:conic-gradient(from 150deg,#000 var(--a),transparent calc(var(--a) + 18deg))}
+.menu-open .circle .spin img{animation:paint 1.4s .05s cubic-bezier(.55,.05,.25,1) forwards}
+.circle .spark{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:var(--accentdark);
+  transform:rotate(122deg) translateY(calc(var(--cw) * var(--sw) * -.4096));opacity:0;transition:opacity .25s,transform .9s cubic-bezier(.34,1.4,.5,1)}
+.circle.pointing .spark{opacity:1}
+.circle a.item{position:absolute;left:50%;top:50%;white-space:nowrap;--ty:calc(var(--cw) * var(--uy) * var(--rs) * var(--ry));
+  transform:translate(-50%,-50%) translate(calc(var(--cw) * var(--ux) * var(--rs)),var(--ty));
+  font-size:var(--if);font-weight:600;letter-spacing:-.02em;transition:opacity .18s ease,color .18s ease}
+.circle a.item.r{transform:translate(calc(var(--cw) * (var(--ax) * var(--rs) - var(--ek))),-50%) translateY(var(--ty))}
+.circle a.item.l{transform:translate(calc(-100% - var(--cw) * (var(--ax) * var(--rs) - var(--ek))),-50%) translateY(var(--ty))}
+.circle a.item span{display:inline-block;opacity:0}
+.menu-open .circle a.item span{animation:itemIn .6s calc(.2s + var(--i)*50ms) both}
+@keyframes itemIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.circle.pointing a.item{opacity:.32}
+.circle.pointing a.item.on{opacity:1;color:var(--accentdark)}
+.circle .ctr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;opacity:0;transition:opacity .5s .6s}   /* flex: the box is exactly the button, so the button's middle is the ring's middle */
+.menu-open .circle .ctr{opacity:1}
+/* Contact is a button: cream type like the items around it (74% of their size) inside a thin amber outline that picks up the enso;
+   amber fills it on hover / keyboard focus and the type turns dark */
+.circle .ctr a.contact{display:inline-flex;align-items:center;justify-content:center;position:relative;overflow:hidden;isolation:isolate;white-space:nowrap;
+  font-family:var(--serif);font-size:calc(var(--if) * .74);font-weight:600;letter-spacing:-.02em;line-height:1.2;
+  padding:.3em .87em .37em .83em;border-radius:100px;background:transparent;color:var(--bg);box-shadow:inset 0 0 0 1.5px var(--accentdark);transition:transform .35s var(--ease),color .3s}
+.circle .ctr a.contact::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--accentdark);transform:scale(0);transition:transform .55s var(--ease);z-index:-1}
+.circle .ctr a.contact:hover::before,.circle .ctr a.contact:focus-visible::before{transform:scale(1.25)}
+.circle .ctr a.contact:hover,.circle .ctr a.contact:focus-visible{color:#18301F}
+.circle .ctr a.contact:hover{transform:scale(1.04)}
+.circle .ctr a.contact:active{transform:scale(.98)}
+/* the live site's copyright line, kept at the foot of the menu (outside the circle) */
+.mcopy{position:absolute;left:var(--gut);bottom:28px;font-family:var(--sans);font-size:12px;letter-spacing:.06em;color:var(--sageOnDark);opacity:0;transition:opacity .5s .6s}
+.menu-open .mcopy{opacity:1}
+/* short upright phones: the ring reaches the foot of the screen, so the copyright line steps aside rather than sit beside "Future" */
+@media (max-width:760px) and (orientation:portrait) and (min-aspect-ratio:5/8),(max-width:760px) and (orientation:portrait) and (max-height:560px){.mcopy{display:none}}
+/* phones keep the circle: items on a slightly tighter ring, sized to fit 320px screens; upright phones have height to spare,
+   so the ring is a little taller than wide and the enso (and the Contact button inside it) can be larger */
+@media (max-width:760px){
+  .circle{--cw:min(92vw,calc((100svh - var(--barH)) * .78));--sw:.5;--rs:.92;--ry:1.38;--ek:.203;--if:clamp(min(.94rem,4.7vw),4.5vw,1.17rem)}
+  .circle .spark{display:none}
+  .circle a.item{padding:10px 4px}
+  .circle .ctr a.contact{padding:.45em .82em .51em .78em}   /* smaller type, but still tall enough to tap (24px+) */
+}
+/* a phone on its side: little height, plenty of width, so the ring keeps its round shape and the labels sit further out */
+@media (max-width:760px) and (orientation:landscape){
+  .circle{--cw:min(92vw,calc((100svh - var(--barH)) * .85));--sw:.6;--rs:1;--ry:1;--ek:.09;--if:min(.94rem,4.2vh)}
+  .circle a.item{padding:4px}
+}
+
+/* ---------- live background (Concept 3), only on forest sections */
+.skyc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.skyc~.wrap{position:relative;z-index:1}
+
+/* ---------- painted enso */
+.paint{-webkit-mask:conic-gradient(from 160deg,#000 var(--a),transparent calc(var(--a) + 18deg));mask:conic-gradient(from 160deg,#000 var(--a),transparent calc(var(--a) + 18deg))}
+.paint.go{animation:paint 2.6s cubic-bezier(.55,.05,.25,1) forwards}
+@keyframes paint{from{--a:0deg}to{--a:400deg}}
+.breathe{animation:breathe 9s ease-in-out infinite}
+@keyframes breathe{50%{transform:rotate(6deg) scale(1.025)}}
+
+/* ---------- page transition: three brush passes */
+
+/* ---------- shared type */
+.hero{position:relative;padding:var(--top) 0 var(--heroEnd)}
+.hero>.wrap{width:100%}
+.display{font-size:clamp(2.1rem,4.9vw,5rem);font-weight:640;line-height:.98;letter-spacing:-.035em;color:var(--deep)}
+.h1{font-size:clamp(1.9rem,4.1vw,4.1rem);font-weight:640;line-height:1.02;letter-spacing:-.03em;color:var(--deep)}
+.h2{font-size:clamp(1.5rem,2.8vw,2.6rem);font-weight:620;line-height:1.06;letter-spacing:-.025em;color:var(--deep)}
+.soft{color:var(--mutedtext)}
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.26em;margin-bottom:-.26em}
+.done .w,.done .lw{overflow:visible}
+.w>span{display:inline-block;transform:translateY(105%);filter:blur(10px);opacity:0;transition:transform 1.1s var(--ease),filter 1.1s var(--ease),opacity .8s;transition-delay:calc(var(--d,0s) + var(--i)*70ms)}
+.shown .w>span{transform:none;filter:none;opacity:1}
+.rv{opacity:0;transform:translateY(34px);transition:opacity 1s var(--ease),transform 1.1s var(--ease);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+.fade{opacity:0;transition:opacity 1.2s var(--ease);transition-delay:var(--d,0s)}
+.shown .fade{opacity:1}
+section{position:relative;padding:var(--gap) 0}
+main>section:last-child,main>div:last-child,main>article:last-child{padding-bottom:var(--end)}
+.lede{font-size:clamp(1.02rem,1.4vw,1.25rem);line-height:1.45;color:var(--mutedtext);max-width:38ch}
+.btn{display:inline-flex;align-items:center;gap:14px;background:var(--deep);color:var(--bg);font-family:var(--sans);font-size:13px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;padding:19px 30px;border-radius:100px;position:relative;overflow:hidden;isolation:isolate;transition:transform .4s var(--ease)}
+.btn::before{content:"";position:absolute;inset:0;background:var(--accent);border-radius:inherit;transform:scale(0);transition:transform .6s var(--ease);z-index:-1}
+.btn:hover::before{transform:scale(1.2)}
+.btn .arr{transition:transform .4s var(--ease)}
+.btn:hover .arr{transform:translateX(5px)}
+.btn.ghost{background:transparent;color:var(--deep);box-shadow:inset 0 0 0 1.5px var(--deep)}
+/* the smallest phones: buttons stay on one line */
+.btn{white-space:nowrap}
+@media (max-width:380px){.btn{font-size:12px;letter-spacing:.1em;padding:17px 22px;gap:10px}}
+.btn.ghost:hover{color:var(--bg)}
+.dark{background:var(--deep);color:var(--bg)}
+.dark .h1,.dark .h2,.dark .display{color:var(--bg)}
+
+/* stroke underline drawn on reveal */
+.stroke{position:relative;display:inline-block}
+/* the brush line sits clear below the letters, including the tail of the p in "experience" (it used to run through them) */
+.stroke svg{position:absolute;left:-3%;bottom:-.44em;width:106%;height:.36em;overflow:visible;pointer-events:none}
+.stroke path{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.2s .35s var(--ease),opacity .1s .35s;opacity:0}
+.in .stroke path,.stroke.in path{stroke-dashoffset:0;opacity:.9}
+
+/* ---------- HOME: Concept 2 cover — the tagline sits inside the enso; scroll grows it past the edges */
+.iris{height:195vh;position:relative;padding:0}  /* generic section padding was pushing the cover down */
+.iris .stick{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;background:var(--bg);transition:background .25s;
+  /* the enso fits the screen under the bar and is centred there; the headline sits in the middle of the ring's clear centre
+     (the brush is heavier on the left/top, so that centre is 3.3% right / 1.3% down of the picture's middle) */
+  --S:min(calc((100svh - var(--barH)) * .95), 94vw);--cy:calc(var(--barH) + (100svh - var(--barH)) / 2)}
+.iris .stick.dk{background:var(--deep)}
+.iris .skyc{opacity:0;transition:opacity .6s}
+.iris .stick.dk .skyc{opacity:1}
+.iris .ens{position:absolute;left:50%;top:var(--cy);width:var(--S);aspect-ratio:2451/2416;transform:translate(-50.04%,-49.93%) scale(var(--s,1)) rotate(var(--r,0deg));transform-origin:53.3% 51.2%;z-index:1}
+.iris .hc{position:absolute;left:calc(50% + var(--S) * .0326);top:calc(var(--cy) + var(--S) * .01252);transform:translate(-50%,-50%) translate(calc(var(--S) * var(--inkX)), calc(var(--S) * var(--inkY)));width:max-content;z-index:2;--inkX:-.0015;--inkY:.0012}
+.iris .ens img{width:100%;height:100%;object-fit:contain}
+.iris h1{position:relative;text-align:center;font-size:calc(var(--S) * .0907);margin:0;font-weight:calc(640 + var(--vel,0) * 200);line-height:.92;letter-spacing:-.04em;max-width:11ch;z-index:2;color:var(--deep);transition:color .25s,font-weight .25s}
+.iris h1 .s2{color:var(--accenttext)}
+.iris .stick.dk h1 .s2{color:var(--accentdark)}
+.iris .stick.dk h1{color:var(--bg)}
+/* the line under the tagline: centred on the tagline (which sits on the enso's clear centre, 3.26% of S right of the screen's middle),
+   just below it, and the same size as the Founder's Note title */
+.iris .sub{position:absolute;left:calc(var(--S) * .0652);right:0;top:calc(var(--cy) + var(--S) * .178);text-align:center;font-size:clamp(1.25rem,2.05vw,1.9rem);line-height:1.25;letter-spacing:-.01em;color:var(--bg);opacity:0;z-index:2;padding:0 var(--gut)}
+.iris .icue{position:absolute;left:var(--gut);bottom:28px;width:44px;height:44px;border-radius:50%;background:transparent;border:0;padding:0;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--line);display:grid;place-items:center;color:var(--deep);z-index:3;transition:box-shadow .3s,opacity .3s}
+.iris .icue:hover{box-shadow:inset 0 0 0 1.5px var(--deep)}
+.iris .icue svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;animation:icue 2.4s ease-in-out infinite}
+@keyframes icue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+.lw{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em 0 .26em;margin:-.04em 0 -.26em}
+.lw>span{display:inline-block;transform:translateY(110%) rotate(4deg);transform-origin:left bottom;transition:transform 1.1s var(--ease);transition-delay:calc(.15s + var(--i) * 60ms)}
+.shown .lw>span{transform:none}
+
+.notesec{padding:var(--gap) 0 var(--end)!important}
+.note-card{display:grid;grid-template-columns:auto 1fr;gap:clamp(20px,4vw,60px);align-items:center;padding:clamp(28px,4vw,56px);
+  border:1px solid var(--line);border-radius:28px;background:rgba(244,238,221,.6);transition:border-color .4s,transform .6s var(--ease);position:relative;overflow:hidden}
+.note-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+.note-card .ns{width:clamp(60px,8vw,110px)}
+.note-card h2{font-size:clamp(1.25rem,2.05vw,1.9rem);font-weight:620;line-height:1.08;letter-spacing:-.02em;color:var(--deep);margin:10px 0 12px}
+.note-card p{color:var(--mutedtext);font-style:italic;font-size:1rem}
+.note-card .readnote{display:inline-flex;align-items:center;gap:10px;margin-top:22px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--deep);border-bottom:2px solid var(--accent);padding-bottom:5px}
+.note-card .readnote{transition:color .3s,border-color .3s}
+.note-card:hover .readnote{color:var(--accenttext);border-color:var(--accenttext)}
+.note-card .readmeta{margin-left:18px;font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--muted)}
+@media (max-width:700px){.note-card .readmeta{display:block;margin:10px 0 0}}
+@media (max-width:700px){.note-card{grid-template-columns:1fr}}
+/* new-post notice: a quiet dispatch line, not a badge */
+.newpost{display:grid;grid-template-columns:minmax(150px,auto) 1fr auto;gap:clamp(16px,3vw,44px);align-items:baseline;margin-top:clamp(20px,2.6vw,30px);padding:20px clamp(4px,1vw,10px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .3s}
+.newpost:hover{background:rgba(244,238,221,.5)}
+.newpost .tag{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accenttext);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.newpost .tag i{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+.newpost .np-title{display:block;font-size:clamp(1.1rem,1.6vw,1.45rem);font-weight:620;letter-spacing:-.02em;line-height:1.15;color:var(--deep)}
+.newpost .np-ex{display:block;color:var(--mutedtext);font-style:italic;margin-top:4px}
+.newpost .when{font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.newpost .when b{display:block;color:var(--deep);margin-top:6px;letter-spacing:.16em}
+.newpost:hover .when b{color:var(--accenttext)}
+@media (max-width:760px){.newpost{grid-template-columns:1fr;gap:8px}}
+
+/* ---------- WHY */
+.muted-line{font-size:clamp(1.1rem,1.9vw,1.75rem);color:var(--mutedtext);font-weight:500;letter-spacing:-.015em;margin-bottom:14px}
+.split{display:grid;grid-template-columns:minmax(max-content,.42fr) 1.58fr;gap:clamp(30px,6vw,100px)}
+.split .side{position:sticky;top:120px;align-self:start}
+.bigtext p{font-size:clamp(1.08rem,1.55vw,1.45rem);line-height:1.42;letter-spacing:-.012em;color:var(--ink);margin-bottom:1em;max-width:70ch}
+@media (max-width:860px){.split{grid-template-columns:1fr}.split .side{position:static}}
+/* Why: the two opening paragraphs side by side under a hairline that lines up with the text column; one column on phones */
+.why-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,5vw,84px);padding-top:clamp(20px,2.6vw,34px);border-top:1px solid var(--line)}
+.why-cols p{margin:0;max-width:none}
+@media (max-width:760px){.why-cols{grid-template-columns:1fr;gap:1em}}
+.belief{display:grid;grid-template-columns:clamp(70px,12vw,170px) 1fr;align-items:center;padding:clamp(13px,1.8vw,24px) 0;border-bottom:1px solid var(--line)}
+.belief .g{font-size:clamp(1.5rem,2.9vw,2.7rem);font-weight:500;color:var(--accenttext);line-height:.9;letter-spacing:-.04em;font-variant-numeric:lining-nums}
+.belief .btext{font-size:clamp(1.25rem,2.5vw,2.3rem);font-weight:600;letter-spacing:-.025em;line-height:1.1;color:var(--deep)}
+.inkfill{font-size:clamp(1.25rem,2.5vw,2.3rem);font-weight:600;letter-spacing:-.025em;line-height:1.1;
+  background:linear-gradient(90deg,var(--deep) 0 49.5%,var(--ghosttext) 50.5% 100%);background-size:200.5% 100%;
+  background-position:calc(100% - var(--p,0) * 100%) 0;-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- PHILOSOPHY */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,60px);margin-top:38px;border-top:1px solid var(--line);padding-top:28px}
+.q{font-size:clamp(1.1rem,1.85vw,1.7rem);line-height:1.2;letter-spacing:-.015em;font-weight:500}
+.q2{color:var(--mutedtext);font-style:italic}
+.answer{margin-top:32px;font-size:clamp(1.15rem,1.95vw,1.8rem);font-weight:620;letter-spacing:-.02em;line-height:1.15;color:var(--deep);max-width:24ch}
+@media (max-width:700px){.qgrid{grid-template-columns:1fr}}
+.five{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:38px}
+.five .c{aspect-ratio:3/4.4;border-radius:999px 999px 26px 26px;background:var(--panel);padding:64px 22px 34px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;overflow:hidden;transition:background .5s,color .5s,transform .6s var(--ease)}
+.five .c .n{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.2em;color:var(--accenttext)}
+.five .c h3{font-size:clamp(1.05rem,1.4vw,1.32rem);line-height:1.08;letter-spacing:-.02em;font-weight:640;color:var(--deep);margin-bottom:12px;transition:color .5s}
+.five .c p{font-size:.94rem;line-height:1.45;color:var(--mutedtext);transition:color .5s}
+.five .c::before{content:"";position:absolute;left:50%;top:44%;width:150%;aspect-ratio:1;border-radius:50%;background:var(--deep);transform:translate(-50%,-50%) scale(0);transition:transform .8s var(--ease)}
+.five .c>*{position:relative}
+.five .c:hover::before{transform:translate(-50%,-50%) scale(1.3)}
+.five .c:hover h3,.five .c:hover p{color:var(--bg)}
+.five .c:hover .n{color:var(--accentdark)}
+@media (max-width:1000px){.five{grid-template-columns:repeat(2,1fr)}.five .c{aspect-ratio:auto;min-height:280px;border-radius:120px 120px 22px 22px}}
+@media (max-width:520px){.five{grid-template-columns:1fr}.five .c{min-height:230px;padding:60px 22px 30px}}
+.test{overflow:hidden}
+.test .wm{position:absolute;right:-14%;top:50%;width:min(80vw,980px);opacity:.13;transform:translateY(-50%);animation:spin 120s linear infinite;pointer-events:none}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.big-q{font-size:clamp(1.7rem,3.7vw,3.5rem);font-weight:600;line-height:1.04;letter-spacing:-.03em;max-width:17ch;margin:18px 0 26px}
+.big-q em{font-style:italic;color:var(--accentdark)}
+.test .after{font-size:clamp(1rem,1.3vw,1.15rem);color:var(--sageOnDark);max-width:34ch}
+.way{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,4vw,60px);padding:clamp(18px,2.2vw,30px) 0;border-bottom:1px solid var(--line);align-items:baseline}
+.way .no{position:relative;font-size:clamp(1.05rem,1.7vw,1.55rem);color:var(--muted);width:max-content;max-width:100%;transition:color .8s 1.6s}
+.way .no svg{position:absolute;left:-2%;top:42%;width:104%;height:.5em;overflow:visible}
+.way .no path{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset 1.4s 1.1s cubic-bezier(.45,0,.25,1),opacity .2s 1.1s}
+.way.in .no path{stroke-dashoffset:0;opacity:.9}
+.way .yes{font-size:clamp(1.2rem,2.15vw,2rem);font-weight:640;letter-spacing:-.025em;color:var(--deep);line-height:1.08;opacity:0;transform:translateX(-20px);transition:opacity .8s 2.2s,transform 1s 2.2s var(--ease)}
+.way.in .yes{opacity:1;transform:none}
+/* a 'we don't' line that wraps gets one brush stroke per line, drawn one after another */
+.way .no.multi{width:auto}
+.way .no svg.ln path{transition-delay:calc(1.1s + var(--k)*.8s),calc(1.1s + var(--k)*.8s)}
+@media (max-width:700px){.way{grid-template-columns:minmax(0,1fr);gap:6px}}
+.closing{font-size:clamp(1.15rem,2vw,1.85rem);line-height:1.35;letter-spacing:-.015em;font-style:italic;color:var(--deep);max-width:28ch}
+.closing span{display:inline}
+.closing span.lit{opacity:1}
+
+/* ---------- COMPANIES */
+.group{margin-top:clamp(50px,7vw,90px)}
+.group-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:30px}
+.group-head .ct{font-family:var(--sans);font-size:12px;color:var(--muted);letter-spacing:.14em;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2vw,26px)}
+@media (max-width:1050px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card .meta{flex-direction:column;align-items:flex-start;gap:4px}}
+.card{display:block;position:relative}
+.card .tile{aspect-ratio:16/11;border-radius:22px;background:var(--deep);display:grid;place-items:center;position:relative;overflow:hidden;isolation:isolate;transition:transform .7s var(--ease),border-radius .7s var(--ease)}
+.card.light .tile{background:var(--panel)}
+.card .tile::before{content:"";position:absolute;left:var(--mx,50%);top:var(--my,50%);width:240%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(217,139,51,.45),rgba(217,139,51,0) 60%);transform:translate(-50%,-50%) scale(0);transition:transform .9s var(--ease);z-index:-1}
+.card.light .tile::before{background:radial-gradient(circle,rgba(32,60,45,.16),rgba(32,60,45,0) 60%)}
+.card:hover .tile::before{transform:translate(-50%,-50%) scale(1)}
+.card:hover .tile{transform:translateY(-6px);border-radius:40px}
+.card .tile img{transition:transform .8s var(--ease);max-width:78%;max-height:80%;height:auto;object-fit:contain}
+.card:hover .tile img{transform:scale(1.06)}
+.card .meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.card .nm{font-size:.97rem;font-weight:600;color:var(--deep);line-height:1.25}
+/* Companies page + overviews: quick, short entrances (the slower site-wide reveal felt sluggish here) */
+.card.rv,.ov-page .rv{transform:translateY(14px);transition:opacity .4s var(--ease),transform .45s var(--ease);transition-delay:var(--d,0s)}
+.card.rv.in,.ov-page .rv.in{opacity:1;transform:none}
+.ov-page .fade{transition-duration:.45s}
+.ov-page .w>span{transition-duration:.55s,.55s,.4s;transition-delay:calc(var(--i)*40ms)}
+.card .ov{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accenttext);white-space:nowrap;opacity:.0;transform:translateX(-8px);transition:opacity .4s,transform .5s var(--ease)}
+.card:hover .ov{opacity:1;transform:none}
+@media (hover:none){.card .ov{opacity:1;transform:none}}
+
+.ov-page{padding:var(--top) 0 var(--end)!important}
+.ov-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,6vw,110px)}
+.ov-left{position:sticky;top:120px;align-self:start}
+.ov-logo img{max-width:80%;height:auto}
+.ov-logo{aspect-ratio:1.15;border-radius:30px;background:var(--panel);display:grid;place-items:center;margin-bottom:34px;overflow:hidden}
+.ov-logo.dk{background:var(--deep)}
+.ov-name{font-size:clamp(1.8rem,3.1vw,2.9rem);font-weight:640;line-height:1.02;letter-spacing:-.03em;color:var(--deep)}
+.ov-body p{font-size:clamp(1rem,1.2vw,1.08rem);line-height:1.62;margin-bottom:1.2em;color:var(--ink)}
+.ov-body p:first-child{font-size:clamp(1.1rem,1.5vw,1.38rem);line-height:1.38;letter-spacing:-.012em;color:var(--deep)}
+.ov-site{display:inline-flex;gap:10px;margin-top:10px;font-family:var(--sans);font-weight:700;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;border-bottom:1.5px solid var(--accent);padding-bottom:6px;color:var(--deep)}
+.back{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:10px 0;margin:-10px 0 12px;transition:color .3s,gap .3s}
+.back:hover{color:var(--deep);gap:14px}
+.next{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:30px;margin-top:60px;padding:30px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+/* phones: the next company's logo sits under its name, so long names never push it off the screen */
+@media (max-width:560px){.next{grid-template-columns:minmax(0,1fr);gap:22px;margin-top:48px}}
+.next .big{font-size:clamp(1.15rem,1.9vw,1.75rem);font-weight:640;letter-spacing:-.03em;line-height:1;color:var(--deep);transition:color .4s,letter-spacing .6s var(--ease)}
+.next:hover .big{color:var(--accent);letter-spacing:-.015em}
+.next .nt{width:120px;height:84px;border-radius:16px;background:var(--panel);display:grid;place-items:center}
+.next .nt.dk{background:var(--deep)}
+@media (max-width:860px){.ov-grid{grid-template-columns:1fr}.ov-left{position:static}}
+
+
+/* ---------- COMPANIES ORBIT: one ring of evenly spaced companies around the enso (the first group in companies.json);
+   the passive investments are not in the orbit, only in the list under it */
+.cos{padding:var(--top) 0 var(--end)!important;overflow:hidden;min-height:100svh}
+.cos .wrap{position:relative;z-index:1}
+.cos .display{color:var(--bg)}
+.orb{position:relative;height:clamp(440px,calc(100svh - var(--barH) - 16px),700px);margin-top:clamp(0px,2vw,24px)}
+.orb .tracks{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.orb .tracks ellipse{fill:none;stroke:rgba(199,209,193,.2);stroke-width:1}
+.orb .core{position:absolute;left:0;top:0;pointer-events:none;transition:opacity .3s}
+.orb .core img{width:100%;height:100%;object-fit:contain}
+.orb.pointing .core{opacity:.12}
+/* hover readout: centred in the free space inside the ring (the enso fades back behind it) */
+.orb .readout{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+  pointer-events:none;opacity:0;transition:opacity .25s}
+.orb.pointing .readout{opacity:1}
+.orb .readout .cg{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accentdark);line-height:1.6;max-width:34ch}
+.orb .readout .cn{display:block;width:100%;font-weight:620;letter-spacing:-.02em;line-height:1.1;color:var(--bg);overflow-wrap:normal;word-break:normal}
+.orb .ph,.orb .cap{display:none}
+.orb .ph{position:absolute;left:0;right:0;top:0;text-align:center;padding:0 24px}
+.orb .ph .label{line-height:1.6}
+.orb .ph b{font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--accentdark);margin-left:6px}
+.orb .cap{position:absolute;left:0;right:0;top:0;text-align:center;padding:0 24px;font-size:1.08rem;font-weight:620;line-height:1.2;color:var(--bg);letter-spacing:-.01em}
+.orb.phone .ph,.orb.phone .cap{display:block}
+.orb.phone .readout{display:none}
+.pl{position:absolute;left:0;top:0;width:var(--d);display:flex;flex-direction:column;align-items:center;gap:10px;will-change:transform;transition:opacity .25s ease}
+.pl .disc{width:var(--d);height:var(--d);border-radius:50%;display:grid;place-items:center;background:#16291F;
+  box-shadow:inset 0 0 0 1px rgba(199,209,193,.32),0 16px 40px rgba(0,0,0,.28);transition:box-shadow .3s,transform .45s var(--ease)}
+.pl .disc img{height:auto;max-height:54%;object-fit:contain;pointer-events:none}
+.pl .nm{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.orb.pointing .pl{opacity:.32}
+.orb.pointing .pl.on{opacity:1}
+.pl.on .disc{transform:scale(1.07);box-shadow:0 0 0 3px var(--accentdark),0 0 60px rgba(227,160,82,.38)}
+.orb.phone .pl.top .disc{box-shadow:0 0 0 2px var(--accentdark),0 0 36px rgba(227,160,82,.35)}
+/* heading row: the page label and a way to the plain list */
+.cohead{display:flex;justify-content:space-between;align-items:center;gap:14px 20px;flex-wrap:wrap}
+.tolist{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--bg);
+  padding:12px 20px;border-radius:100px;box-shadow:inset 0 0 0 1.5px var(--sageOnDark);white-space:nowrap;transition:background .25s,color .25s,box-shadow .25s}
+.tolist:hover{background:var(--bg);color:var(--deep);box-shadow:inset 0 0 0 1.5px var(--bg)}
+/* the plain list of every company, under the orbit: both groups, including the passive investments that are not in the orbit */
+.coindex{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,80px);margin-top:clamp(22px,3vw,40px);padding-top:clamp(20px,2.4vw,32px);border-top:1px solid var(--deepline);scroll-margin-top:calc(var(--barH) + 12px)}
+.coindex h2{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:var(--accentdark);line-height:1.5}
+.coindex h2 b{color:var(--sageOnDark);letter-spacing:.1em}
+.coindex ul{list-style:none}
+.coindex li a{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--deepline);font-size:clamp(1rem,1.25vw,1.15rem);font-weight:560;letter-spacing:-.01em;color:var(--bg);transition:color .25s}
+.coindex li a span{color:var(--accentdark);opacity:.9;transition:opacity .25s,transform .3s var(--ease)}
+.coindex li a:hover{color:var(--accentdark)}
+.coindex li a:hover span{opacity:1;transform:translateX(4px)}
+@media (max-width:760px){.coindex{grid-template-columns:1fr}}
+@media (max-width:640px){.orb{margin:10px calc(var(--gut) * -1) 0}}
+/* overview panel: slides in from the right; the page stays visible beside it */
+.scrim{position:fixed;inset:0;z-index:61;background:rgba(16,30,22,.5);opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
+.dopen .scrim{opacity:1;visibility:visible}
+html.dopen body{overflow:hidden;padding-right:var(--sbw,0px)}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:62;width:min(620px,100vw);background:var(--bg);color:var(--ink);transform:translateX(102%);
+  transition:transform .7s var(--ease);overflow-y:auto;overscroll-behavior:contain;box-shadow:-30px 0 80px rgba(0,0,0,.35)}
+.dopen .drawer{transform:none}
+.drawer .dh{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 30px;background:rgba(251,247,236,.95);backdrop-filter:blur(8px)}
+.drawer .dh button{white-space:nowrap;background:none;border:0;cursor:pointer;font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--deep);
+  padding:10px 16px;border-radius:100px;box-shadow:inset 0 0 0 1.5px var(--line)}
+.drawer .dh button:hover{box-shadow:inset 0 0 0 1.5px var(--deep)}
+.drawer .db{padding:6px 30px 56px}
+.drawer .lg{aspect-ratio:1.7;border-radius:24px;display:grid;place-items:center;background:var(--panel);margin-bottom:28px}
+.drawer .lg.dk{background:var(--deep)}
+.drawer .lg img{height:auto;max-height:56%}
+.drawer h2{font-size:clamp(1.6rem,2.7vw,2.2rem);font-weight:640;letter-spacing:-.03em;line-height:1.02;color:var(--deep);margin-bottom:22px}
+.drawer p{font-size:.99rem;line-height:1.65;margin-bottom:1.1em}
+.drawer p:first-of-type{font-size:1.1rem;line-height:1.45;color:var(--deep)}
+.drawer .site{display:inline-block;margin-top:4px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--deep);border-bottom:2px solid var(--accent);padding-bottom:5px}
+.drawer .full{display:inline-block;margin:6px 0 0 18px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.drawer .nx{display:flex;justify-content:space-between;gap:12px;margin-top:38px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.drawer .nx a:hover{color:var(--deep)}
+@media (prefers-reduced-motion:reduce){.pl{transition:none}}
+
+/* ---------- FUTURE */
+.stamps{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 38px}
+.stamp{font-size:clamp(1rem,1.4vw,1.25rem);font-weight:560;padding:14px 26px;border-radius:100px;border:1.5px solid var(--deep);color:var(--deep);
+  opacity:0;transform:scale(1.4) rotate(var(--r));transition:opacity .35s,transform .55s cubic-bezier(.3,1.6,.5,1),background .3s,color .3s;transition-delay:calc(var(--i)*.12s)}
+.in .stamp{opacity:1;transform:scale(1) rotate(var(--r))}
+.stamp:hover{background:var(--deep);color:var(--bg)}
+.stamp:nth-child(3n+2){border-color:var(--accent)}
+.future-dk{overflow:hidden}
+.future-dk .stamp{border-color:var(--sage);color:var(--bg)}
+.future-dk .stamp:nth-child(3n+2){border-color:var(--accentdark)}
+.future-dk .stamp:hover{background:var(--bg);color:var(--deep)}
+.future-dk .bigtext p{color:var(--bg)}
+
+/* ---------- BLOG */
+.posts{margin-top:22px;border-top:1px solid var(--line)}
+.month{font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);padding:30px 0 10px}
+.prow{display:grid;grid-template-columns:150px 1fr 120px;gap:30px;align-items:baseline;padding:20px 18px;margin:0 -18px;border-bottom:1px solid var(--line);position:relative;border-radius:18px;transition:background .4s}
+.prow::before{content:"";position:absolute;inset:0;border-radius:18px;background:var(--panel);opacity:0;transition:opacity .3s}
+.prow:hover::before{opacity:.7}
+.prow>*{position:relative}
+.prow .d{font-family:var(--sans);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.prow h3{font-size:clamp(1.1rem,1.65vw,1.5rem);font-weight:620;letter-spacing:-.02em;line-height:1.14;color:var(--deep);transition:transform .5s var(--ease)}
+.prow:hover h3{transform:translateX(10px)}
+.prow p{color:var(--mutedtext);margin-top:8px;font-size:.95rem;max-width:62ch}
+.prow .m{font-family:var(--sans);font-size:12px;color:var(--muted);text-align:right;font-weight:700;letter-spacing:.1em}
+@media (max-width:760px){.prow{grid-template-columns:1fr;gap:6px}.prow .m{text-align:left}}
+
+.article{padding:var(--top) 0 var(--end)}
+.article .head{max-width:1000px}
+.article h1{font-size:clamp(1.7rem,3.4vw,3.2rem);font-weight:650;line-height:1.04;letter-spacing:-.03em;color:var(--deep);margin:16px 0 22px}
+.byline{display:flex;align-items:center;gap:14px;font-family:var(--sans);font-size:12.5px;letter-spacing:.06em;color:var(--muted);font-weight:600;flex-wrap:wrap}
+.byline img{width:34px;height:34px}
+.byline .sep{opacity:.5}
+.share{background:none;border:1.5px solid var(--line);border-radius:100px;padding:9px 16px;font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--deep);cursor:pointer;transition:border-color .3s,background .3s,color .3s}
+.share:hover{background:var(--deep);color:var(--bg);border-color:var(--deep)}
+.prose{max-width:680px;margin:38px auto 0;font-size:clamp(1rem,1.15vw,1.08rem);line-height:1.68}
+.prose p{margin-bottom:1.05em}
+.prose>p:first-of-type{font-size:1.3em;line-height:1.42;color:var(--deep);font-weight:500;letter-spacing:-.01em}
+.prose h2{font-size:clamp(1.2rem,1.75vw,1.5rem);font-weight:650;letter-spacing:-.015em;line-height:1.15;color:var(--deep);margin:2.2em 0 .8em;position:relative}
+.prose h2{padding-top:1.2em;border-top:1px solid var(--line)}
+.prose h3{font-size:1.12rem;color:var(--deep);margin:1.6em 0 .6em}
+.prose blockquote{margin:1.6em 0;padding:.2em 0 .2em 28px;border-left:3px solid var(--accent);font-style:italic;font-size:1.32em;line-height:1.4;color:var(--deep)}
+.prose blockquote p{margin:0}
+.prose ul{margin:0 0 1.2em 1.2em}
+.prose li{margin-bottom:.4em}
+.prose hr{border:0;height:1px;background:var(--line);margin:2.4em 0}
+.prose strong{font-weight:700;color:var(--deep)}
+.prose a{border-bottom:1px solid var(--accent)}
+.ring{position:fixed;right:22px;bottom:22px;width:66px;height:66px;z-index:40;border-radius:50%;background:rgba(251,247,236,.9);box-shadow:0 6px 30px rgba(32,60,45,.12);display:grid;place-items:center;
+  opacity:0;transform:scale(.6);transition:opacity .4s,transform .5s var(--ease);cursor:pointer;border:0}
+.ring.on{opacity:1;transform:none}
+.ring img{width:48px;height:48px;-webkit-mask:conic-gradient(from 160deg,#000 var(--a),transparent calc(var(--a) + 1deg));mask:conic-gradient(from 160deg,#000 var(--a),transparent calc(var(--a) + 1deg))}
+.ring .ghost-e{position:absolute;width:48px;height:48px;opacity:.12;-webkit-mask:none;mask:none}
+@media (max-width:760px){.ring{display:none}}  /* on phones it would sit on top of the text */
+.endmark{text-align:center;margin:52px 0 0}
+.endmark img{width:70px;margin:0 auto 22px}
+.pn{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;margin-top:46px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pn a{padding:28px 0;transition:color .3s}
+.pn a.r{padding-left:24px;border-left:1px solid var(--line)}
+.pn a:not(.r){padding-right:24px}
+.pn a:hover b{color:var(--accenttext)}
+.pn a.r{text-align:right}
+.pn small{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px}
+.pn b{font-size:1.05rem;line-height:1.25;color:var(--deep);font-weight:620}
+main{overflow-wrap:break-word}
+@media (max-width:700px){.pn{grid-template-columns:minmax(0,1fr)}.pn a:not(.r){padding-right:0}.pn a.r{padding-left:0;border-left:0;border-top:1px solid var(--line)}}
+
+/* ---------- BUILD (forest, live background) */
+.build{overflow:hidden}
+.hero.build{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:calc(var(--barH) + 20px) 0 20px}
+.build .wrap{display:grid;grid-template-columns:1.35fr .65fr;gap:40px;align-items:center}
+.build h1.display{font-size:clamp(2.1rem,4.4vw,4.6rem);white-space:nowrap}
+@media (max-width:860px){.build h1.display{white-space:normal}}
+.build .enso-wrap{width:min(38vw,540px);aspect-ratio:1;justify-self:end}
+.build .enso-wrap img{width:100%;height:100%;object-fit:contain}
+.build .actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:30px}
+.build .lede{color:var(--sageOnDark)}
+.dark .btn{background:var(--bg);color:var(--deep)}
+.dark .btn:hover{color:var(--deep)}
+.icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1.5px currentColor;transition:background .3s,color .3s}
+.icon:hover{background:var(--bg);color:var(--deep)}
+.icon svg{width:20px;height:20px;fill:currentColor}
+.build .em{margin-top:22px;font-family:var(--sans);font-size:13px;color:var(--sageOnDark);letter-spacing:.04em}
+@media (max-width:860px){.build .wrap{grid-template-columns:1fr}.build .enso-wrap{order:-1;width:240px;justify-self:start}}
+/* a phone on its side: words and enso side by side, so the first screen isn't just the enso */
+@media (max-width:860px) and (orientation:landscape) and (max-height:520px){.build .wrap{grid-template-columns:1.5fr .5fr;align-items:center}.build .enso-wrap{order:0;width:min(26vw,200px);justify-self:end}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .w>span,.rv,.fade{opacity:1!important;transform:none!important;filter:none!important}
+  .paint,.circle .spin img{-webkit-mask:none;mask:none}
+  .circle a.item span{opacity:1}
+  .iris{height:auto}.iris .stick{position:relative}
+  .way .yes,.stamp{opacity:1;transform:none}
+  .closing span{opacity:1}
+}
+main{overflow-x:clip}
+html,body{overscroll-behavior-y:none}
+/* no reserved scrollbar gutter (on Windows it showed as a cream strip beside dark pages): a thin scrollbar on a see-through
+   track, and the colour behind it follows the section at the top of the screen */
+html{scrollbar-width:thin;scrollbar-color:rgba(35,57,44,.38) transparent;background:var(--bg)}
+html.ondark{background:var(--deep);scrollbar-color:rgba(199,209,193,.42) transparent}
+/* while the menu or a company panel is open the page can't scroll; where scrollbars take up room, that room is kept so nothing jumps sideways */
+body.menu-open{overflow:hidden;padding-right:var(--sbw,0px)}
+.menu-open .bar,.dopen .bar{padding-right:calc(var(--gut) + var(--sbw,0px))}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.burger:focus-visible{border-radius:50%;outline-offset:-4px}
+
+/* ---------- production additions (real multi-page site) */
+.prose .lede-p{font-size:1.35em;font-style:italic;color:var(--deep);line-height:1.4}
+.skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--deep);color:var(--bg);padding:10px 14px;border-radius:8px;font-family:var(--sans);font-size:13px}
+.skip:focus{left:12px}
+/* page-to-page: a quick fade between pages; the header stays put. Nothing ever covers the screen. */
+@view-transition{navigation:auto}
+.bar{view-transition-name:site-bar}
+::view-transition-old(root){animation:.2s ease-out both vtout}
+::view-transition-new(root){animation:.34s ease-out both vtin}
+@keyframes vtout{to{opacity:0}}
+@keyframes vtin{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
+
+/* =====================================================================
+   v16 — v13 plus:
+   1. posts and the founder's note: title, byline, text, end mark and
+      next/previous links share one left edge (v13 look otherwise);
+   2. company pages put the name above the logo;
+   3. home: the founder's-note card unfolds the full note in place.
+   ===================================================================== */
+.article .head{max-width:680px;margin-left:auto;margin-right:auto}
+.article .endmark,.article .pn{max-width:680px;margin-left:auto;margin-right:auto}
+
+.ov-left{display:flex;flex-direction:column}
+.ov-name{order:-1;margin:0 0 28px}
+.ov-logo{margin-bottom:0}
+@media (max-width:860px){.ov-logo{margin-bottom:28px}}
+
+/* founder's note drop-down: the card's border and fill continue into the opened panel */
+.note-card .readnote::after{content:"";width:7px;height:7px;margin:-3px 0 0 2px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .45s var(--ease),margin .45s var(--ease)}
+.note-card[aria-expanded="true"] .readnote::after{transform:rotate(-135deg);margin-top:4px}
+.note-card[aria-expanded="true"]{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;transform:none}
+.note-full{display:grid;grid-template-rows:0fr;transition:grid-template-rows .65s var(--ease),visibility 0s .65s;visibility:hidden}
+.note-full.open{grid-template-rows:1fr;transition:grid-template-rows .65s var(--ease),visibility 0s 0s;visibility:visible}
+.note-full .nf-in{min-height:0;overflow:hidden}
+.note-full .nf-body{border:1px solid var(--line);border-top:0;border-radius:0 0 28px 28px;background:rgba(244,238,221,.6);
+  padding:0 clamp(28px,4vw,56px) clamp(36px,4vw,56px) calc(clamp(28px,4vw,56px) + clamp(60px,8vw,110px) + clamp(20px,4vw,60px))}
+.note-full .nf-body::before{content:"";display:block;height:1px;background:var(--line);margin:0 0 clamp(28px,3vw,40px)}
+.note-full .prose{margin:0;max-width:680px}
+.note-full .prose>p:first-of-type{font-size:inherit;line-height:inherit;color:inherit;font-weight:inherit;letter-spacing:inherit}
+.note-full .endmark{max-width:680px;margin:44px 0 0}
+@media (max-width:700px){.note-full .nf-body{padding:0 clamp(28px,4vw,56px) 36px}}
+@media (prefers-reduced-motion:reduce){.note-full,.note-full.open{transition:none}}

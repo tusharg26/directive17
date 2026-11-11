@@ -10,8 +10,8 @@ Directive 17 is a venture firm founded by Joel Shapiro. Every company begins wit
 - [Philosophy](https://directive17.com/philosophy.html): The Five Pillars — happiness, health, trust, connection, human potential — and the Human Test.
 - [Companies](https://directive17.com/companies.html): Portfolio companies. Different companies. One philosophy.
 - [The Future We See](https://directive17.com/future.html): What future is worth building?
-- [Build With Us](https://directive17.com/build.html): Contact — joel@directive17.com
-- [A Note from the Founder](https://directive17.com/#founder-note): Joel Shapiro on why Directive 17 exists and what it invests in.
+- [Build With Us](https://directive17.com/build.html): Contact — info@directive17.com
+- [A Note from the Founder](https://directive17.com/founders-note.html): Joel Shapiro on why Directive 17 exists and what it invests in.
 
 ## Companies
 

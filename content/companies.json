@@ -5,16 +5,24 @@
     "logo": "logos/holonic.webp",
     "one_liner": "",
     "url": "",
-    "slug": "holonic"
+    "slug": "holonic",
+    "page_logo_width": "173px",
+    "orbit_logo_width": "50%",
+    "drawer_logo_width": "40%",
+    "thumb_logo_width": "53px"
   },
   {
     "name": "Firefly.love",
     "group": "Proprietary & Current Investments",
-    "logo": "logos/firefly-love.webp",
+    "logo": "logos/firefly-badge.webp",
     "one_liner": "",
     "url": "",
     "slug": "firefly-love",
-    "overview_logo_bg": "dark"
+    "overview_logo_bg": "dark",
+    "page_logo_width": "233px",
+    "orbit_logo_width": "61%",
+    "drawer_logo_width": "49%",
+    "thumb_logo_width": "78px"
   },
   {
     "name": "Twelve92",
@@ -23,7 +31,11 @@
     "one_liner": "",
     "url": "",
     "slug": "twelve92",
-    "overview_logo_bg": "dark"
+    "overview_logo_bg": "dark",
+    "page_logo_width": "180px",
+    "orbit_logo_width": "51%",
+    "drawer_logo_width": "41%",
+    "thumb_logo_width": "55px"
   },
   {
     "name": "HumanOS",
@@ -32,7 +44,11 @@
     "one_liner": "",
     "url": "",
     "slug": "humanos",
-    "overview_logo_bg": "dark"
+    "overview_logo_bg": "dark",
+    "page_logo_width": "249px",
+    "orbit_logo_width": "65%",
+    "drawer_logo_width": "52%",
+    "thumb_logo_width": "84px"
   },
   {
     "name": "Vector",
@@ -41,7 +57,11 @@
     "one_liner": "",
     "url": "",
     "slug": "vector",
-    "overview_logo_bg": "dark"
+    "overview_logo_bg": "dark",
+    "page_logo_width": "233px",
+    "orbit_logo_width": "61%",
+    "drawer_logo_width": "49%",
+    "thumb_logo_width": "78px"
   },
   {
     "name": "Vertical Longevity Pharmaceuticals",
@@ -50,7 +70,11 @@
     "one_liner": "",
     "url": "",
     "slug": "vertical-longevity-pharmaceuticals",
-    "overview_logo_bg": "dark"
+    "overview_logo_bg": "dark",
+    "page_logo_width": "168px",
+    "orbit_logo_width": "50%",
+    "drawer_logo_width": "40%",
+    "thumb_logo_width": "51px"
   },
   {
     "name": "Caviar and Corndogs",
@@ -60,16 +84,22 @@
     "url": "",
     "slug": "caviar-and-corndogs",
     "overview_logo_bg": "dark",
-    "overview_name": "Caviar & Corndogs"
+    "overview_name": "Caviar & Corndogs",
+    "page_logo_width": "330px",
+    "orbit_logo_width": "80%",
+    "drawer_logo_width": "66%",
+    "thumb_logo_width": "96px"
   },
   {
     "name": "Colossal Laboratories & Biosciences",
     "group": "Recent Passive Investments Made by Principals",
-    "logo": "logos/colossal.webp",
+    "logo": "logos/colossal-mark.webp",
     "one_liner": "",
     "url": "",
     "slug": "colossal",
-    "website": "https://colossal.com/"
+    "website": "https://colossal.com/",
+    "page_logo_width": "189px",
+    "thumb_logo_width": "58px"
   },
   {
     "name": "LARX",
@@ -78,7 +108,9 @@
     "one_liner": "",
     "url": "",
     "slug": "larx",
-    "website": "https://larx.io/"
+    "website": "https://larx.io/",
+    "page_logo_width": "330px",
+    "thumb_logo_width": "96px"
   },
   {
     "name": "Epirus",
@@ -87,7 +119,9 @@
     "one_liner": "",
     "url": "",
     "slug": "epirus",
-    "website": "https://www.epirusinc.com/"
+    "website": "https://www.epirusinc.com/",
+    "page_logo_width": "330px",
+    "thumb_logo_width": "96px"
   },
   {
     "name": "General Fusion",
@@ -96,7 +130,9 @@
     "one_liner": "",
     "url": "",
     "slug": "general-fusion",
-    "website": "https://generalfusion.com/"
+    "website": "https://generalfusion.com/",
+    "page_logo_width": "330px",
+    "thumb_logo_width": "96px"
   },
   {
     "name": "Advocate",
@@ -105,6 +141,8 @@
     "one_liner": "",
     "url": "",
     "slug": "advocate",
-    "website": "https://www.joinadvocate.com/"
+    "website": "https://www.joinadvocate.com/",
+    "page_logo_width": "330px",
+    "thumb_logo_width": "96px"
   }
 ]

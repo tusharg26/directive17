@@ -1,33 +1,55 @@
 #!/usr/bin/env python3
-"""Directive 17 static site builder.
+"""Directive 17 static site builder — 2026 redesign (v16).
 
-Zero dependencies. Reads content/ and writes the finished site into docs/
+Zero dependencies. Reads content/ and theme/ and writes the finished site into docs/
 (which GitHub Pages serves). Run:  python3 build.py
 
-Content lives in:
-  content/site.json        - all page copy: nav, pillars, why/philosophy/future/build pages
-  content/companies.json   - portfolio companies (name, group, logo, one_liner, url)
-  content/pages/*.md       - long-form pages (Joel's Directive)
-  content/posts/*.md       - blog posts, filename: YYYY-MM-DD-slug.md with frontmatter
+Words live in content/:
+  content/site.json        - page copy: tagline, nav, pillars, why/philosophy/future/build/companies/blog pages
+  content/seo.json         - page titles and search/share descriptions
+  content/companies.json   - portfolio: name, group, logo + logo sizes, website, dark/light logo tile
+  content/companies/*.md   - each company's overview, one paragraph per blank-line-separated block
+  content/pages/founders-note.md - the founder's note (also opens in place on the home page)
+  content/posts/*.md       - blog posts, filename YYYY-MM-DD-slug.md with frontmatter (title, date, excerpt)
   content/images/          - logos and images (copied to the site as-is)
+  content/decks/           - encrypted investor decks (see tools/encrypt_deck.py)
+The look lives in theme/: site.css, site.js and fonts/ (copied to docs/assets/).
 """
 import json, re, shutil, html
 from pathlib import Path
+from datetime import date
 
 ROOT = Path(__file__).parent
 CONTENT = ROOT / "content"
+THEME = ROOT / "theme"
 OUT = ROOT / "docs"
 
-site = json.loads((CONTENT / "site.json").read_text())
-companies = json.loads((CONTENT / "companies.json").read_text())
 
-# Company overview pages: content/companies/<slug>.md holds the overview copy,
-# one paragraph per blank-line-separated block (used verbatim). A company gets an
-# overview page (and an "Overview" button on the Companies page) only if that file exists.
-for _c in companies:
-    _f = CONTENT / "companies" / f'{_c.get("slug", "")}.md'
-    if _c.get("slug") and _f.exists():
-        _c["overview_paras"] = [b.strip() for b in re.split(r"\n\s*\n", _f.read_text(encoding="utf-8")) if b.strip()]
+def read(p):
+    return Path(p).read_text(encoding="utf-8")
+
+
+def write(p, s):
+    p = Path(p)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(s, encoding="utf-8", newline="\n")
+
+
+site = json.loads(read(CONTENT / "site.json"))
+seo = json.loads(read(CONTENT / "seo.json"))
+companies = json.loads(read(CONTENT / "companies.json"))
+URL = f"https://{site['domain']}"
+EMAIL = site["contact_email"]
+esc = html.escape          # text and attributes (escapes quotes too)
+
+
+def tx(s):                 # text where quotes are left as typed
+    return html.escape(s, quote=False)
+
+
+def wbr(s):                # allow long slash-joined titles to wrap after each slash
+    return s.replace("/", "/<wbr>")
+
 
 def img_size(path):
     """(width, height) of a PNG or WebP file, read from its header (no dependencies)."""
@@ -45,6 +67,7 @@ def img_size(path):
             b0 = int.from_bytes(d[21:25], "little"); return ((b0 & 0x3FFF) + 1, ((b0 >> 14) & 0x3FFF) + 1)
     return (1, 1)
 
+
 # ---------------------------------------------------------------- markdown
 def md_inline(s):
     s = html.escape(s, quote=False)
@@ -53,6 +76,7 @@ def md_inline(s):
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
     return s
+
 
 def md_to_html(text):
     out, para, lst = [], [], None
@@ -89,16 +113,15 @@ def md_to_html(text):
             flush_para()
             if not lst or lst["tag"] != "ul": flush_list(); lst = {"tag": "ul", "items": []}
             lst["items"].append(m.group(1)); continue
-        # numbered lines ("1. Collecting Limes.") stay as ordinary paragraphs, exactly as typed —
-        # Joel separates numbered items with paragraphs, which would break an HTML list's numbering
+        # numbered lines ("1. Collecting Limes.") stay as ordinary paragraphs, exactly as typed
         para.append(s)
     flush_para(); flush_list()
     return "\n".join(out)
 
+
 def parse_post(path):
-    raw = path.read_text()
-    meta = {}
-    body = raw
+    raw = read(path)
+    meta, body = {}, raw
     if raw.startswith("---"):
         _, fm, body = raw.split("---", 2)
         for ln in fm.strip().splitlines():
@@ -106,917 +129,161 @@ def parse_post(path):
                 k, v = ln.split(":", 1)
                 meta[k.strip()] = v.strip()
     slug = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", path.stem)
+    title = meta.get("title", slug.replace("-", " ").title())
+    body = body.strip()
+    # a bold first line that only repeats the title is not shown twice
+    m = re.match(r"^\*\*(.+?)\*\*[ \t]*(\n|$)", body)
+    norm = lambda x: re.sub(r"[^a-z0-9]", "", x.lower())
+    if m and norm(m.group(1)) == norm(title):
+        body = body[m.end():].strip()
+    html_body = md_to_html(body)
     return {
-        "title": meta.get("title", slug.replace("-", " ").title()),
+        "title": title,
         "date": meta.get("date", ""),
         "excerpt": meta.get("excerpt", ""),
         "order": int(meta.get("order", "0") or 0),
         "slug": slug,
-        "html": md_to_html(body.strip()),
+        "html": html_body,
+        "words": len(re.sub(r"<[^>]+>", " ", html_body).split()),
     }
 
-def fmt_date(d):
-    try:
-        from datetime import date
-        y, m, dd = map(int, d.split("-"))
-        return date(y, m, dd).strftime("%B %-d, %Y")
-    except Exception:
-        return d
 
-# ---------------------------------------------------------------- css
-CSS = """
-:root{--bg:#FBF7EC;--panel:#F4EEDD;--ink:#23392C;--deep:#203C2D;--muted:#71806B;
---line:#E6DEC7;--ghost:#EDE5CE;--accent:#D98B33;
---serif:'Source Serif 4',Georgia,'Times New Roman',serif;
---sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
---ease:cubic-bezier(.22,.61,.21,1)}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:17.5px;
-line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
-img{max-width:100%;height:auto}
-::selection{background:var(--deep);color:var(--bg)}
-a:focus-visible,button:focus-visible,[role=button]:focus-visible{
-outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
-/* reading progress */
-.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);
-z-index:120;transition:width .1s linear}
-.wrap{max-width:1500px;margin:0 auto;padding:0 clamp(28px,5vw,76px)}
-/* film grain */
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.045;
-background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
-/* ---------- header ---------- */
-header{position:sticky;top:0;z-index:10;background:rgba(251,247,236,.9);
-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:74px}
-.logo{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:700;
-font-size:1.2rem;color:var(--deep)}
-.logo img{height:38px;width:38px;object-fit:contain;transition:transform .6s var(--ease)}
-.logo:hover img{transform:rotate(180deg)}
-.menu-btn{display:flex;flex-direction:column;gap:6px;background:none;border:none;
-cursor:pointer;padding:12px 4px}
-.menu-btn span{display:block;width:28px;height:2px;background:var(--deep);border-radius:2px;
-transition:transform .3s var(--ease),width .3s var(--ease)}
-.menu-btn:hover span:nth-child(1){width:20px}
-.menu-btn:hover span:nth-child(3){width:24px}
-/* ---------- menu overlay ---------- */
-.menu-overlay{position:fixed;inset:0;background:var(--deep);z-index:100;
-display:flex;flex-direction:column;justify-content:center;padding:0 max(9vw,36px);
-visibility:hidden;opacity:0;transition:opacity .4s var(--ease),visibility .4s}
-.menu-overlay.open{visibility:visible;opacity:1}
-.menu-overlay .m-label{font-family:var(--sans);font-size:.72rem;font-weight:700;
-text-transform:uppercase;letter-spacing:.22em;color:var(--accent);margin-bottom:30px}
-.menu-overlay a.m-link{font-family:var(--serif);font-size:clamp(1.5rem,4.2vw,2.5rem);
-color:#F5F1E2;padding:10px 0;letter-spacing:-.01em;line-height:1.2;width:fit-content;
-position:relative;opacity:0;transform:translateY(26px);
-transition:opacity .5s var(--ease),transform .5s var(--ease),color .2s}
-.menu-overlay.open a.m-link{opacity:1;transform:none;transition-delay:calc(.06s*var(--i))}
-.menu-overlay a.m-link::after{content:"";position:absolute;left:0;bottom:6px;height:1px;
-width:0;background:var(--accent);transition:width .35s var(--ease)}
-.menu-overlay a.m-link:hover{color:var(--accent)}
-.menu-overlay a.m-link:hover::after{width:100%}
-.menu-overlay a.m-link.active{color:var(--accent)}
-.m-foot{position:absolute;bottom:34px;left:max(9vw,36px);right:max(9vw,36px);
-font-family:var(--sans);font-size:.78rem;letter-spacing:.06em;color:#8FA08A;
-display:flex;flex-direction:column;align-items:flex-start;gap:18px}
-.m-foot a{color:#D8DDCF}.m-foot a:hover{color:var(--accent)}
-.m-social{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
-border-radius:50%;border:1px solid rgba(245,241,226,.26);color:#F5F1E2;
-opacity:0;transform:translateY(16px);
-transition:opacity .5s var(--ease),transform .5s var(--ease),border-color .25s,color .25s,background .25s}
-.menu-overlay.open .m-social{opacity:1;transform:none;transition-delay:.42s}
-.m-social svg{width:18px;height:18px;fill:currentColor;display:block}
-.m-social:hover{color:var(--deep);background:var(--accent);border-color:var(--accent)}
-.cta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;
-border-radius:50%;border:1px solid var(--line);color:var(--deep);flex:0 0 auto;
-transition:background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease),transform .3s var(--ease)}
-.icon-btn svg{width:20px;height:20px;fill:currentColor;display:block}
-.icon-btn:hover{background:var(--deep);color:var(--bg);border-color:var(--deep);transform:translateY(-2px)}
-@media(prefers-reduced-motion:reduce){.m-social{opacity:1;transform:none}}
-.menu-close{position:absolute;top:24px;right:max(9vw,36px);background:none;border:none;
-cursor:pointer;color:#F5F1E2;font-size:2.3rem;line-height:1;font-family:var(--serif);
-transition:transform .4s var(--ease),color .2s}
-.menu-close:hover{color:var(--accent);transform:rotate(90deg)}
-/* ---------- load + scroll animations ---------- */
-@keyframes wordUp{to{opacity:1;transform:none}}
-.w{display:inline-block;opacity:0;transform:translateY(.55em);
-animation:wordUp .75s var(--ease) forwards;animation-delay:var(--d,0s)}
-@keyframes fadeUp{to{opacity:1;transform:none}}
-.fade{opacity:0;transform:translateY(22px);animation:fadeUp .8s var(--ease) forwards;
-animation-delay:var(--d,0s)}
-.js .reveal{opacity:0;transform:translateY(30px);
-transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0s)}
-.js .reveal.in{opacity:1;transform:none}
-@keyframes ensoIn{from{opacity:0;transform:scale(.9) rotate(-10deg)}to{opacity:1;transform:none}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-.hero-enso img{opacity:0;animation:ensoIn 1.1s var(--ease) .45s forwards}
-.hero-enso.floaty img{animation:ensoIn 1.1s var(--ease) .45s forwards,
-float 7s ease-in-out 1.8s infinite}
-@media(prefers-reduced-motion:reduce){
-.w,.fade,.hero-enso img{animation:none!important;opacity:1!important;transform:none!important}
-.js .reveal{opacity:1;transform:none;transition:none}
-*{scroll-behavior:auto!important}}
-/* ---------- hero ---------- */
-.hero{padding:110px 0 90px}
-.hero-home{min-height:calc(100vh - 75px);display:flex;flex-direction:column;
-justify-content:center;padding:40px 0 120px;position:relative}
-.note-inline{width:100%;margin-top:clamp(34px,5.5vh,68px);border-top:1px solid var(--line);
-opacity:0;animation:fadeUp .9s var(--ease) forwards;animation-delay:calc(1.05s + var(--hd,0s))}
-.note-inline .acc-head{padding:24px 0 0}
-.note-inline .acc-head .meta h3{margin-top:6px}
-.acc-bare{border:none}
-.acc-bare:first-of-type{border-top:none}
-.new-post{display:inline-flex;align-items:center;gap:12px;margin-top:22px;
-padding:9px 18px 9px 14px;border:1px solid var(--line);border-radius:999px;
-background:rgba(217,139,51,.05);transition:border-color .3s var(--ease),background .3s var(--ease),transform .3s var(--ease)}
-.new-post:hover{border-color:var(--accent);background:rgba(217,139,51,.12);transform:translateY(-1px)}
-.new-post .np-tag{font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.16em;
-text-transform:uppercase;color:var(--accent);white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
-.new-post .np-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);
-animation:npPulse 2.4s var(--ease) infinite}
-@keyframes npPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}
-.new-post .np-title{font-family:var(--serif);font-size:.98rem;color:var(--deep);line-height:1.35}
-.new-post .np-arrow{color:var(--accent);font-size:1rem;transition:transform .3s var(--ease)}
-.new-post:hover .np-arrow{transform:translateX(3px)}
-@media(prefers-reduced-motion:reduce){.new-post .np-tag::before{animation:none}}
-.note-body-section{padding:0}
-.note-body-section .acc-inner-pad{padding:34px 0 90px}
-/* intro curtain (homepage, once per session) */
-#intro{position:fixed;inset:0;background:var(--deep);z-index:200;display:flex;
-align-items:center;justify-content:center;animation:introLift .9s var(--ease) 2s forwards}
-@keyframes introLift{to{transform:translateY(-101%)}}
-#intro .intro-inner{text-align:center}
-#intro img{width:clamp(90px,12vw,140px);opacity:0;
-animation:introEnso 1.25s var(--ease) .15s forwards}
-@keyframes introEnso{from{opacity:0;transform:scale(.5) rotate(-170deg)}
-to{opacity:1;transform:none}}
-#intro .intro-name{font-family:var(--sans);font-size:.78rem;font-weight:700;
-text-transform:uppercase;color:#F5F1E2;margin-top:26px;opacity:0;letter-spacing:.6em;
-animation:introName 1s var(--ease) .55s forwards}
-@keyframes introName{from{opacity:0;letter-spacing:.6em}to{opacity:1;letter-spacing:.3em}}
-.skip-intro #intro{display:none}
-.skip-intro body{--hd:0s!important}
-.hero-home .w{animation-delay:calc(var(--d) + var(--hd,0s))}
-.hero-home .fade{animation-delay:calc(var(--d) + var(--hd,0s))}
-.hero-home .hero-enso img{animation-delay:calc(.45s + var(--hd,0s))}
-.hero-home .hero-enso.floaty img{animation-delay:calc(.45s + var(--hd,0s)),calc(1.8s + var(--hd,0s))}
-/* pillar ticker (homepage) */
-.ticker{position:absolute;bottom:0;left:0;right:0;overflow:hidden;
-border-top:1px solid var(--line);padding:22px 0;opacity:0;
-animation:fadeUp .9s var(--ease) forwards;animation-delay:calc(1.3s + var(--hd,0s))}
-.ticker-track{display:flex;align-items:center;gap:64px;width:max-content;
-animation:tickerScroll 30s linear infinite}
-@keyframes tickerScroll{to{transform:translateX(calc(-100%/3))}}
-.ticker span{font-family:var(--sans);font-size:.74rem;font-weight:600;white-space:nowrap;
-text-transform:uppercase;letter-spacing:.22em;color:var(--muted)}
-.ticker .tsep{color:var(--accent);font-size:.9rem;letter-spacing:0}
-@media(prefers-reduced-motion:reduce){#intro{display:none}
-.ticker-track{animation:none}.ticker{animation:none;opacity:1}}
-.hero-flex{display:flex;align-items:center;gap:64px;justify-content:space-between;width:100%}
-.hero-enso{flex:0 0 auto;width:min(320px,30vw)}
-.kicker{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
-letter-spacing:.24em;color:var(--accent);margin-bottom:26px;display:flex;align-items:center;gap:16px}
-.display{font-family:var(--serif);font-weight:700;letter-spacing:-.02em;
-font-size:clamp(2.9rem,7vw,6.4rem);line-height:1.04;max-width:16ch;color:var(--deep)}
-.sub{color:var(--muted);font-size:clamp(1.15rem,1.6vw,1.45rem);max-width:46ch;margin-top:30px}
-/* ---------- editorial building blocks ---------- */
-section{padding:90px 0}
-.rule{border:none;border-top:1px solid var(--line)}
+def as_date(d):
+    y, m, dd = map(int, d.split("-"))
+    return date(y, m, dd)
 
-/* scroll cue on homepage hero */
-.scrollcue{position:absolute;left:0;right:0;margin:0 auto;width:max-content;bottom:74px;
-display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;
-cursor:pointer;opacity:0;animation:fadeUp .9s var(--ease) forwards;
-animation-delay:calc(1.55s + var(--hd,0s))}
-.scrollcue .sc-label{font-family:var(--sans);font-size:.68rem;font-weight:700;
-text-transform:uppercase;letter-spacing:.22em;color:var(--muted);transition:color .2s}
-.scrollcue:hover .sc-label{color:var(--accent)}
-.scrollcue .sc-arrow{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;
-display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:.95rem;
-animation:nudge 1.9s var(--ease) infinite;transition:border-color .2s}
-.scrollcue:hover .sc-arrow{border-color:var(--accent)}
-@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
-@media(prefers-reduced-motion:reduce){.scrollcue .sc-arrow{animation:none}}
-@media(max-width:860px){.scrollcue{bottom:74px;gap:8px}
-.scrollcue .sc-label{font-size:.6rem;letter-spacing:.16em;white-space:nowrap}
-.scrollcue .sc-arrow{width:30px;height:30px}}
-/* founder note framing */
-.note-open{padding:96px 0 8px;border-top:1px solid var(--line)}
-.note-byline{display:flex;align-items:center;gap:13px}
-.note-byline img{width:44px;height:44px;object-fit:contain}
-.note-byline .nb-name{font-family:var(--serif);font-size:1.05rem;color:var(--deep);
-font-weight:700;line-height:1.3}
-.note-byline .nb-role{font-family:var(--sans);font-size:.68rem;font-weight:600;
-text-transform:uppercase;letter-spacing:.18em;color:var(--muted)}
-/* Joel's Directive — editorial chapters */
-.jd-lede{font-family:var(--serif);font-weight:700;color:var(--accent);
-font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.2;letter-spacing:-.01em;
-max-width:24ch;margin-top:38px}
-.longform{max-width:64ch;font-size:1.07rem;line-height:1.75}
-.longform p{margin:0 0 18px}
-/* founder note — subtle, expands inline */
-.note-title{font-family:var(--serif);font-weight:700;color:var(--deep);
-font-size:clamp(1.25rem,2.7vw,1.7rem);line-height:1.3;letter-spacing:-.01em;max-width:30ch;
-margin-top:8px}
-.note-lede{font-family:var(--serif);font-style:italic;color:var(--muted);
-font-size:1.05rem;margin-top:14px;max-width:52ch}
-.acc-head .note-lede{font-family:var(--serif);font-style:italic;color:var(--ink);
-font-size:1rem;margin-top:8px;max-width:52ch}
-.note-byline-inline{display:flex;align-items:center;gap:12px;margin:0 0 30px}
-.note-byline-inline img{width:38px;height:38px;object-fit:contain}
-/* post pages read like an expanded blog post */
-.longform h2{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--deep);
-margin:44px 0 16px;line-height:1.35}
-.note-more{overflow:hidden}
-.note-more[hidden]{display:none}
-.note-more.animating{transition:height .5s var(--ease)}
-.longform p>strong:only-child{display:inline-block;font-size:1.3em;line-height:1.35;
-color:var(--deep);margin:8px 0}
-.longform blockquote{border-left:3px solid var(--accent);padding:8px 0 8px 26px;
-margin:30px 0;font-family:var(--serif);font-size:1.4rem;font-style:italic;
-color:var(--deep);line-height:1.45}
-.longform blockquote p{margin:0}
-.ch-eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:700;
-text-transform:uppercase;letter-spacing:.22em;color:var(--muted);
-display:flex;align-items:center;gap:14px}
-.read-time{font-family:var(--sans);font-size:.72rem;font-weight:600;
-letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:14px}
-.chapter{padding:72px 0;border-top:1px solid var(--line)}
-.ch-grid{display:grid;grid-template-columns:minmax(220px,340px) 1fr;
-gap:clamp(32px,5vw,90px);align-items:start}
-.ch-side{position:sticky;top:110px}
-.ch-num{font-family:var(--serif);font-weight:700;font-size:clamp(3.2rem,6vw,5rem);
-color:var(--ghost);line-height:1}
-.ch-title{font-family:var(--serif);font-size:clamp(1.5rem,2.3vw,2.1rem);
-color:var(--deep);margin-top:12px;letter-spacing:-.01em;max-width:14ch;line-height:1.25}
-.jd-end{text-align:center;padding:80px 0 100px;border-top:1px solid var(--line)}
-.jd-end img{width:56px;opacity:.9}
-.jd-end .m-label-line{font-family:var(--sans);font-size:.72rem;font-weight:700;
-text-transform:uppercase;letter-spacing:.3em;color:var(--muted);margin-top:20px}
-@media(max-width:860px){.ch-grid{grid-template-columns:1fr;gap:22px}
-.ch-side{position:static;display:flex;align-items:baseline;gap:16px}
-.ch-num{font-size:2.4rem}.ch-title{margin-top:0}}
-.sec-label{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
-letter-spacing:.24em;color:var(--accent);margin-bottom:34px}
-.statement{font-family:var(--serif);color:var(--deep);letter-spacing:-.015em;
-font-size:clamp(2.1rem,5.2vw,4rem);line-height:1.12;max-width:22ch}
-.statement .accent{font-style:italic;color:var(--accent)}
-.muted-line{font-family:var(--serif);font-size:clamp(1.25rem,2.6vw,1.7rem);
-color:var(--muted);margin-bottom:18px}
-.split{display:grid;grid-template-columns:200px 1fr;gap:48px;align-items:start}
-.split .side{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
-letter-spacing:.2em;color:var(--muted);padding-top:10px;position:sticky;top:110px}
-.bigtext p{font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.75;color:var(--ink);
-margin-bottom:26px;max-width:56ch}
-.bigtext p strong{color:var(--deep)}
-/* belief rows */
-.belief-row{display:grid;grid-template-columns:150px 1fr;gap:36px;align-items:baseline;
-padding:38px 0;border-bottom:1px solid var(--line)}
-.belief-row:first-of-type{border-top:1px solid var(--line)}
-.belief-row .gnum{font-family:var(--serif);font-weight:700;font-size:clamp(3rem,6vw,4.6rem);
-line-height:1;color:var(--ghost)}
-.belief-row .btext{font-family:var(--serif);font-size:clamp(1.6rem,3.8vw,2.8rem);
-line-height:1.25;color:var(--deep);letter-spacing:-.01em}
-.belief-row .btext em{font-style:italic;color:var(--accent)}
-/* question split */
-.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin:64px 0}
-.qgrid .q{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.3;
-letter-spacing:-.01em}
-.qgrid .q1{color:var(--deep)}
-.qgrid .q2{color:var(--muted);font-style:italic}
-.answer{font-family:var(--serif);font-size:clamp(1.3rem,2.4vw,1.7rem);color:var(--deep);
-border-left:3px solid var(--accent);padding-left:26px;max-width:44ch}
-/* pillars */
-.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
-.pillar{background:var(--panel);padding:34px 26px;border-radius:12px;
-transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
-.pillar:hover{transform:translateY(-6px);box-shadow:0 14px 30px rgba(32,60,45,.1)}
-.pillar .num{font-family:var(--sans);font-size:.7rem;font-weight:700;color:var(--accent);
-letter-spacing:.18em;margin-bottom:16px}
-.pillar h3{font-family:var(--serif);font-size:1.3rem;color:var(--deep);margin-bottom:10px}
-.pillar p{color:var(--muted);font-size:.95rem;line-height:1.55}
-/* dark section (human test) */
-.dark{background:var(--deep);color:#EFEDE0;position:relative;overflow:hidden;
-padding:120px 0}
-.dark .sec-label{color:var(--accent)}
-.dark .big-q{font-family:var(--serif);font-style:italic;font-weight:700;
-font-size:clamp(2rem,5vw,3.6rem);line-height:1.15;letter-spacing:-.015em;color:#F7F3E6;
-max-width:20ch}
-.dark .after{color:#9FB09A;font-size:1.15rem;margin-top:36px;max-width:42ch}
-.dark .watermark{position:absolute;right:-140px;top:50%;transform:translateY(-50%);
-width:520px;opacity:.14;pointer-events:none}
-/* the way rows */
-.way-row{display:grid;grid-template-columns:1fr 1.4fr;gap:40px;align-items:baseline;
-padding:36px 0;border-bottom:1px solid var(--line)}
-.way-row:first-of-type{border-top:1px solid var(--line)}
-.way-row .no{font-family:var(--serif);font-size:clamp(1.05rem,2vw,1.3rem);
-color:var(--muted);text-decoration:line-through;text-decoration-color:var(--accent);
-text-decoration-thickness:1.5px}
-.way-row .yes{font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.4rem);
-line-height:1.2;color:var(--deep);letter-spacing:-.01em}
-.closing{font-family:var(--serif);font-style:italic;text-align:center;
-font-size:clamp(1.25rem,2.6vw,1.8rem);line-height:1.9;color:var(--deep);max-width:34ch;
-margin:0 auto}
-.closing .dot{color:var(--accent)}
-/* domain pills */
-.domains{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 48px}
-.domains span{font-family:var(--sans);font-size:.8rem;font-weight:600;letter-spacing:.08em;
-text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:12px 22px;
-color:var(--deep);background:var(--panel);transition:all .3s var(--ease)}
-.domains span:hover{background:var(--deep);color:var(--bg);border-color:var(--deep);
-transform:translateY(-3px)}
-/* company cards */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:26px}
-.card{display:block;text-align:center}
-.tile{border-radius:14px;height:112px;display:flex;align-items:center;justify-content:center;
-padding:18px;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
-.card:hover .tile{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 32px rgba(32,60,45,.16)}
-.tile-dark{background:var(--deep)}
-.tile-light{background:#FDFBF3;border:1px solid var(--line)}
-.tile img{max-width:calc(82% * var(--ls,1));max-height:calc(74px * var(--ls,1));object-fit:contain}
-.card h3{font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--ink);
-margin-top:14px;line-height:1.35}
-.card p{color:var(--muted);font-size:.85rem;margin-top:6px}
-.group-label{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;
-letter-spacing:.2em;color:var(--accent);margin:64px 0 30px;display:flex;align-items:center;gap:18px}
-.group-label::after{content:"";flex:1;height:1px;background:var(--line)}
-.group-label:first-of-type{margin-top:0}
-.deck-tag{font-family:var(--sans);font-size:.66rem;font-weight:700;letter-spacing:.16em;
-text-transform:uppercase;color:var(--accent);margin-top:8px}
-/* company "Overview" button: revealed on hover/focus, always visible on touch */
-.card-wrap{position:relative}
-.card-wrap .tile{position:relative}
-.card-wrap:hover .tile{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 32px rgba(32,60,45,.16)}
-.card-wrap .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-opacity:0;transition:opacity .3s var(--ease)}
-.card-wrap .tile-dark::after{background:rgba(16,32,24,.5)}
-.card-wrap .tile-light::after{background:rgba(251,247,236,.72)}
-.ov-btn{position:absolute;left:50%;top:56px;z-index:2;transform:translate(-50%,-50%);
-font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-padding:10px 20px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;
-box-shadow:0 6px 18px rgba(16,32,24,.22);
-transition:opacity .3s var(--ease),transform .35s var(--ease),background .2s,color .2s}
-.ov-btn.ov-on-dark{background:var(--bg);color:var(--deep)}
-.ov-btn.ov-on-light{background:var(--deep);color:var(--bg)}
-.ov-btn:hover{background:var(--accent);color:var(--deep)}
-.ov-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.card-wrap:focus-within .ov-btn{opacity:1;pointer-events:auto}
-.card-wrap:focus-within .tile::after{opacity:1}
-@media(hover:hover){
-.card-wrap:hover .ov-btn{opacity:1;pointer-events:auto;transform:translate(-50%,calc(-50% - 6px))}
-.card-wrap:hover .tile::after{opacity:1}}
-@media(hover:none){
-/* touch: no hover, so the control sits under the name as a link, styled like "Investor deck" */
-.card-wrap{text-align:center}
-.ov-btn,.ov-btn.ov-on-dark,.ov-btn.ov-on-light,.ov-btn:hover{position:static;transform:none;opacity:1;pointer-events:auto;
-display:inline-block;background:none;color:var(--muted);box-shadow:none;border-radius:6px;
-font-size:.85rem;letter-spacing:.16em;padding:6px 10px;margin-top:0}
-.ov-btn::after{content:" \\2192"}
-.card-wrap:focus-within .tile::after{opacity:0}}
-@media(prefers-reduced-motion:reduce){.ov-btn,.card-wrap .tile::after{transition:none}}
-/* company overview pages (centered editorial) */
-.ov{padding:46px 0 96px}
-.ov-wrap{max-width:1500px;margin:0 auto;padding:0 clamp(22px,5vw,76px)}
-.ov-back{font-family:var(--sans);font-size:.84rem;color:var(--accent);display:inline-flex;gap:8px;
-align-items:center;transition:color .2s}
-.ov-back:hover,.ov-foot a:hover{color:var(--deep)}
-.ov-head{text-align:center;margin-top:26px}
-.ov-logo{display:flex;justify-content:center;align-items:center}
-.ov-logo img{width:var(--w);height:var(--h);max-width:100%;object-fit:contain}
-.ov-logo-dark{background:var(--deep);border-radius:16px;width:min(390px,100%);height:160px;margin:0 auto;padding:20px}
-.ov-name{font-family:var(--serif);font-weight:700;color:var(--deep);letter-spacing:-.015em;line-height:1.1;
-font-size:clamp(2.125rem,1.4rem + 2.2vw,3rem);margin-top:24px}
-.ov-body{max-width:760px;margin:34px auto 0;text-align:left;font-family:var(--serif);
-font-size:18px;line-height:1.72;color:var(--ink)}
-.ov-body p+p{margin-top:1.25em}
-.ov-body .ov-site{margin-top:1.9em;font-family:var(--sans);font-size:.92rem}
-.ov-site a{color:var(--accent);border-bottom:1px solid rgba(217,139,51,.35);padding-bottom:2px;
-transition:color .2s,border-color .2s}
-.ov-site a:hover{color:var(--deep);border-color:var(--deep)}
-.ov-foot{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px 28px;
-margin-top:64px;padding-top:24px;border-top:1px solid var(--line);
-font-family:var(--sans);font-size:.88rem}
-.ov-foot a{color:var(--accent);transition:color .2s}
-@media(max-width:820px){
-.ov{padding:26px 0 72px}
-.ov-head{margin-top:18px}
-.ov-logo img{width:calc(var(--w) * .74);height:calc(var(--h) * .74)}
-.ov-logo-dark{height:122px;width:min(310px,100%);padding:14px;border-radius:14px}
-.ov-name{margin-top:16px}
-.ov-body{margin-top:24px;font-size:16.5px;line-height:1.68}
-.ov-foot{margin-top:48px;font-size:.84rem}}
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:.76rem;
-font-weight:700;text-transform:uppercase;letter-spacing:.16em;background:var(--deep);
-color:var(--bg);padding:16px 32px;border-radius:8px;transition:all .3s var(--ease)}
-.btn .arr{transition:transform .3s var(--ease)}
-.btn:hover{background:#2C5240;transform:translateY(-2px);box-shadow:0 10px 24px rgba(32,60,45,.2)}
-.btn:hover .arr{transform:translateX(5px)}
-.btn-ghost{background:transparent;color:var(--deep);border:1px solid var(--deep)}
-.btn-ghost:hover{background:var(--deep);color:var(--bg)}
-/* blog accordion */
-.acc{border-bottom:1px solid var(--line)}
-.acc:first-of-type{border-top:1px solid var(--line)}
-.acc-head{display:flex;align-items:center;gap:18px;width:100%;padding:30px 0;cursor:pointer;
-background:none;border:none;text-align:left;font:inherit;color:inherit}
-.acc-head .meta{flex:1;min-width:0}
-.acc-head h3,.new-post .np-title{overflow-wrap:break-word}
-.fit-1line wbr{display:none}
-.acc-head .date{font-family:var(--sans);font-size:.7rem;font-weight:600;color:var(--muted);
-text-transform:uppercase;letter-spacing:.18em}
-.acc-head h3{font-family:var(--serif);font-size:clamp(1.25rem,2.7vw,1.7rem);color:var(--deep);
-margin-top:8px;letter-spacing:-.01em;transition:color .2s;line-height:1.3}
-.acc-head:hover h3{color:var(--accent)}
-.chev{flex:0 0 auto;width:36px;height:36px;border:1px solid var(--line);border-radius:50%;
-display:flex;align-items:center;justify-content:center;color:var(--muted);
-transition:transform .4s var(--ease),color .2s,border-color .2s;font-size:.95rem}
-.acc.open .chev,.note-inline.open .chev{transform:rotate(45deg);color:var(--accent);border-color:var(--accent)}
-.share-btn{flex:0 0 auto;font-family:var(--sans);font-size:.66rem;font-weight:700;
-text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:none;
-border:1px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer;
-transition:all .25s var(--ease);white-space:nowrap}
-.share-btn:hover{color:var(--bg);border-color:var(--deep);background:var(--deep)}
-.post-share{margin-top:26px}
-.post-share-end{margin:0 0 22px}
-.acc-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--ease)}
-.acc.open .acc-body{grid-template-rows:1fr}
-.acc-inner{overflow:hidden;min-height:0;max-width:68ch}
-.acc-inner-pad{padding:8px 0 48px}
-.acc-inner p{margin:0 0 20px}
-.acc-inner h2{font-family:var(--serif);font-size:1.5rem;color:var(--deep);margin:44px 0 16px}
-.acc-inner strong{color:var(--deep)}
-.acc-inner em{color:var(--muted)}
-.acc-inner ul,.acc-inner ol{margin:0 0 20px 24px}
-.acc-inner blockquote{border-left:3px solid var(--accent);padding:6px 0 6px 24px;margin:28px 0;
-font-size:1.25rem;line-height:1.5;color:var(--deep);font-style:italic}
-.acc-inner blockquote p{margin:0}
-/* prose (long-form pages/posts) */
-.prose{max-width:66ch;padding:70px 0 110px}
-.prose h1{font-family:var(--serif);font-size:clamp(2.2rem,5vw,3.4rem);color:var(--deep);
-letter-spacing:-.02em;line-height:1.08;margin-bottom:34px}
-.prose h2{font-family:var(--serif);font-size:1.65rem;color:var(--deep);margin:52px 0 18px}
-.prose p{margin:0 0 20px}
-.prose p>strong:only-child{display:block;font-size:1.25em;line-height:1.4;color:var(--deep)}
-.prose>p:first-of-type>strong:only-child{font-size:1.5em;letter-spacing:-.01em}
-.prose ul,.prose ol{margin:0 0 20px 24px}
-.prose li{margin-bottom:10px}
-.prose strong{color:var(--deep)}
-.prose a{color:var(--accent)}
-.prose em{color:var(--muted)}
-.prose blockquote{border-left:3px solid var(--accent);padding:6px 0 6px 26px;margin:30px 0;
-font-size:1.3rem;line-height:1.5;color:var(--deep);font-style:italic}
-.prose blockquote p{margin:0}
-.prose hr{border:none;border-top:1px solid var(--line);margin:44px 0}
-.prose .date{font-family:var(--sans);font-size:.7rem;font-weight:700;color:var(--accent);
-text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px}
-/* ---------- responsive ---------- */
-@media(max-width:820px){
-.hero{padding:70px 0 60px}section{padding:64px 0}
-.hero-flex{flex-direction:column-reverse;align-items:flex-start;gap:38px}
-.hero-enso{width:132px}
-.new-post{flex-wrap:wrap;border-radius:16px;gap:6px 10px;padding:12px 16px;max-width:100%}
-.new-post .np-tag{flex:1 0 100%}
-.new-post .np-title{flex:1 1 auto;min-width:0}
 
-.split{grid-template-columns:1fr;gap:18px}
-.split .side{position:static}
-.qgrid{grid-template-columns:1fr;gap:26px;margin:44px 0}
-.belief-row{grid-template-columns:74px 1fr;gap:20px;padding:30px 0}
-.way-row{grid-template-columns:1fr;gap:10px;padding:28px 0}
-.dark{padding:80px 0}
-.dark .watermark{width:340px;right:-120px}
-}
-"""
+def long_date(d):          # November 9, 2026
+    x = as_date(d); return f"{x:%B} {x.day}, {x.year}"
 
-# ---------------------------------------------------------------- js
-SHARED_JS = """
-document.documentElement.classList.add('js');
-(function() {
-  var btn = document.getElementById('menu-btn');
-  var menu = document.getElementById('menu');
-  var close = document.getElementById('menu-close');
-  function setOpen(open) {
-    menu.classList.toggle('open', open);
-    menu.setAttribute('aria-hidden', String(!open));
-    btn.setAttribute('aria-expanded', String(open));
-    document.body.style.overflow = open ? 'hidden' : '';
-  }
-  btn.addEventListener('click', function() { setOpen(true); });
-  close.addEventListener('click', function() { setOpen(false); });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') setOpen(false);
-  });
-})();
-(function() {
-  var els = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) {
-    els.forEach(function(el){ el.classList.add('in'); });
-    return;
-  }
-  var io = new IntersectionObserver(function(entries) {
-    entries.forEach(function(en) {
-      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
-    });
-  }, {threshold: 0.12, rootMargin: '0px 0px -40px 0px'});
-  els.forEach(function(el){ io.observe(el); });
-})();
-(function() {
-  var intro = document.getElementById('intro');
-  if (intro) setTimeout(function(){ intro.remove(); }, 3200);
-  var pe = document.querySelector('.hero-enso.floaty');
-  if (pe && window.matchMedia('(pointer:fine)').matches
-        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    window.addEventListener('mousemove', function(e) {
-      var x = (e.clientX / window.innerWidth - .5) * 24;
-      var y = (e.clientY / window.innerHeight - .5) * 18;
-      pe.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
-    }, {passive: true});
-  }
-})();
-"""
 
-FITHEAD_JS = """
-(function(){
-  var el = document.querySelector('.note-head');
-  if (!el) return;
-  var CAP = 76;
-  function fit(){
-    if (document.documentElement.clientWidth < 861) {
-      el.classList.remove('fit-1line');
-      el.style.whiteSpace = '';
-      el.style.fontSize = '';
-      el.style.maxWidth = '';
-      return;
-    }
-    el.classList.add('fit-1line');
-    el.style.maxWidth = 'none';
-    el.style.whiteSpace = 'nowrap';
-    el.style.fontSize = CAP + 'px';
-    var p = el.parentElement, cs = getComputedStyle(p);
-    var avail = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    var w = el.scrollWidth;
-    if (w > avail) el.style.fontSize = Math.floor(CAP * (avail / w) * 0.985) + 'px';
-    // very long titles: one line would be too small to read, so wrap at a large size instead
-    if (parseFloat(el.style.fontSize) < 40) {
-      el.classList.remove('fit-1line');
-      el.style.whiteSpace = 'normal';
-      el.style.fontSize = '56px';
-    }
-  }
-  fit();
-  window.addEventListener('resize', fit);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-})();
-"""
+def minutes(n_words):
+    return max(1, round(n_words / 200))
 
-POSTSHARE_JS = """
-(function(){
-  document.querySelectorAll('.post-share-btn').forEach(function(b){
-    b.addEventListener('click', function(){
-      var url = b.dataset.url, old = b.textContent;
-      var done = function(msg){ b.textContent = msg; setTimeout(function(){ b.textContent = old; }, 1800); };
-      var copy = function(){
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
-            function(){ window.prompt('Copy this link:', url); });
-        } else { window.prompt('Copy this link:', url); }
-      };
-      if (navigator.share) {
-        navigator.share({title: b.dataset.title, url: url}).catch(function(err){
-          if (!err || err.name !== 'AbortError') copy();
-        });
-      } else { copy(); }
-    });
-  });
-})();
-"""
 
-CLIMAX_JS = """
-(function(){
-  var btn = document.getElementById('note-toggle');
-  var more = document.getElementById('note-more');
-  if (!btn || !more) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  btn.addEventListener('click', function(){
-    if (!more.hidden) return;
-    more.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
-    var wrap = document.getElementById('continue-wrap');
-    if (reduce) { if (wrap) wrap.style.display = 'none'; return; }
-    var h = more.scrollHeight;
-    more.style.height = '0px';
-    more.classList.add('animating');
-    requestAnimationFrame(function(){ more.style.height = h + 'px'; });
-    more.addEventListener('transitionend', function te(){
-      more.style.height = ''; more.classList.remove('animating');
-      more.removeEventListener('transitionend', te);
-    });
-    if (wrap) { wrap.style.transition = 'opacity .3s'; wrap.style.opacity = '0';
-                setTimeout(function(){ wrap.style.display = 'none'; }, 300); }
-  });
-})();
-"""
+def words(text, cls="w", fmt=lambda w: w):
+    """Headline words that rise one by one (each in its own span)."""
+    return " ".join(f'<span class="{cls}" style="--i:{i}"><span>{fmt(esc(w))}</span></span>'
+                    for i, w in enumerate(text.split()))
 
-NOTESHARE_JS = """
-(function(){
-  var head = document.getElementById('note-head');
-  var body = document.getElementById('founder-note');
-  if (!head || !body) return;
-  var btn = head.querySelector('.acc-head');
-  var share = document.getElementById('note-share');
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function navH(){ var n = document.querySelector('header'); return n ? n.getBoundingClientRect().height : 0; }
-  function setOpen(open){
-    head.classList.toggle('open', open);
-    body.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', String(open));
-  }
-  function scrollToBody(){
-    var sec = body.closest('.note-body-section') || body;
-    var y = sec.getBoundingClientRect().top + window.pageYOffset - navH() - 18;
-    window.scrollTo({top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth'});
-  }
-  function toggle(){
-    var open = !body.classList.contains('open');
-    setOpen(open);
-    if (open) requestAnimationFrame(function(){ requestAnimationFrame(scrollToBody); });
-  }
-  btn.addEventListener('click', function(e){
-    if (e.target.closest('.share-btn')) return;
-    toggle();
-  });
-  btn.addEventListener('keydown', function(e){
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-  });
-  if (share) share.addEventListener('click', function(e){
-    e.stopPropagation();
-    var url = location.origin + location.pathname + '#founder-note';
-    var done = function(msg){ var old = share.textContent; share.textContent = msg;
-      setTimeout(function(){ share.textContent = old; }, 1800); };
-    if (navigator.share) { navigator.share({title: share.dataset.title, url: url}).catch(function(){}); }
-    else if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
-        function(){ window.prompt('Copy this link:', url); });
-    } else { window.prompt('Copy this link:', url); }
-  });
-  function openFromHash(){
-    if (location.hash !== '#founder-note') return;
-    setOpen(true);
-    setTimeout(scrollToBody, 90);
-  }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
-})();
-"""
 
-SCROLLCUE_JS = """
-(function(){
-  var c = document.getElementById('scrollcue');
-  if (!c) return;
-  c.addEventListener('click', function(){
-    var t = document.getElementById('founder-note');
-    if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
-  });
-})();
-"""
+def ld(obj):
+    return f'<script type="application/ld+json">{json.dumps(obj)}</script>'
 
-PROGRESS_JS = """
-(function() {
-  var bar = document.createElement('div');
-  bar.className = 'progress';
-  document.body.appendChild(bar);
-  function upd() {
-    var h = document.documentElement;
-    var max = h.scrollHeight - h.clientHeight;
-    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
-  }
-  window.addEventListener('scroll', upd, {passive: true});
-  window.addEventListener('resize', upd, {passive: true});
-  upd();
-})();
-"""
 
-INTRO_SCRIPT = """<script>
-try{if(sessionStorage.getItem('d17i')){document.documentElement.classList.add('skip-intro')}
-else{sessionStorage.setItem('d17i','1')}}catch(e){}
-</script>"""
+def crumbs(*items):
+    return {"@context": "https://schema.org", "@type": "BreadcrumbList",
+            "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": u}
+                                for i, (n, u) in enumerate(items)]}
 
-BLOG_JS = """
-(function() {
-  document.querySelectorAll('.acc-head').forEach(function(h){
-    function toggle(){
-      var acc = h.parentElement;
-      acc.classList.toggle('open');
-      h.setAttribute('aria-expanded', acc.classList.contains('open'));
-    }
-    h.addEventListener('click', function(e){
-      if (e.target.closest('.share-btn')) return;
-      toggle();
-    });
-    h.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-    });
-  });
-  document.querySelectorAll('.share-btn').forEach(function(b){
-    b.addEventListener('click', function(e){
-      e.stopPropagation();
-      var url = new URL(b.dataset.slug + '.html', location.href).href;
-      var done = function(msg){
-        var old = b.textContent; b.textContent = msg;
-        setTimeout(function(){ b.textContent = old; }, 1800);
-      };
-      if (navigator.share) {
-        navigator.share({title: b.dataset.title, url: url}).catch(function(){});
-      } else if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function(){ done('Link copied!'); },
-          function(){ window.prompt('Copy this link:', url); });
-      } else {
-        window.prompt('Copy this link:', url);
-      }
-    });
-  });
-  function openFromHash() {
-    if (!location.hash) return;
-    var t = document.getElementById(location.hash.slice(1));
-    if (t && t.classList.contains('acc')) {
-      t.classList.add('open');
-      t.querySelector('.acc-head').setAttribute('aria-expanded', 'true');
-      setTimeout(function(){ t.scrollIntoView({behavior:'smooth', block:'start'}); }, 80);
-    }
-  }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
-})();
-"""
 
-# ---------------------------------------------------------------- helpers
-def words(text, start=0.15, step=0.07):
-    """Split text into word spans with staggered rise-in delays."""
-    out, i = [], 0
-    for w in text.split():
-        # long slash-joined tokens (e.g. "He/She/It/...") get a break point after
-        # each slash so they can wrap on narrow screens instead of shrinking
-        parts = [x + "/" for x in w.split("/")[:-1]] + [w.split("/")[-1]]
-        spans = []
-        for part in parts:
-            if not part: continue
-            spans.append(f'<span class="w" style="--d:{start + i*step:.2f}s">{html.escape(part)}</span>')
-            i += 1
-        out.append("<wbr>".join(spans))
-    return " ".join(out)
+HOME_CRUMB = ("Home", URL + "/")
+FOUNDER = {"@type": "Person", "@id": URL + "/#founder", "name": "Joel Shapiro", "url": URL + "/founders-note.html"}
+PUBLISHER = {"@type": "Organization", "@id": URL + "/#organization", "name": site["name"],
+             "logo": {"@type": "ImageObject", "url": URL + "/images/logos/enso.png"}}
+ORG = {"@context": "https://schema.org", "@type": "Organization", "@id": URL + "/#organization",
+       "name": site["name"], "alternateName": [site["name"].replace(" ", "")], "url": URL + "/",
+       "logo": URL + "/images/logos/enso.png", "description": seo["org_description"],
+       "slogan": site["tagline"], "email": EMAIL,
+       "founder": {"@type": "Person", "@id": URL + "/#founder", "name": "Joel Shapiro",
+                   "url": URL + "/founders-note.html", "jobTitle": "Founder"},
+       "sameAs": [site["linkedin"]]}
+BLOG = site["blog_page"]
 
-def rev(inner, delay=0.0, tag="div", cls="", style=""):
-    d = f"--d:{delay:.2f}s;" if delay else ""
-    return f'<{tag} class="reveal {cls}" style="{d}{style}">{inner}</{tag}>'
+# shown when JavaScript is off: everything visible, menu laid out flat
+NOSCRIPT = ('<noscript><style>.w>span,.lw>span,.fade,.rv,.way .yes{opacity:1!important;transform:none!important;filter:none!important}'
+            '.burger,.circle .spin,.circle .spark,.mcopy,.iris .icue{display:none}.bar{position:absolute;color:var(--bg)}'
+            '.menu{position:static;display:block;opacity:1;visibility:visible;padding:calc(var(--barH) + 4px) var(--gut) 14px}'
+            '.circle{width:auto;aspect-ratio:auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 22px}'
+            '.circle a.item,.circle a.item.r,.circle a.item.l{position:static;transform:none;font-size:1.05rem;padding:6px 0}'
+            '.circle a.item span{opacity:1;animation:none}.circle .ctr{position:static;transform:none;opacity:1}'
+            '.circle .ctr a.contact{font-size:1.05rem;padding:.2em .7em .26em}.iris{height:auto}.iris .stick{position:relative}'
+            '.orb{height:auto;display:flex;flex-wrap:wrap;gap:14px;margin-top:24px}.orb .core,.orb .tracks,.orb .readout{display:none}'
+            '.pl{position:static;width:auto}.pl .disc{width:104px;height:104px}</style></noscript>')
 
-def page(title, body, active="", depth=0, extra_js="", intro=False, path="", desc=None, jsonld=None, og_type="website"):
-    p = "../" * depth
-    links = [("Home", f"{p}index.html", active == "")]
-    links += [(n["label"], f'{p}{n["href"].lstrip("/")}', n["label"] == active) for n in site["nav"]]
-    nav = "".join(
-        f'<a href="{href}" class="m-link {"active" if act else ""}" style="--i:{i}">{label}</a>'
-        for i, (label, href, act) in enumerate(links))
-    intro_head = INTRO_SCRIPT if intro else ""
-    intro_html = ("""<div id="intro"><div class="intro-inner">
-<img src="images/logos/enso.webp" alt="">
-<div class="intro-name">Directive 17</div>
-</div></div>""" if intro else "")
-    body_attr = ' style="--hd:2.2s"' if intro else ""
-    d = desc or site.get("meta_description") or site["subline"]
-    url = f"https://{site['domain']}/{path}"
-    analytics = (f'<script data-goatcounter="https://{site["goatcounter"]}.goatcounter.com/count" '
-                 f'async src="//gc.zgo.at/count.js"></script>') if site.get("goatcounter") else ""
-    org_ld = {
-        "@context": "https://schema.org", "@type": "Organization",
-        "name": "Directive 17", "url": f"https://{site['domain']}/",
-        "logo": f"https://{site['domain']}/images/logos/enso.png",
-        "description": site["subline"],
-        "email": site["contact_email"],
-        "founder": {"@type": "Person", "name": "Joel Shapiro"},
-    }
-    blocks = [org_ld] + ([jsonld] if jsonld else [])
-    ld = "".join('<script type="application/ld+json">' + json.dumps(b) + '</script>'
-                 for b in blocks)
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{html.escape(title)}</title>
-<meta name="description" content="{html.escape(d)}">
-<meta name="theme-color" content="#FBF7EC">
-<link rel="canonical" href="{url}">
-<meta property="og:type" content="{og_type}">
-<meta property="og:site_name" content="Directive 17">
-<meta property="og:title" content="{html.escape(title)}">
-<meta property="og:description" content="{html.escape(d)}">
-<meta property="og:url" content="{url}">
-<meta property="og:image" content="https://{site['domain']}/images/og-card.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{html.escape(title)}">
-<meta name="twitter:description" content="{html.escape(d)}">
-<meta name="twitter:image" content="https://{site['domain']}/images/og-card.png">
-<link rel="icon" type="image/png" href="{p}images/logos/enso.png">
-<link rel="apple-touch-icon" href="{p}images/apple-touch-icon.png">
-<link rel="preload" as="image" href="{p}images/logos/enso.webp">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
-{ld}{intro_head}<style>{CSS}</style>
-</head>
-<body{body_attr}>
-{intro_html}
-<header><div class="wrap nav">
-<a class="logo" href="{p}index.html"><img src="{p}images/logos/enso-sm.webp" width="38" height="38" alt="Directive 17 enso logo">Directive 17</a>
-<button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
-<span></span><span></span><span></span>
-</button>
-</div></header>
-<nav class="menu-overlay" id="menu" aria-hidden="true">
-<button class="menu-close" id="menu-close" aria-label="Close menu">&times;</button>
-<div class="m-label">Directive 17</div>
-{nav}
-<div class="m-foot"><a class="m-social" href="{site['linkedin']}" target="_blank" rel="noopener" aria-label="Directive 17 on LinkedIn">{LI_SVG}</a><div class="m-copy">Directive 17 &copy; 2026</div></div>
-</nav>
-{body}
-<script>{SHARED_JS}{extra_js}</script>
-{analytics}</body>
-</html>"""
+# the circular menu: six items placed every 60 degrees around the enso
+NAV_STYLES = ["--i:0;--ux:0.0000;--uy:-0.4625", "--i:1;--ax:0.4005;--uy:-0.2312", "--i:2;--ax:0.4005;--uy:0.2312",
+              "--i:3;--ux:0.0000;--uy:0.4625", "--i:4;--ax:0.4005;--uy:0.2312", "--i:5;--ax:0.4005;--uy:-0.2313"]
+ENSO_HD = img_size(CONTENT / "images" / "logos" / "enso-hd.webp")
 
-# optical size normalization: multiplier on each logo so all marks read the same weight
-LI_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
-  '<path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>'
-  '</svg>')
 
-LOGO_SCALE = {
-    "Pivt": 0.68, "Mythogenic": 0.82, "Caviar and Corndogs": 0.98,
-    "Vector": 1.12, "Twelve92": 0.95, "HumanOS": 0.92,
-    "Epirus": 0.72, "Advocate": 0.72, "LARX": 0.8, "General Fusion": 0.82,
-    "Colossal Laboratories & Biosciences": 0.95,
-}
+def nav(prefix, current):
+    n = len(site["nav"])
+    items = []
+    for i, it in enumerate(site["nav"]):
+        deg = round(360 * i / n)
+        cls = "c" if deg in (0, 180) else ("r" if deg < 180 else "l")
+        if n == 6:
+            style = NAV_STYLES[i]
+        else:
+            import math
+            a = math.radians(deg); ux, uy = 0.4625 * math.sin(a), -0.4625 * math.cos(a)
+            style = (f"--i:{i};--ux:{ux:.4f};--uy:{uy:.4f}" if cls == "c" else f"--i:{i};--ax:{abs(ux):.4f};--uy:{uy:.4f}")
+        cur = it["href"] == current
+        items.append(f'<a class="item {cls}{" cur" if cur else ""}" href="{prefix}{it["href"].lstrip("/")}" data-deg="{deg}"'
+                     f'{" aria-current=" + chr(34) + "page" + chr(34) if cur else ""} style="{style}"><span>{esc(it["label"])}</span></a>')
+    return ('<nav class="menu" id="menu" aria-label="Site menu"><div class="circle" id="circle">'
+            f'<div class="spin" id="spin"><img src="/images/logos/enso-hd.webp" alt="" width="{ENSO_HD[0]}" height="{ENSO_HD[1]}" decoding="async" fetchpriority="low"></div>'
+            '<span class="spark" id="spark"></span>' + "".join(items) +
+            f'<div class="ctr"><a class="contact" href="mailto:{EMAIL}">Contact</a></div></div>'
+            f'<div class="mcopy">{esc(site["name"])} &copy; {date.today().year}</div></nav>')
 
-def company_card(c, depth=0, delay=0.0):
-    """Companies-page card. Companies with an overview get the legacy card wrapped
-    with a hover/focus/touch "Overview" button; others render exactly as before."""
-    if not c.get("overview_paras"):
-        return legacy_company_card(c, depth, delay)
-    p = "../" * depth
-    card = legacy_company_card(c, depth, 0.0, wrapped=True)
-    tone = "ov-on-dark" if "Proprietary" in c.get("group", "Proprietary") else "ov-on-light"
-    has_reveal = not c.get("deck")          # deck cards never had the reveal animation
-    d = f' style="--d:{delay:.2f}s"' if (delay and has_reveal) else ""
-    name = c.get("overview_name") or c["name"]
-    return (f'<div class="card-wrap{" reveal" if has_reveal else ""}"{d}>{card}'
-            f'<a class="ov-btn {tone}" href="{p}companies/{c["slug"]}.html" '
-            f'aria-label="{html.escape(name, quote=True)} overview">Overview</a></div>')
 
-def legacy_company_card(c, depth=0, delay=0.0, wrapped=False):
-    p = "../" * depth
-    dark = "Proprietary" in c.get("group", "Proprietary")
-    tile_cls = "tile-dark" if dark else "tile-light"
-    ls = LOGO_SCALE.get(c["name"], 1.0)
-    ls_attr = f' style="--ls:{ls}"' if ls != 1.0 else ""
-    logo = (f'<img src="{p}images/{c["logo"]}"{ls_attr} loading="lazy" decoding="async" alt="{html.escape(c["name"])} logo">'
-            if c.get("logo") else f'<span style="font-family:var(--serif);font-size:1.4rem;'
-            f'color:{"#FBF7EC" if dark else "var(--deep)"}">{html.escape(c["name"][0])}</span>')
-    if c.get("deck"):
-        liner_extra = '<p class="deck-tag">Investor deck &rarr;</p>'
-        inner_link = f'{p}decks/{c["deck"]}.html'
-        liner = (f'<p>{html.escape(c["one_liner"])}</p>' if c.get("one_liner") else "") + liner_extra
-        inner = f'<div class="tile {tile_cls}">{logo}</div><h3>{html.escape(c["name"])}</h3>{liner}'
-        return f'<a class="card" href="{inner_link}">{inner}</a>'
-    liner = f'<p>{html.escape(c["one_liner"])}</p>' if c.get("one_liner") else ""
-    inner = f'<div class="tile {tile_cls}">{logo}</div><h3>{html.escape(c["name"])}</h3>{liner}'
-    d = f' style="--d:{delay:.2f}s"' if delay else ""
-    if c.get("url"):
-        if wrapped:
-            return f'<a class="card" href="{c["url"]}" target="_blank" rel="noopener">{inner}</a>'
-        return f'<a class="card reveal" href="{c["url"]}" target="_blank" rel="noopener"{d}>{inner}</a>'
-    if wrapped:
-        return f'<div class="card">{inner}</div>'
-    return f'<div class="card reveal"{d}>{inner}</div>'
+def page(path, data_page, title, desc, body, current="", og_type="website", lds=(), head_extra="", ring=False):
+    """A full page. path is relative to the site root (e.g. 'blog/x.html')."""
+    depth = path.count("/")
+    prefix = "/" if path == "404.html" else "../" * depth
+    canon = URL + "/" + re.sub(r"(^|/)index\.html$", r"\1", path)
+    t, d = esc(title), esc(desc)
+    head = (
+        "<!DOCTYPE html>\n<html lang=\"en\">\n<head>" + ('<base href="/">' if path == "404.html" else "") + "\n"
+        '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        f"<title>{t}</title>\n<meta name=\"description\" content=\"{d}\">\n<meta name=\"theme-color\" content=\"#FBF7EC\">\n"
+        f'<link rel="canonical" href="{canon}">\n<meta property="og:type" content="{og_type}">\n'
+        f'<meta property="og:site_name" content="{esc(site["name"])}">\n<meta property="og:title" content="{t}">\n'
+        f'<meta property="og:description" content="{d}">\n<meta property="og:url" content="{canon}">\n'
+        f'<meta property="og:image" content="{URL}/images/og-card.png">\n<meta property="og:image:alt" content="{esc(seo["og_image_alt"])}">\n'
+        '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
+        f'<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="{t}">\n'
+        f'<meta name="twitter:description" content="{d}">\n<meta name="twitter:image" content="{URL}/images/og-card.png">\n'
+        '<link rel="icon" type="image/png" href="/images/logos/enso.png">\n<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">\n'
+        f'<link rel="alternate" type="application/rss+xml" title="{esc(BLOG["title"] + " — " + site["name"])}" href="{URL}/blog/feed.xml">\n'
+        + head_extra +
+        '<link rel="stylesheet" href="/assets/site.css">\n' + NOSCRIPT + "\n" + ld(ORG) + "".join(ld(x) for x in lds) + "\n</head>\n")
+    chrome = (
+        f'<body data-page="{data_page}">\n<a class="skip" href="#main">Skip to content</a>\n<header class="bar" id="bar">\n'
+        f'  <a class="brand" href="{prefix}index.html" aria-label="{esc(site["name"])} home"><img id="navEnso" src="/images/logos/enso-sm.webp" alt="" width="36" height="36"><span>{esc(site["name"])}</span></a>\n'
+        '  <button class="burger" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span></button>\n'
+        "</header>\n" + nav(prefix, current) + "\n"
+        + ('<button class="ring" id="ring" aria-label="Back to top"><img class="ghost-e" src="/images/logos/enso-sm.webp" alt=""><img id="ringImg" src="/images/logos/enso-sm.webp" alt=""></button>\n'
+           if ring else "\n")
+        + '<main id="main">\n')
+    goat = (f'<script data-goatcounter="https://{site["goatcounter"]}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
+            if site.get("goatcounter") else "")
+    write(OUT / path, head + chrome + body + "</main>\n\n<script src=\"/assets/site.js\"></script>\n" + goat + "</body>\n</html>")
 
-# ---------------------------------------------------------------- build
+
+def pmeta(key, **kw):
+    e = seo["pages"][key]
+    return e.get("title", "").format(**kw), e.get("description", "").format(**kw)
+
+
+# ================================================================ build
 if OUT.exists():
     shutil.rmtree(OUT)
 OUT.mkdir(parents=True)
-(OUT / "blog").mkdir()
-if (CONTENT / "images").exists():
-    shutil.copytree(CONTENT / "images", OUT / "images", dirs_exist_ok=True)
-(OUT / ".nojekyll").write_text("")
+shutil.copytree(CONTENT / "images", OUT / "images", dirs_exist_ok=True)
+shutil.copytree(THEME, OUT / "assets", dirs_exist_ok=True)
+write(OUT / ".nojekyll", "")
 if site.get("domain") and site.get("live"):
-    (OUT / "CNAME").write_text(site["domain"])
+    write(OUT / "CNAME", site["domain"])
 
 # newest first; for posts on the same date, a higher frontmatter "order" comes first, then filename
 posts = sorted((parse_post(p) for p in sorted((CONTENT / "posts").glob("*.md"))),
                key=lambda x: (x["date"], x["order"]), reverse=True)
 
-# ---------------- Founder's note: a blog-style row on the landing page that opens in place
-fn_src = (CONTENT / "pages" / "founders-note.md").read_text()
+# ---------------- the founder's note (its own page, and the home-page card that opens it in place)
+fn_src = read(CONTENT / "pages" / "founders-note.md")
 fn_title = next(l[2:].strip() for l in fn_src.splitlines() if l.startswith("# "))
 fn_body = re.sub(r"^#\s+.*\n", "", fn_src, count=1)
 fn_lede_m = re.search(r"^\*\*(.+?)\*\*\s*$", fn_body, flags=re.M)
@@ -1024,344 +291,416 @@ fn_lede = fn_lede_m.group(1) if fn_lede_m else ""
 if fn_lede_m:
     fn_body = fn_body.replace(fn_lede_m.group(0), "", 1)
 fn_body = fn_body.replace("<!--more-->", "")
-fn_minutes = max(1, round(len(fn_body.split()) / 200))
+fn_minutes = minutes(len(fn_body.split()))
+fn_prose = md_to_html(fn_body.strip())
+FN_URL = URL + "/founders-note.html"
+FN_ENDMARK = (f'<img src="/images/logos/enso-sm.webp" alt=""><button class="share" type="button" data-share="{FN_URL}" '
+              f'data-title="{esc(fn_title)}">Share this post</button>')
 
-# Landing-page blog pill: shows the post named in site.json "featured_post"
-# (a slug, e.g. "my-life-philosophy"); if that's blank or missing, the newest post.
+
+def endmark(url, title, rv=True):
+    return (f'<div class="endmark{" rv" if rv else ""}"><img src="/images/logos/enso-sm.webp" alt="">'
+            f'<button class="share" type="button" data-share="{url}" data-title="{esc(title)}">Share this post</button></div>')
+
+
+# ---------------- home
 _feat = (site.get("featured_post") or "").strip()
 newest = next((x for x in posts if x["slug"] == _feat), None) if _feat else None
-np_label = (site.get("featured_label") or "From the blog") if newest else "New post"
-if newest is None:
-    newest = posts[0] if posts else None
-note_alert = ""
+newest = newest or (posts[0] if posts else None)
+tw = site["tagline"].split()
+hero_h = " ".join(f'<span class="lw" style="--i:{i}"><span>{esc(w)}</span></span>' for i, w in enumerate(tw[:-2]))
+hero_h += ' <span class="s2">' + " ".join(f'<span class="lw" style="--i:{i + len(tw) - 2}"><span>{esc(w)}</span></span>'
+                                        for i, w in enumerate(tw[-2:])) + "</span>"
+newpost = ""
 if newest:
-    note_alert = (
-        '<a class="new-post" href="blog/{slug}.html">'
-        '<span class="np-tag">' + np_label + '</span>'
-        '<span class="np-title">{title}</span>'
-        '<span class="np-arrow" aria-hidden="true">&#8594;</span></a>'
-    ).format(slug=newest["slug"], title=md_inline(newest["title"]).replace("/", "/<wbr>"))
-
-note_head = f"""
-<div class="wrap note-inline" id="note-head">
-<div class="acc-head" role="button" tabindex="0" aria-expanded="false">
-<div class="meta"><div class="date">A Note from the Founder</div>
-<h3>{md_inline(fn_title)}</h3>
-<p class="note-lede">{html.escape(fn_lede)}</p></div>
-<button class="share-btn" id="note-share" data-title="{html.escape(fn_title, quote=True)}">Share</button>
-<div class="chev">+</div>
-</div>
-{note_alert}
-</div>"""
-
-note_body = f"""
-<section class="note-body-section" data-nosnippet>
-<div class="wrap">
-<div class="acc acc-bare" id="founder-note">
-<div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
-<div class="note-byline note-byline-inline">
-<img src="images/logos/enso-sm.webp" width="38" height="38" loading="lazy" alt="">
-<div><div class="nb-name">Joel Shapiro</div>
-<div class="nb-role">Founder &middot; {fn_minutes} min read</div></div>
-</div>
-{md_to_html(fn_body)}
-</div></div></div>
-</div>
-</div>
-</section>"""
-
-# no page of its own — old links land on the landing-page row
-(OUT / "founders-note.html").write_text(
-    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
-    '<title>A Note from the Founder \u2014 Directive 17</title>'
-    '<link rel="canonical" href="https://directive17.com/">'
-    '<meta http-equiv="refresh" content="0; url=index.html#founder-note">'
-    '<script>location.replace("index.html#founder-note")</script></head>'
-    '<body style="background:#FBF7EC"></body></html>')
-
-(OUT / "joels-directive.html").write_text(
-    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
-    '<title>Stop Watching. Start F@cking Creating. \u2014 Directive 17</title>'
-    '<link rel="canonical" href="https://directive17.com/blog/stop-watching-start-creating.html">'
-    '<meta http-equiv="refresh" content="0; url=blog/stop-watching-start-creating.html">'
-    '<script>location.replace("blog/stop-watching-start-creating.html")</script></head>'
-    '<body style="background:#FBF7EC"></body></html>')
-
-# ---------------- home: hero only, animated, intro curtain + pillar ticker
-tick_set = "".join(
-    f'<span>{html.escape(p["title"])}</span><span class="tsep">&#10022;</span>'
-    for p in site["home_pillars"])
+    newpost = (f'\n  <a class="newpost" href="blog/{newest["slug"]}.html">\n'
+               f'    <span class="tag"><i></i>New post &middot; {esc(BLOG["kicker"])}</span>\n'
+               f'    <span><span class="np-title">{esc(newest["title"])}</span><span class="np-ex">{esc(newest["excerpt"])}</span></span>\n'
+               f'    <span class="when">{long_date(newest["date"])}<b>Read &rarr;</b></span>\n  </a>')
 home = f"""
-<div class="hero hero-home"><div class="wrap hero-flex">
-<div>
-<div class="kicker fade" style="--d:.05s">Directive 17</div>
-<h1 class="display">{words(site['tagline'], .25, .09)}</h1>
-</div>
-<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="1114" height="1098" alt="Directive 17 enso"></div>
-</div>
-{note_head}
-<div class="ticker"><div class="ticker-track">{tick_set}{tick_set}{tick_set}</div></div>
-</div>
-{note_body}"""
+<section class="iris" id="iris"><div class="stick" id="irisStick">
+  <canvas class="skyc" aria-hidden="true"></canvas>
+  <div class="ens" id="ens"><img src="/images/logos/enso-hd.webp" alt="" width="{ENSO_HD[0]}" height="{ENSO_HD[1]}" fetchpriority="high"></div>
+  <div class="hc"><h1 id="heroH">{hero_h}</h1></div>
+  <p class="sub" id="heroSub">{esc(site["subline"])}</p>
+  <button class="icue" id="cue" type="button" aria-label="Scroll down"><svg viewBox="0 0 16 16"><path d="M8 2.5v10M3.5 8.5 8 13l4.5-4.5"/></svg></button>
+</div></section>
 
+<section class="notesec"><div class="wrap">
+  <a class="note-card" href="founders-note.html" data-go="founders-note" aria-expanded="false">
+    <img class="ns" src="/images/logos/enso-md.webp" alt="">
+    <div><div class="label">{esc(site["home_note"]["label"])}</div><h2>{esc(fn_title)}</h2><p>{esc(fn_lede)}</p>
+      <span class="readnote">{esc(site["home_note"]["link"])}</span><span class="readmeta">Joel Shapiro &middot; {fn_minutes} min read</span></div>
+  </a>
+  <div class="note-full" id="note-full"><div class="nf-in"><div class="nf-body"><div class="prose">{fn_prose}</div><div class="endmark">{FN_ENDMARK}</div></div></div></div>{newpost}
+</div></section>
+"""
+t, d = pmeta("home")
+page("index.html", "home", t, d, home,
+     lds=[{"@context": "https://schema.org", "@type": "WebSite", "@id": URL + "/#website", "name": site["name"],
+           "alternateName": [site["name"].replace(" ", "")], "url": URL + "/", "inLanguage": "en",
+           "publisher": {"@id": URL + "/#organization"}}],
+     head_extra='<link rel="preload" as="image" href="/images/logos/enso-hd.webp" fetchpriority="high">\n')
+
+# ---------------- founder's note page
+fn_body_html = f"""
+<article class="article"><div class="wrap">
+  <div class="head"><a class="back" href="index.html">&larr; Home</a>
+  <h1>{words(fn_title)}</h1>
+  <div class="byline fade" style="--d:.6s"><img src="/images/logos/enso-sm.webp" alt=""><span>Joel Shapiro <span class="sep">&middot;</span> Founder <span class="sep">&middot;</span> {fn_minutes} min read</span><button class="share" type="button" data-share="{FN_URL}" data-title="{esc(fn_title)}">Share</button></div></div>
+  <div class="prose"><p class="lede-p">{esc(fn_lede)}</p>{fn_prose}</div>
+  {endmark(FN_URL, fn_title)}
+{"  "}
+</div></article>
+"""
+_, d = pmeta("note", title=fn_title, lede=fn_lede)
+page("founders-note.html", "note", fn_title, d, fn_body_html, og_type="article", ring=True,
+     lds=[{"@context": "https://schema.org", "@type": "Article", "headline": fn_title, "description": fn_lede,
+           "author": FOUNDER, "publisher": PUBLISHER, "image": URL + "/images/og-card.png", "inLanguage": "en",
+           "about": {"@id": URL + "/#organization"}, "isPartOf": {"@id": URL + "/#website"},
+           "mainEntityOfPage": FN_URL, "url": FN_URL},
+          crumbs(HOME_CRUMB, (seo["pages"]["note"]["crumb"], FN_URL))])
 
 # ---------------- why
-wp = site["why_page"]
-belief_rows = "".join(
-    rev(f'<div class="gnum">0{i+1}</div><div class="btext">{html.escape(b)}</div>',
-        delay=0.05 * (i % 3), tag="div", cls="belief-row")
-    for i, b in enumerate(wp["beliefs"]))
-paras = "".join(f"<p>{html.escape(t)}</p>" for t in wp["paragraphs"])
+W_ = site["why_page"]
 why = f"""
 <div class="hero"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">{html.escape(wp['kicker'])}</div>
-<div class="muted-line fade" style="--d:.2s">{html.escape(wp['line1'])}</div>
-<h1 class="display">{words(wp['line2'], .4, .09)}</h1>
+  <div class="label tl fade" style="--d:.05s">{esc(W_["kicker"])}</div>
+  <div class="muted-line fade" style="--d:.25s;margin-top:22px">{esc(W_["line1"])}</div>
+  <h1 class="display">{words(W_["line2"])}</h1>
 </div></div>
-<div class="wrap"><hr class="rule"></div>
-<section><div class="wrap">
-<div class="split">
-<div class="side reveal">The starting point</div>
-<div class="bigtext reveal" style="--d:.1s">{paras}</div>
-</div>
+<section style="padding-top:0"><div class="wrap">
+  <div class="why-cols bigtext">{"".join(f"<p>{esc(p)}</p>" for p in W_["paragraphs"])}</div>
 </div></section>
 <section style="padding-top:0"><div class="wrap">
-<div class="sec-label reveal">{html.escape(wp['belief_label'])}</div>
-{rev(f'<div class="statement">{html.escape(wp["belief_intro"])}</div>', .05)}
-<div style="height:56px"></div>
-{belief_rows}
-</div></section>"""
-(OUT / "why.html").write_text(page(f"Why — {site['name']}", why, "Why", path="why.html",
-    desc="Most organizations begin with markets. We begin with people."))
+  <div class="label tl rv">{esc(W_["belief_label"])}</div>
+  <h2 class="h2 rv" style="margin:14px 0 calc(30px + .32em);max-width:24ch"><span class="stroke">{esc(W_["belief_intro"])}<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path pathLength="1" d="M2 6 C 25 2, 55 9, 98 4"/></svg></span></h2>
+  {"".join(f'<div class="belief rv"><div class="g">{i + 1:02d}</div><div class="btext">{esc(b)}</div></div>' for i, b in enumerate(W_["beliefs"]))}
+</div></section>
+"""
+t, d = pmeta("why")
+page("why.html", "why", t, d, why, current="/why.html", lds=[crumbs(HOME_CRUMB, (seo["pages"]["why"]["crumb"], URL + "/why.html"))])
 
 # ---------------- philosophy
-pp = site["philosophy_page"]
-pillars = "".join(
-    rev(f'<div class="num">{p["num"]}</div><h3>{html.escape(p["title"])}</h3>'
-        f'<p>{html.escape(p["body"])}</p>', delay=0.07 * i, tag="div", cls="pillar")
-    for i, p in enumerate(site["home_pillars"]))
-way_rows = "".join(
-    rev(f'<div class="no">{html.escape(no)}</div><div class="yes">{html.escape(yes)}</div>',
-        delay=0.06 * i, tag="div", cls="way-row")
-    for i, (no, yes) in enumerate(pp["way"]["pairs"]))
-closing_html = html.escape(pp["way"]["closing"]).replace(". ", '.<span class="dot"> &middot; </span>')
-philosophy = f"""
+P_ = site["philosophy_page"]
+STRIKE = '<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path pathLength="1" d="M1 6 C 30 3, 60 8, 99 4"/></svg>'
+_q = P_["human_test"]["question"]
+_qw = _q.rsplit(" ", 1)          # the last word is set in italics: "...life better?"
+_qlast = re.match(r"^(\w+)(.*)$", _qw[1])
+big_q = f'&ldquo;{esc(_qw[0])} <em>{esc(_qlast.group(1))}</em>{esc(_qlast.group(2))}&rdquo;'
+closing = " ".join(f"<span>{esc(s.strip())}</span>" for s in re.findall(r"[^.]+\.", P_["way"]["closing"]))
+phil = f"""
 <div class="hero"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">{html.escape(pp['kicker'])}</div>
-<h1 class="display" style="max-width:20ch">{words(pp['opening'], .25, .07)}</h1>
-<div class="qgrid">
-<div class="q q1 fade" style="--d:1.1s">{html.escape(pp['q1'])}</div>
-<div class="q q2 fade" style="--d:1.35s">{html.escape(pp['q2'])}</div>
-</div>
-<div class="answer fade" style="--d:1.6s">{html.escape(pp['answer'])}</div>
+  <div class="label tl fade" style="--d:.05s">{esc(P_["kicker"])}</div>
+  <h1 class="h1" style="margin-top:20px;max-width:18ch">{words(P_["opening"])}</h1>
+  <div class="qgrid"><div class="q fade" style="--d:1.1s">{esc(P_["q1"])}</div><div class="q q2 fade" style="--d:1.4s">{esc(P_["q2"])}</div></div>
+  <div class="answer fade" style="--d:1.8s">{esc(P_["answer"])}</div>
 </div></div>
-<div class="wrap"><hr class="rule"></div>
-<section><div class="wrap">
-<div class="sec-label reveal">{html.escape(pp['pillars_label'])}</div>
-{rev(f'<div class="statement" style="font-size:clamp(1.6rem,3.2vw,2.4rem)">{html.escape(pp["pillars_intro"])}</div>', .05)}
-<div style="height:48px"></div>
-<div class="pillars">{pillars}</div>
+<section style="padding-top:10px"><div class="wrap">
+  <div class="label tl rv">{esc(P_["pillars_label"])}</div>
+  <h2 class="h2 rv" style="margin-top:14px">{esc(P_["pillars_intro"])}</h2>
+  <div class="five">{"".join(f'<div class="c rv" style="--d:{i * 0.08:.2f}s"><span class="n">{esc(p["num"])}</span><h3>{esc(p["title"])}</h3><p>{esc(p["body"])}</p></div>' for i, p in enumerate(site["home_pillars"]))}</div>
 </div></section>
-<div class="dark">
-<img class="watermark" src="images/logos/enso.webp" loading="lazy" alt="">
-<div class="wrap">
-<div class="sec-label reveal">{html.escape(pp['human_test']['label'])}</div>
-{rev(f'<p style="color:#9FB09A;font-size:1.1rem;margin-bottom:30px">{html.escape(pp["human_test"]["intro"])}</p>', .05, tag="div")}
-{rev(f'<div class="big-q">&ldquo;{html.escape(pp["human_test"]["question"])}&rdquo;</div>', .15)}
-{rev(f'<p class="after">{html.escape(pp["human_test"]["after"])}</p>', .3, tag="div")}
-</div></div>
+<section class="dark test"><canvas class="skyc" aria-hidden="true"></canvas><img class="wm" src="/images/logos/enso-hd.webp" alt="" loading="lazy" decoding="async"><div class="wrap" style="position:relative">
+  <div class="label tl rv">{esc(P_["human_test"]["label"])}</div>
+  <p style="color:var(--sageOnDark);font-size:1.02rem;margin-top:18px">{esc(P_["human_test"]["intro"])}</p>
+  <div class="big-q rv" style="--d:.15s">{big_q}</div>
+  <p class="after">{esc(P_["human_test"]["after"])}</p>
+</div></section>
 <section><div class="wrap">
-<div class="sec-label reveal">{html.escape(pp['way']['label'])}</div>
-{rev(f'<div class="statement" style="font-size:clamp(1.6rem,3.2vw,2.4rem)">{html.escape(pp["way"]["lede"])}</div>', .05)}
-<div style="height:48px"></div>
-{way_rows}
-<div style="height:80px"></div>
-{rev(f'<div class="closing">{closing_html}</div>', .1)}
-</div></section>"""
-(OUT / "philosophy.html").write_text(page(f"Philosophy — {site['name']}", philosophy, "Philosophy",
-    path="philosophy.html", desc="The Five Pillars, the Human Test, and the Directive 17 Way."))
+  <div class="label tl rv">{esc(P_["way"]["label"])}</div>
+  <h2 class="h1 rv" style="margin:14px 0 26px">{esc(P_["way"]["lede"])}</h2>
+  {"".join(f'<div class="way rv"><div class="no"><span class="nt">{esc(a)}</span>{STRIKE}</div><div class="yes">{esc(b)}</div></div>' for a, b in P_["way"]["pairs"])}
+  <p class="closing" style="margin-top:52px">{closing}</p>
+</div></section>
+"""
+t, d = pmeta("philosophy")
+page("philosophy.html", "philosophy", t, d, phil, current="/philosophy.html",
+     lds=[crumbs(HOME_CRUMB, (seo["pages"]["philosophy"]["crumb"], URL + "/philosophy.html"))])
 
 # ---------------- future
-fp = site["future_page"]
-pills = "".join(
-    f'<span class="reveal" style="--d:{.06*i:.2f}s">{html.escape(d)}</span>'
-    for i, d in enumerate(fp["domains"]))
+F_ = site["future_page"]
+_rot = ["-3deg", "2deg", "-1.5deg", "3deg", "-2deg", "1.5deg"]
 future = f"""
-<div class="hero" style="padding-bottom:56px"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">{html.escape(fp['kicker'])}</div>
-<div class="muted-line fade" style="--d:.2s">{html.escape(fp['old_q'])}</div>
-<h1 class="display" style="max-width:15ch">{words(fp['new_q'], .4, .09)}</h1>
+<div class="hero"><div class="wrap">
+  <div class="label tl fade" style="--d:.05s">{esc(F_["kicker"])}</div>
+  <div class="muted-line fade" style="--d:.25s;margin-top:22px">{esc(F_["old_q"])}</div>
+  <h1 class="display" style="max-width:13ch">{words(F_["new_q"])}</h1>
 </div></div>
-<div class="wrap"><hr class="rule"></div>
-<section style="padding-top:56px"><div class="wrap">
-<div class="domains">{pills}</div>
-{rev(f'<div class="bigtext"><p style="max-width:52ch">{html.escape(fp["body"])}</p></div>', .1)}
-<div style="height:24px"></div>
-{rev(f'<a class="btn" href="build.html">Build with us <span class="arr">&rarr;</span></a>', .2, tag="div")}
-</div></section>"""
-(OUT / "future.html").write_text(page(f"Future — {site['name']}", future, "Future", path="future.html",
-    desc="The better question is: what future is worth building?"))
-
-# ---------------- companies
-groups = []
-for c in companies:
-    g = c.get("group", "Portfolio")
-    if g not in groups:
-        groups.append(g)
-sections = ""
-for g in groups:
-    cards = "".join(company_card(c, delay=0.05 * (i % 6))
-                    for i, c in enumerate([c for c in companies if c.get("group", "Portfolio") == g]))
-    sections += f'<div class="group-label reveal">{html.escape(g)}</div><div class="grid">{cards}</div>'
-companies_body = f"""
-<div class="hero" style="padding-bottom:70px"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">Our Companies</div>
-<h1 class="display" style="max-width:20ch">{words('Different companies. One philosophy.', .25, .08)}</h1>
-</div></div>
-<section style="padding-top:20px"><div class="wrap">{sections}</div></section>"""
-(OUT / "companies.html").write_text(page(f"Companies — {site['name']}", companies_body, "Companies",
-    path="companies.html", desc="Different companies. One philosophy."))
-
-# ---------------- company overview pages: docs/companies/<slug>.html (one template, per-company copy)
-ov_companies = [c for c in companies if c.get("overview_paras")]
-(OUT / "companies").mkdir(exist_ok=True)
-
-def ov_logo_size(c):
-    """Size logos by visual area (not just width) so square and wide marks feel equally weighted."""
-    w, h = img_size(CONTENT / "images" / c["logo"])
-    r = w / h
-    gm = 150 if c.get("overview_logo_bg") != "dark" else 140   # target sqrt(w*h) in px
-    dw, dh = gm * r ** 0.5, gm / r ** 0.5
-    k = min(1, 340 / dw, 130 / dh) if c.get("overview_logo_bg") != "dark" else min(1, 300 / dw, 116 / dh)
-    return round(dw * k), round(dh * k)
-
-for i, c in enumerate(ov_companies):
-    nxt = ov_companies[(i + 1) % len(ov_companies)]
-    name = c.get("overview_name") or c["name"]
-    nname = nxt.get("overview_name") or nxt["name"]
-    lw, lh = ov_logo_size(c)
-    dark_bg = c.get("overview_logo_bg") == "dark"
-    logo = (f'<img src="../images/{c["logo"]}" alt="{html.escape(name, quote=True)} logo" '
-            f'width="{lw}" height="{lh}" style="--w:{lw}px;--h:{lh}px" decoding="async">')
-    paras = "".join(f"<p>{html.escape(t, quote=False)}</p>" for t in c["overview_paras"])
-    site_link = ""
-    if c.get("website"):
-        host = re.sub(r"^https?://(www\.)?", "", c["website"]).rstrip("/")
-        site_link = (f'<p class="ov-site"><a href="{html.escape(c["website"], quote=True)}" target="_blank" '
-                     f'rel="noopener">Visit {html.escape(host)} <span aria-hidden="true">&#8599;</span></a></p>')
-    _sents = re.split(r"(?<=[.!?])\s", c["overview_paras"][0])
-    first = _sents[0]
-    if len(first) < 80 and len(_sents) > 1:   # very short opener -> add the next sentence
-        first = f"{first} {_sents[1]}"
-    body = f"""
-<section class="ov"><div class="ov-wrap">
-<a class="ov-back fade" style="--d:.05s" href="../companies.html"><span aria-hidden="true">&larr;</span> All companies</a>
-<div class="ov-head">
-<div class="ov-logo{' ov-logo-dark' if dark_bg else ''} fade" style="--d:.12s">{logo}</div>
-<h1 class="ov-name fade" style="--d:.22s">{html.escape(name)}</h1>
-</div>
-<div class="ov-body fade" style="--d:.34s">{paras}{site_link}</div>
-<nav class="ov-foot" aria-label="Company navigation">
-<a href="../companies.html">All companies</a>
-<a href="{nxt['slug']}.html">Next company: {html.escape(nname)} <span aria-hidden="true">&rarr;</span></a>
-</nav>
-</div></section>"""
-    ld = {"@context": "https://schema.org", "@type": "WebPage", "name": f"{name} — Directive 17",
-          "url": f"https://{site['domain']}/companies/{c['slug']}.html",
-          "about": {"@type": "Organization", "name": name, "description": " ".join(c["overview_paras"]),
-                    **({"url": c["website"]} if c.get("website") else {})},
-          "isPartOf": {"@type": "WebSite", "name": "Directive 17", "url": f"https://{site['domain']}/"}}
-    (OUT / "companies" / f"{c['slug']}.html").write_text(
-        page(f"{name} — {site['name']}", body, "Companies", 1,
-             path=f"companies/{c['slug']}.html", desc=first, jsonld=ld))
-
-(OUT / "index.html").write_text(
-    page(f"{site['name']} — {site['tagline']}", home, "", 0, intro=True,
-         extra_js=SCROLLCUE_JS + NOTESHARE_JS + PROGRESS_JS))
-
-# ---------------- blog index (accordion)
-rows = "".join(f"""
-<article class="acc reveal" id="{p['slug']}" style="--d:{.06*i:.2f}s">
-<div class="acc-head" role="button" tabindex="0" aria-expanded="false">
-<div class="meta"><div class="date">{fmt_date(p['date'])}</div>
-<h3>{html.escape(p['title']).replace('/', '/<wbr>')}</h3></div>
-<button class="share-btn" data-slug="{p['slug']}" data-title="{html.escape(p['title'], quote=True)}">Share</button>
-<div class="chev">+</div>
-</div>
-<div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">{p['html']}</div></div></div>
-</article>""" for i, p in enumerate(posts))
-if not posts:
-    rows = '<p style="color:var(--muted);font-size:1.1rem">New posts coming soon.</p>'
-blog_body = f"""
-<div class="hero" style="padding-bottom:70px"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">Joel's Blog</div>
-<h1 class="display" style="max-width:19ch">{words("Joel's Tales from Weird Side", .25, .085)}</h1>
-<p class="sub fade" style="--d:1.05s">I wish I was making this shit up!</p>
-</div></div>
-<section style="padding-top:20px"><div class="wrap">{rows}</div></section>"""
-(OUT / "blog" / "index.html").write_text(
-    page(f"Joel's Tales from Weird Side — {site['name']}", blog_body, "Joel's Blog", 1,
-         extra_js=BLOG_JS + PROGRESS_JS, path="blog/",
-         desc="I wish I was making this shit up!"))
-
-# ---------------- individual post pages (own URL, own preview, crawlable text)
-for p in posts:
-    art_ld = {
-        "@context": "https://schema.org", "@type": "BlogPosting",
-        "headline": p["title"],
-        "datePublished": p["date"],
-        "description": p["excerpt"],
-        "author": {"@type": "Person", "name": "Joel Shapiro"},
-        "publisher": {"@type": "Organization", "name": "Directive 17",
-                      "logo": {"@type": "ImageObject",
-                               "url": f"https://{site['domain']}/images/logos/enso.png"}},
-        "mainEntityOfPage": f"https://{site['domain']}/blog/{p['slug']}.html",
-        "url": f"https://{site['domain']}/blog/{p['slug']}.html",
-    }
-    words_ct = max(1, round(len(re.sub(r"<[^>]+>", " ", p["html"]).split()) / 200))
-    _post_url = f"https://{site['domain']}/blog/{p['slug']}.html"
-    share_btn = (f'<button class="share-btn post-share-btn" type="button" data-url="{_post_url}" '
-                 f'data-title="{html.escape(p["title"])}">Share this post</button>')
-    post_body = f"""
-<div class="hero" style="padding-bottom:52px"><div class="wrap">
-<div class="kicker fade" style="--d:.05s">{fmt_date(p['date'])}</div>
-<h1 class="display note-head" style="max-width:20ch;font-size:clamp(2rem,4.4vw,3.4rem)">{words(p['title'], .25, .07)}</h1>
-<div class="post-share fade" style="--d:.5s">{share_btn}</div>
-</div></div>
-<section class="jd-intro" style="padding-top:52px;border-top:1px solid var(--line)">
-<div class="wrap">
-<div class="longform">{p['html']}</div>
-</div>
-</section>
-<div class="jd-end reveal"><div class="wrap">
-<img src="../images/logos/enso-sm.webp" width="56" height="55" loading="lazy" alt="">
-<div class="post-share post-share-end">{share_btn}</div>
-<div class="m-label-line"><a href="index.html">&larr; All posts</a></div>
-</div></div>"""
-    (OUT / "blog" / f"{p['slug']}.html").write_text(
-        page(f"{p['title']} — Joel's Blog — {site['name']}", post_body, "Joel's Blog", 1,
-             extra_js=FITHEAD_JS + PROGRESS_JS + POSTSHARE_JS, path=f"blog/{p['slug']}.html",
-             desc=p["excerpt"], jsonld=art_ld, og_type="article"))
+<section class="dark future-dk"><canvas class="skyc" aria-hidden="true"></canvas><div class="wrap">
+  <div class="stamps rv">{"".join(f'<span class="stamp" style="--i:{i};--r:{_rot[i % len(_rot)]}">{esc(x)}</span>' for i, x in enumerate(F_["domains"]))}</div>
+  <div class="bigtext"><p style="max-width:104ch;text-wrap:balance">{esc(F_["body"])}</p></div>
+  <a class="btn rv" style="margin-top:22px" href="build.html">Build with us <span class="arr">&rarr;</span></a>
+</div></section>
+"""
+t, d = pmeta("future")
+page("future.html", "future", t, d, future, current="/future.html",
+     lds=[crumbs(HOME_CRUMB, (seo["pages"]["future"]["crumb"], URL + "/future.html"))])
 
 # ---------------- build with us
-bp = site["build_page"]
-build_body = f"""
-<div class="hero hero-home"><div class="wrap hero-flex">
-<div>
-<div class="kicker fade" style="--d:.05s">Build With Us</div>
-<h1 class="display">{words(bp['headline'], .25, .1)}</h1>
-<p class="sub fade" style="--d:.7s">{html.escape(bp['body'])}</p>
-<div class="fade cta-row" style="--d:.95s;margin-top:40px">
-<a class="btn" href="mailto:{site['contact_email']}">{html.escape(bp['button'])} <span class="arr">&rarr;</span></a>
-<a class="icon-btn" href="{site['linkedin']}" target="_blank" rel="noopener" aria-label="Directive 17 on LinkedIn">{LI_SVG}</a>
-</div>
-<p class="fade" style="--d:1.15s;margin-top:18px;font-family:var(--sans);font-size:.85rem;color:var(--muted)">{site['contact_email']}</p>
-</div>
-<div class="hero-enso floaty"><img src="images/logos/enso.webp" width="1114" height="1098" alt="Directive 17 enso"></div>
-</div></div>"""
-(OUT / "build.html").write_text(page(f"Build With Us — {site['name']}", build_body, "Build With Us",
-    path="build.html", desc="The future is built by people who believe it can be better."))
+B_ = site["build_page"]
+LI_SVG = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>')
+build = f"""
+<div class="hero build dark"><canvas class="skyc" aria-hidden="true"></canvas><div class="wrap">
+  <div><div class="label tl fade" style="--d:.05s">{esc(B_["kicker"])}</div>
+  <h1 class="display" style="margin-top:20px">{words(B_["headline"])}</h1>
+  <p class="lede fade" style="--d:.8s;margin-top:20px">{esc(B_["body"])}</p>
+  <div class="actions fade" style="--d:1s"><a class="btn" href="mailto:{EMAIL}">{esc(B_["button"])} <span class="arr">&rarr;</span></a>
+    <a class="icon" href="{site["linkedin"]}" target="_blank" rel="noopener" aria-label="{esc(site["name"])} on LinkedIn">{LI_SVG}</a></div>
+  <p class="em fade" style="--d:1.2s">{EMAIL}</p></div>
+  <div class="enso-wrap breathe"><img class="paint go" src="/images/logos/enso-hd.webp" alt="" width="{ENSO_HD[0]}" height="{ENSO_HD[1]}"></div>
+</div></div>
+"""
+t, d = pmeta("build", email=EMAIL)
+page("build.html", "build", t, d, build, current="/build.html",
+     lds=[crumbs(HOME_CRUMB, (seo["pages"]["build"]["crumb"], URL + "/build.html"))])
 
+# ---------------- companies (orbit + list + overview drawer) and one page per company
+for c in companies:
+    f = CONTENT / "companies" / f'{c["slug"]}.md'
+    c["paras"] = [b.strip() for b in re.split(r"\n\s*\n", read(f)) if b.strip()] if f.exists() else []
+    c["show"] = c.get("overview_name") or c["name"]          # how the company is named on its page and in lists
+    c["dark"] = c.get("overview_logo_bg") == "dark"
+groups = []
+for c in companies:
+    if c["group"] not in groups:
+        groups.append(c["group"])
+CP = site["companies_page"]
+orbit = [c for c in companies if c["group"] == groups[0]]
+
+
+def first_sentence(text, min_len=80):
+    """The opening sentence for search/share previews; a very short opener takes the next sentence too."""
+    out = ""
+    for s in re.findall(r".+?[.!?](?=\s|$)", text) or [text]:
+        out = (out + " " + s.strip()).strip()
+        if len(out) >= min_len:
+            break
+    return out
+
+
+def site_label(url):
+    return re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
+
+
+pls = "".join(
+    f'<a class="pl" href="companies/{c["slug"]}.html" data-slug="{c["slug"]}" data-name="{esc(c["show"])}" data-group="{esc(c["group"])}">'
+    f'<span class="disc"><img src="/images/{c["logo"]}" alt="{esc(c["show"])} logo" style="width:{c.get("orbit_logo_width", "60%")}" decoding="async"></span>'
+    f'<span class="nm">{esc(c["name"])}</span></a>' for c in orbit)
+coindex = "".join(
+    f'<div><h2 class="label">{esc(g)} <b>{sum(1 for c in companies if c["group"] == g):02d}</b></h2><ul>'
+    + "".join(f'<li><a href="companies/{c["slug"]}.html">{esc(c["show"])}<span aria-hidden="true">&rarr;</span></a></li>'
+              for c in companies if c["group"] == g) + "</ul></div>" for g in groups)
+
+
+def nx_link(c, prev_c, next_c):
+    return (f'<div class="nx"><a href="companies/{prev_c["slug"]}.html" data-go="{prev_c["slug"]}">&larr; {esc(prev_c["show"])}</a>'
+            f'<a href="companies/{next_c["slug"]}.html" data-go="{next_c["slug"]}">{esc(next_c["show"])} &rarr;</a></div>')
+
+
+templates = ""
+for i, c in enumerate(orbit):
+    pc, nc = orbit[i - 1], orbit[(i + 1) % len(orbit)]
+    templates += (f'<template id="ov-{c["slug"]}"><div class="dh"><span class="label">{esc(c["group"])}</span>'
+                  '<button type="button" data-close>Close &times;</button></div><div class="db">'
+                  f'<div class="lg{" dk" if c["dark"] else ""}"><img data-src="/images/{c["logo"]}" alt="{esc(c["show"])} logo" style="width:{c.get("drawer_logo_width", "50%")}"></div>'
+                  f'<h2>{esc(c["show"])}</h2>' + "".join(f"<p>{esc(p, quote=False)}</p>" for p in c["paras"])
+                  + nx_link(c, pc, nc) + "</div></template>")
+cos = f"""
+<section class="dark cos"><canvas class="skyc" aria-hidden="true"></canvas><div class="wrap">
+  <div class="cohead fade" style="--d:.05s"><div class="label tl">{esc(CP["kicker"])}</div><a class="tolist" href="#all-companies">{esc(CP["list_link"])} <span aria-hidden="true">&darr;</span></a></div>
+  <h1 class="display" style="margin-top:18px;font-size:clamp(2.1rem,4.4vw,4.4rem)">{words(CP["headline"])}</h1>
+  <div class="orb" id="orb">
+    <svg class="tracks" aria-hidden="true"><ellipse id="trIn"/></svg>
+    <div class="core" id="core"><img src="/images/logos/enso-hd.webp" alt="" decoding="async"></div>
+    <div class="readout" id="readout" aria-hidden="true"><span class="cg" id="coreG"></span><span class="cn" id="coreN"></span></div>
+    <div class="ph" id="phI"><span class="label">{esc(groups[0])}</span><b>{len(orbit):02d}</b></div>
+    <div class="cap" id="capI" aria-hidden="true"></div>
+    {pls}
+  </div>
+  <div class="coindex" id="all-companies" aria-label="All companies">{coindex}</div>
+</div></section>
+<div class="scrim" id="scrim"></div><aside class="drawer" id="drawer" aria-hidden="true" aria-label="Company overview"></aside>
+{templates}
+"""
+
+
+def join_names(names):
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
+co_desc = seo["pages"]["companies"]["description_intro"] + "".join(
+    f' {g}: {join_names([c["show"] for c in companies if c["group"] == g])}.' for g in groups)
+page("companies.html", "companies", seo["pages"]["companies"]["title"], co_desc, cos, current="/companies.html",
+     lds=[{"@context": "https://schema.org", "@type": "ItemList", "name": g,
+           "numberOfItems": sum(1 for c in companies if c["group"] == g),
+           "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": c["show"], "url": f'{URL}/companies/{c["slug"]}.html'}
+                               for i, c in enumerate([c for c in companies if c["group"] == g])]} for g in groups]
+         + [crumbs(HOME_CRUMB, (seo["pages"]["companies"]["crumb"], URL + "/companies.html"))])
+
+with_pages = [c for c in companies if c["paras"]]
+for i, c in enumerate(with_pages):
+    nc = with_pages[(i + 1) % len(with_pages)]
+    cu = f'{URL}/companies/{c["slug"]}.html'
+    site_link = (f'\n      <a class="ov-site rv" href="{c["website"]}" target="_blank" rel="noopener">Visit {site_label(c["website"])} &#8599;</a>'
+                 if c.get("website") else "\n      ")
+    body = f"""<div class="ov-page"><div class="wrap">
+  <a class="back fade" style="--d:0s" href="../companies.html">&larr; All companies</a>
+  <div class="ov-grid">
+    <div class="ov-left"><div class="ov-logo{" dk" if c["dark"] else ""} fade" style="--d:.05s"><img src="/images/{c["logo"]}" alt="{esc(c["show"])} logo" style="width:{c.get("page_logo_width", "240px")};height:auto" loading="lazy" decoding="async"></div>
+      <h1 class="ov-name">{words(c["show"])}</h1></div>
+    <div class="ov-body">{"".join(f"<p>{esc(p, quote=False)}</p>" for p in c["paras"])}{site_link}</div>
+  </div>
+  <a class="next rv" href="{nc["slug"]}.html"><div><div class="label" style="margin-bottom:14px">Next company</div><div class="big">{esc(nc["show"])} &rarr;</div></div>
+    <div class="nt{" dk" if nc["dark"] else ""}"><img src="/images/{nc["logo"]}" alt="{esc(nc["show"])} logo" style="width:{nc.get("thumb_logo_width", "80px")};height:auto" loading="lazy" decoding="async"></div></a>
+</div></div>
+"""
+    about = {"@type": "Organization", "name": c["show"], "description": " ".join(c["paras"])}
+    if c.get("website"):
+        about["url"] = c["website"]
+    title = seo["company_title"].format(name=c["show"])
+    page(f'companies/{c["slug"]}.html', "company", title, first_sentence(c["paras"][0]), body, current="/companies.html",
+         lds=[{"@context": "https://schema.org", "@type": "WebPage", "name": title, "url": cu, "about": about,
+               "isPartOf": {"@type": "WebSite", "@id": URL + "/#website", "name": site["name"], "url": URL + "/"}},
+              crumbs(HOME_CRUMB, (seo["pages"]["companies"]["crumb"], URL + "/companies.html"), (c["show"], cu))])
+
+# ---------------- blog index
+rows, month = [], None
+for p in posts:
+    m = f'{as_date(p["date"]):%B} {as_date(p["date"]).year}'
+    if m != month:
+        rows.append(f'<div class="month rv">{m}</div>'); month = m
+    rows.append(f'<a class="prow rv" href="{p["slug"]}.html" data-slug="{p["slug"]}"><div class="d">{as_date(p["date"]):%B} {as_date(p["date"]).day}</div>'
+                f'<div><h3>{wbr(tx(p["title"]))}</h3><p>{esc(p["excerpt"])}</p></div><div class="m">{minutes(p["words"])} MIN</div></a>')
+blog = f"""
+<div class="hero"><div class="wrap">
+  <div class="label tl fade" style="--d:.05s">{tx(BLOG["kicker"])}</div>
+  <h1 class="display" style="margin-top:20px;font-size:clamp(2.1rem,4.9vw,5rem);max-width:14ch">{words(BLOG["title"])}</h1>
+  <p class="lede fade" style="--d:1s;margin-top:18px;font-style:italic">{esc(BLOG["tagline"])}</p>
+</div></div>
+<section style="padding-top:0"><div class="wrap"><div class="posts">
+{"".join(rows)}
+</div></div></section>
+"""
+BLOG_URL = URL + "/blog/"
+page("blog/index.html", "blog", seo["pages"]["blog"]["title"],
+     seo["pages"]["blog"]["description"].format(blog_title=BLOG["title"], blog_tagline=BLOG["tagline"]), blog, current="/blog/",
+     lds=[{"@context": "https://schema.org", "@type": "Blog", "@id": BLOG_URL + "#blog", "name": BLOG["title"],
+           "description": seo["pages"]["blog"]["description"].format(blog_title=BLOG["title"], blog_tagline=BLOG["tagline"]),
+           "url": BLOG_URL, "inLanguage": "en", "author": FOUNDER, "publisher": PUBLISHER,
+           "blogPost": [{"@type": "BlogPosting", "headline": p["title"], "url": f'{BLOG_URL}{p["slug"]}.html', "datePublished": p["date"]} for p in posts]},
+          crumbs(HOME_CRUMB, (seo["pages"]["blog"]["crumb"], BLOG_URL))])
+
+# ---------------- one page per post
+for i, p in enumerate(posts):
+    pu = f'{BLOG_URL}{p["slug"]}.html'
+    older = posts[i + 1] if i + 1 < len(posts) else None
+    newer = posts[i - 1] if i > 0 else None
+    pn = ""
+    if older or newer:
+        pn = ('<div class="pn">'
+              + (f'<a href="{older["slug"]}.html"><small>&larr; Previous</small><b>{wbr(md_inline(older["title"]))}</b></a>' if older else "<span></span>")
+              + (f'<a class="r" href="{newer["slug"]}.html"><small>Next &rarr;</small><b>{wbr(md_inline(newer["title"]))}</b></a>' if newer else "")
+              + "</div>")
+    body = f"""
+<article class="article"><div class="wrap">
+  <div class="head"><a class="back" href="index.html">&larr; All posts</a>
+  <h1>{words(p["title"], fmt=wbr)}</h1>
+  <div class="byline fade" style="--d:.6s"><img src="/images/logos/enso-sm.webp" alt=""><span>{long_date(p["date"])} <span class="sep">&middot;</span> {minutes(p["words"])} min read</span><button class="share" type="button" data-share="{pu}" data-title="{esc(p["title"])}">Share</button></div></div>
+  <div class="prose">{p["html"]}</div>
+  {endmark(pu, p["title"])}
+  {pn}
+</div></article>
+"""
+    page(f'blog/{p["slug"]}.html', "post", seo["post_title"].format(title=p["title"]), p["excerpt"], body,
+         current="/blog/", og_type="article", ring=True,
+         lds=[{"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["title"], "datePublished": p["date"],
+               "description": p["excerpt"], "author": FOUNDER, "publisher": PUBLISHER, "image": URL + "/images/og-card.png",
+               "inLanguage": "en", "wordCount": p["words"], "isPartOf": {"@id": BLOG_URL + "#blog"},
+               "mainEntityOfPage": pu, "url": pu},
+              crumbs(HOME_CRUMB, (seo["pages"]["blog"]["crumb"], BLOG_URL), (p["title"], pu))])
+
+# old link: Joel's Directive became a blog post
+write(OUT / "joels-directive.html",
+      '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+      '<title>Stop Watching. Start F@cking Creating. — Directive 17</title>'
+      '<link rel="canonical" href="https://directive17.com/blog/stop-watching-start-creating.html">'
+      '<meta http-equiv="refresh" content="0; url=blog/stop-watching-start-creating.html">'
+      '<script>location.replace("blog/stop-watching-start-creating.html")</script></head>'
+      '<body style="background:#FBF7EC"></body></html>')
+
+# ---------------- 404 (root-relative links: GitHub Pages serves it at any path)
+NF = site["notfound_page"]
+nf = f"""
+<div class="hero"><div class="wrap">
+  <div class="label tl fade" style="--d:.05s">{esc(NF["kicker"])}</div>
+  <h1 class="display" style="margin-top:20px;max-width:14ch">{words(NF["headline"])}</h1>
+  <p class="lede fade" style="--d:.8s;margin-top:20px">{tx(NF["body"])}</p>
+  <p class="fade" style="--d:1s;margin-top:26px"><a class="btn" href="/">{esc(NF["button"])} <span class="arr">&rarr;</span></a></p>
+</div></div>
+"""
+t, d = pmeta("404")
+page("404.html", "404", t, d, nf)
+
+# ---------------- RSS feed
+def xml(s):
+    return html.escape(str(s), quote=True).replace("&#x27;", "'")
+
+
+def rfc822(d):
+    return as_date(d).strftime("%a, %d %b %Y") + " 12:00:00 GMT"
+
+
+TODAY = date.today().isoformat()
+items = "\n".join(f'<item><title>{xml(p["title"])}</title><link>{BLOG_URL}{p["slug"]}.html</link>'
+                  f'<guid isPermaLink="true">{BLOG_URL}{p["slug"]}.html</guid><pubDate>{rfc822(p["date"])}</pubDate>'
+                  f'<description>{xml(p["excerpt"])}</description></item>' for p in posts)
+blog_desc = seo["pages"]["blog"]["description"].format(blog_title=BLOG["title"], blog_tagline=BLOG["tagline"])
+write(OUT / "blog" / "feed.xml",
+      '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n'
+      f'<title>{xml(BLOG["title"])} — {xml(site["name"])}</title>\n<link>{BLOG_URL}</link>\n'
+      f'<atom:link href="{BLOG_URL}feed.xml" rel="self" type="application/rss+xml"/>\n<description>{xml(blog_desc)}</description>\n'
+      f'<language>en</language>\n<lastBuildDate>{rfc822(TODAY)}</lastBuildDate>\n{items}\n</channel>\n</rss>\n')
+
+# ---------------- crawler files: sitemap, robots (AI bots welcome), llms.txt
+_urls = ["", "why.html", "philosophy.html", "companies.html", "future.html", "build.html", "blog/"] \
+        + [f"blog/{p['slug']}.html" for p in posts] + [f"companies/{c['slug']}.html" for c in with_pages] + ["founders-note.html"]
+_sm = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+for u in _urls:
+    pri = "1.0" if u == "" else ("0.8" if u.startswith("blog") else "0.7")
+    _sm.append(f"<url><loc>{URL}/{u}</loc><lastmod>{TODAY}</lastmod><priority>{pri}</priority></url>")
+_sm.append("</urlset>")
+write(OUT / "sitemap.xml", "\n".join(_sm) + "\n")
+
+# AI crawlers are explicitly welcomed; the confidential deck viewers are not indexed
+_ai_bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User",
+            "Claude-SearchBot", "anthropic-ai", "PerplexityBot", "Perplexity-User",
+            "Google-Extended", "Applebot-Extended", "CCBot", "Bytespider", "meta-externalagent"]
+_rb = ["# Directive 17 — all crawlers welcome, including AI assistants",
+       "User-agent: *", "Allow: /", "Disallow: /decks/", ""]
+for bot in _ai_bots:
+    _rb += [f"User-agent: {bot}", "Allow: /", "Disallow: /decks/", ""]
+_rb.append(f"Sitemap: {URL}/sitemap.xml")
+write(OUT / "robots.txt", "\n".join(_rb))
+
+_ll = ["# Directive 17", "", f"> {site['subline']} {site['tagline']}", "",
+       "Directive 17 is a venture firm founded by Joel Shapiro. Every company "
+       "begins with one question: how will this make someone's life better? Only then do we "
+       "ask whether it can become a great business.", "",
+       "## Pages", ""]
+_ll += [f"- [Why We Exist]({URL}/why.html): Most organizations begin with markets. We begin with people.",
+        f"- [Philosophy]({URL}/philosophy.html): The Five Pillars — happiness, health, trust, connection, human potential — and the Human Test.",
+        f"- [Companies]({URL}/companies.html): Portfolio companies. Different companies. One philosophy.",
+        f"- [The Future We See]({URL}/future.html): What future is worth building?",
+        f"- [Build With Us]({URL}/build.html): Contact — {EMAIL}",
+        f"- [A Note from the Founder]({URL}/founders-note.html): Joel Shapiro on why Directive 17 exists and what it invests in.",
+        "", "## Companies", ""]
+_ll += [f"- [{c['show']}]({URL}/companies/{c['slug']}.html): {c['paras'][0]}" for c in with_pages]
+_ll += ["", "## Joel's Blog", ""]
+_ll += [f"- [{p['title']}]({URL}/blog/{p['slug']}.html): {p['excerpt']}" for p in posts]
+write(OUT / "llms.txt", "\n".join(_ll) + "\n")
+
+# ---------------- password-protected deck viewers (unchanged from the previous builder)
 # ---------------- password-protected deck viewers
 DECK_CSS = """
 :root{--bg:#FBF7EC;--deep:#203C2D;--accent:#D98B33;--line:#3A5344;--cream:#F5F1E2;
@@ -1525,7 +864,7 @@ if decks_src.exists():
     (OUT / "decks").mkdir(exist_ok=True)
     for packf in sorted(decks_src.glob("*.pack")):
         slug = packf.stem
-        meta = json.loads((decks_src / f"{slug}.json").read_text())
+        meta = json.loads((decks_src / f"{slug}.json").read_text(encoding="utf-8"))
         shutil.copy(packf, OUT / "decks" / packf.name)
         title = meta["title"]
         viewer = f"""<!DOCTYPE html>
@@ -1571,70 +910,7 @@ Need access? <span style="color:var(--cream)">{site['contact_email']}</span></di
 <script>{deck_js(slug, meta)}</script>
 </body>
 </html>"""
-        (OUT / "decks" / f"{slug}.html").write_text(viewer)
+        write(OUT / "decks" / f"{slug}.html", viewer)
 
-# ---------------- 404 (root-relative links: GitHub Pages serves this at any path)
-nf_body = f"""
-<div class="hero hero-home"><div class="wrap hero-flex">
-<div>
-<div class="kicker fade" style="--d:.05s">404</div>
-<h1 class="display">{words("This page doesn't exist.", .2, .08)}</h1>
-<p class="sub fade" style="--d:.8s">The future does. Let's get you back to it.</p>
-<p class="fade" style="--d:1s;margin-top:36px"><a class="btn" href="/">Back home <span class="arr">&rarr;</span></a></p>
-</div>
-<div class="hero-enso floaty"><img src="/images/logos/enso.webp" alt="Directive 17 enso"></div>
-</div></div>"""
-nf = page(f"Not Found — {site['name']}", nf_body, "", 0, path="404.html",
-          desc="This page doesn't exist. The future does.")
-nf = nf.replace('href="images/', 'href="/images/').replace('src="images/', 'src="/images/')
-nf = nf.replace('href="index.html"', 'href="/"')
-for _n in site["nav"]:
-    _h = _n["href"].lstrip("/")
-    nf = nf.replace(f'href="{_h}"', f'href="/{_h}"')
-(OUT / "404.html").write_text(nf)
-
-# ---------------- crawler files: sitemap, robots (AI bots welcome), llms.txt
-from datetime import date as _date
-_today = _date.today().isoformat()
-_urls = ["", "why.html", "philosophy.html", "companies.html", "future.html",
-         "build.html", "blog/"] + [f"blog/{p['slug']}.html" for p in posts] \
-        + [f"companies/{c['slug']}.html" for c in companies if c.get("overview_paras")]
-_sm = ['<?xml version="1.0" encoding="UTF-8"?>',
-       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-for u in _urls:
-    pri = "1.0" if u == "" else ("0.8" if u.startswith("blog") else "0.7")
-    _sm.append(f"<url><loc>https://{site['domain']}/{u}</loc>"
-               f"<lastmod>{_today}</lastmod><priority>{pri}</priority></url>")
-_sm.append("</urlset>")
-(OUT / "sitemap.xml").write_text("\n".join(_sm))
-
-# AI crawlers are explicitly welcomed; the confidential deck viewers are not indexed
-_ai_bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User",
-            "Claude-SearchBot", "anthropic-ai", "PerplexityBot", "Perplexity-User",
-            "Google-Extended", "Applebot-Extended", "CCBot", "Bytespider", "meta-externalagent"]
-_rb = ["# Directive 17 — all crawlers welcome, including AI assistants",
-       "User-agent: *", "Allow: /", "Disallow: /decks/", ""]
-for bot in _ai_bots:
-    _rb += [f"User-agent: {bot}", "Allow: /", "Disallow: /decks/", ""]
-_rb.append(f"Sitemap: https://{site['domain']}/sitemap.xml")
-(OUT / "robots.txt").write_text("\n".join(_rb))
-
-_ll = [f"# Directive 17", "", f"> {site['subline']} {site['tagline']}", "",
-       "Directive 17 is a venture firm founded by Joel Shapiro. Every company "
-       "begins with one question: how will this make someone's life better? Only then do we "
-       "ask whether it can become a great business.", "",
-       "## Pages", ""]
-_ll += [f"- [Why We Exist](https://{site['domain']}/why.html): Most organizations begin with markets. We begin with people.",
-        f"- [Philosophy](https://{site['domain']}/philosophy.html): The Five Pillars — happiness, health, trust, connection, human potential — and the Human Test.",
-        f"- [Companies](https://{site['domain']}/companies.html): Portfolio companies. Different companies. One philosophy.",
-        f"- [The Future We See](https://{site['domain']}/future.html): What future is worth building?",
-        f"- [Build With Us](https://{site['domain']}/build.html): Contact — {site['contact_email']}",
-        f"- [A Note from the Founder](https://{site['domain']}/#founder-note): Joel Shapiro on why Directive 17 exists and what it invests in.",
-        "", "## Companies", ""]
-_ll += [f"- [{c.get('overview_name') or c['name']}](https://{site['domain']}/companies/{c['slug']}.html): "
-        f"{c['overview_paras'][0]}" for c in companies if c.get("overview_paras")]
-_ll += ["", "## Joel's Blog", ""]
-_ll += [f"- [{p['title']}](https://{site['domain']}/blog/{p['slug']}.html): {p['excerpt']}" for p in posts]
-(OUT / "llms.txt").write_text("\n".join(_ll) + "\n")
 
 print(f"Built {len(list(OUT.rglob('*.html')))} pages, {len(posts)} posts, {len(companies)} companies -> docs/")
