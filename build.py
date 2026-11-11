@@ -15,7 +15,7 @@ Words live in content/:
   content/decks/           - encrypted investor decks (see tools/encrypt_deck.py)
 The look lives in theme/: site.css, site.js and fonts/ (copied to docs/assets/).
 """
-import json, re, shutil, html
+import json, re, shutil, html, hashlib
 from pathlib import Path
 from datetime import date
 
@@ -23,6 +23,17 @@ ROOT = Path(__file__).parent
 CONTENT = ROOT / "content"
 THEME = ROOT / "theme"
 OUT = ROOT / "docs"
+
+
+def versioned(name):
+    """/assets/<name>?v=<fingerprint of the file>. When the look changes, every page points at a new address, so a phone
+    that reloads gets the new stylesheet/script at once instead of a saved copy (GitHub Pages lets browsers keep files
+    for 10 minutes). Line endings are ignored, so a Windows checkout builds the same pages."""
+    data = (THEME / name).read_bytes().replace(b"\r\n", b"\n")
+    return f"/assets/{name}?v={hashlib.sha256(data).hexdigest()[:10]}"
+
+
+CSS_URL, JS_URL = versioned("site.css"), versioned("site.js")
 
 
 def read(p):
@@ -263,7 +274,7 @@ def page(path, data_page, title, desc, body, current="", og_type="website", lds=
         '<link rel="icon" type="image/png" href="/images/logos/enso.png">\n<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">\n'
         f'<link rel="alternate" type="application/rss+xml" title="{esc(BLOG["title"] + " — " + site["name"])}" href="{URL}/blog/feed.xml">\n'
         + head_extra +
-        '<link rel="stylesheet" href="/assets/site.css">\n' + NOSCRIPT + "\n" + ld(ORG) + "".join(ld(x) for x in lds) + "\n</head>\n")
+        '<link rel="stylesheet" href="' + CSS_URL + '">\n' + NOSCRIPT + "\n" + ld(ORG) + "".join(ld(x) for x in lds) + "\n</head>\n")
     chrome = (
         f'<body data-page="{data_page}">\n' + (INTRO_HTML if intro else "")
         + '<a class="skip" href="#main">Skip to content</a>\n'
@@ -276,7 +287,7 @@ def page(path, data_page, title, desc, body, current="", og_type="website", lds=
         + '<main id="main">\n')
     goat = (f'<script data-goatcounter="https://{site["goatcounter"]}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
             if site.get("goatcounter") else "")
-    write(OUT / path, head + chrome + body + "</main>\n\n<script src=\"/assets/site.js\"></script>\n" + goat + "</body>\n</html>")
+    write(OUT / path, head + chrome + body + "</main>\n\n<script src=\"" + JS_URL + "\"></script>\n" + goat + "</body>\n</html>")
 
 
 def pmeta(key, **kw):

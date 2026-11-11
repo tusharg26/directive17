@@ -17,6 +17,9 @@ The official Directive 17 website. Live at https://directive17.com via GitHub Pa
   - `content/posts/*.md` — blog posts, one file each, named `YYYY-MM-DD-slug.md`
   - `content/images/logos/` — company logos and the enso mark
 - **`theme/`** is the look: `site.css`, `site.js` and the font files (copied to `docs/assets/`).
+  Pages link them with a version tag (`site.js?v=…`) taken from the file's contents, so after a
+  change a reload shows it at once. Editing `site.css` or `site.js` therefore changes every page in
+  `docs/`: upload all of them.
 - **`build.py`** turns content + theme into the finished site. Run `python3 build.py` (no dependencies).
 - **`docs/`** is the generated output that GitHub Pages serves. Never edit it by hand —
   edit `content/`, rebuild, and commit both.
