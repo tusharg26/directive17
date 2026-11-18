@@ -4,6 +4,24 @@
  "heading": "The people behind Directive 17.",
  "people": [
   {
+   "name": "Joel Shapiro",
+   "slug": "joel-shapiro",
+   "position": "CEO and Founder",
+   "bio": [
+    "Joel Shapiro is Founder & Chief Executive Officer of Directive 17, where he leads the firm’s work building and investing in companies that improve the human experience. He brings more than 35 years of experience in investing and business leadership and has raised billions of dollars in capital over his career. Before D17, he founded Shapiro Carter, which later became Shapiro Capital Management, and served as CEO and Managing Partner of Timbervest.",
+    "He started D17 with the belief that a successful business should make people’s lives better as well as generate a return. That conviction takes him across technology, health, hospitality, sports, and entertainment, looking for ways to help people connect, feel better, and enjoy being alive. He wants the companies D17 builds to give people more reasons to laugh, gather, and experience something worth remembering. Making people smile is a serious investment thesis around here."
+   ]
+  },
+  {
+   "name": "Bria Black",
+   "slug": "bria-black",
+   "position": "President and COO",
+   "bio": [
+    "Bria Black is President & Chief Operating Officer at Directive 17, where she oversees operations, execution, and growth across the firm’s ventures and investment portfolio. Her background spans business development, luxury hospitality, and private membership. Before D17, she led business development at Collectible Fine Wine and served as Opening Managing Director and General Manager of Lion’s Head Private Members Club. Earlier, she was part of the management team at Atlas at The St. Regis Atlanta, which later earned a Michelin star.",
+    "At D17, Bria helps turn ambitious ideas into businesses that can last. She translates strategy into practical plans, builds the systems needed for growth, and guides ventures from concept into operation. Her experience managing relationships and hospitality businesses informs the work of bringing people together and making those plans happen."
+   ]
+  },
+  {
    "name": "Tushar Gidadhubli",
    "slug": "tushar-gidadhubli",
    "position": "Chief Administrative Officer",
@@ -19,24 +37,6 @@
    "bio": [
     "Stuart Jacobson is Chief Technology Officer at Directive 17, where he builds AI tools and automation for business operations and creative projects. He graduated magna cum laude from Virginia Tech with a degree in mechanical engineering and a minor in biomedical engineering. His background spans medical-device development, manufacturing, and software automation, giving him experience building both physical products and digital tools.",
     "He joined D17 for the opportunity to work across industries and take on different kinds of problems. He hopes the companies it builds will help people find community and feel more connected to one another. Outside work, he enjoys golf, spending time with his dog, and meeting new people."
-   ]
-  },
-  {
-   "name": "Bria Black",
-   "slug": "bria-black",
-   "position": "President and COO",
-   "bio": [
-    "Bria Black is President & Chief Operating Officer at Directive 17, where she oversees operations, execution, and growth across the firm’s ventures and investment portfolio. Her background spans business development, luxury hospitality, and private membership. Before D17, she led business development at Collectible Fine Wine and served as Opening Managing Director and General Manager of Lion’s Head Private Members Club. Earlier, she was part of the management team at Atlas at The St. Regis Atlanta, which later earned a Michelin star.",
-    "At D17, Bria helps turn ambitious ideas into businesses that can last. She translates strategy into practical plans, builds the systems needed for growth, and guides ventures from concept into operation. Her experience managing relationships and hospitality businesses informs the work of bringing people together and making those plans happen."
-   ]
-  },
-  {
-   "name": "Joel Shapiro",
-   "slug": "joel-shapiro",
-   "position": "CEO and Founder",
-   "bio": [
-    "Joel Shapiro is Founder & Chief Executive Officer of Directive 17, where he leads the firm’s work building and investing in companies that improve the human experience. He brings more than 35 years of experience in investing and business leadership and has raised billions of dollars in capital over his career. Before D17, he founded Shapiro Carter, which later became Shapiro Capital Management, and served as CEO and Managing Partner of Timbervest.",
-    "He started D17 with the belief that a successful business should make people’s lives better as well as generate a return. That conviction takes him across technology, health, hospitality, sports, and entertainment, looking for ways to help people connect, feel better, and enjoy being alive. He wants the companies D17 builds to give people more reasons to laugh, gather, and experience something worth remembering. Making people smile is a serious investment thesis around here."
    ]
   },
   {

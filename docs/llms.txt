@@ -8,7 +8,7 @@ Directive 17 is a venture firm founded by Joel Shapiro. Every company begins wit
 
 - [Why We Exist](https://directive17.com/why.html): Most organizations begin with markets. We begin with people.
 - [Philosophy](https://directive17.com/philosophy.html): The Five Pillars — happiness, health, trust, connection, human potential — and the Human Test.
-- [Team](https://directive17.com/team.html): The people behind Directive 17 — Tushar Gidadhubli, Chief Administrative Officer; Stuart Jacobson, Chief Technology Officer; Bria Black, President and COO; Joel Shapiro, CEO and Founder; Avery Schuhardt, Chief Fun Officer; Dylan Werner, Intern.
+- [Team](https://directive17.com/team.html): The people behind Directive 17 — Joel Shapiro, CEO and Founder; Bria Black, President and COO; Tushar Gidadhubli, Chief Administrative Officer; Stuart Jacobson, Chief Technology Officer; Avery Schuhardt, Chief Fun Officer; Dylan Werner, Intern.
 - [Companies](https://directive17.com/companies.html): Portfolio companies. Different companies. One philosophy.
 - [The Future We See](https://directive17.com/future.html): What future is worth building?
 - [Build With Us](https://directive17.com/build.html): Contact — info@directive17.com
