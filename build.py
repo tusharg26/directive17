@@ -231,9 +231,9 @@ def nav(prefix, current):
     n = len(site["nav"])
     items = []
     for i, it in enumerate(site["nav"]):
-        deg = round(360 * i / n)
+        deg = round(it["deg"]) if "deg" in it else round(360 * i / n)
         cls = "c" if deg in (0, 180) else ("r" if deg < 180 else "l")
-        if n == 6:
+        if n == 6 and not any("deg" in x for x in site["nav"]):
             style = NAV_STYLES[i]
         else:
             import math
@@ -242,7 +242,8 @@ def nav(prefix, current):
         cur = it["href"] == current
         items.append(f'<a class="item {cls}{" cur" if cur else ""}" href="{prefix}{it["href"].lstrip("/")}" data-deg="{deg}"'
                      f'{" aria-current=" + chr(34) + "page" + chr(34) if cur else ""} style="{style}"><span>{esc(it["label"])}</span></a>')
-    return ('<nav class="menu" id="menu" aria-label="Site menu"><div class="circle" id="circle">'
+    ring = " many" if n != 6 or any("deg" in x for x in site["nav"]) else ""
+    return (f'<nav class="menu" id="menu" aria-label="Site menu"><div class="circle{ring}" id="circle">'
             f'<div class="spin" id="spin"><img src="/images/logos/enso-hd.webp" alt="" width="{ENSO_HD[0]}" height="{ENSO_HD[1]}" decoding="async" fetchpriority="low"></div>'
             '<span class="spark" id="spark"></span>' + "".join(items) +
             f'<div class="ctr"><a class="contact" href="mailto:{EMAIL}">Contact</a></div></div>'
@@ -250,7 +251,7 @@ def nav(prefix, current):
 
 
 def page(path, data_page, title, desc, body, current="", og_type="website", lds=(), head_extra="", ring=False,
-         dark_top=False, intro=False):
+         dark_top=False, intro=False, head_after=""):
     """A full page. path is relative to the site root (e.g. 'blog/x.html').
     dark_top: the page opens on a forest section, so the top bar starts light-on-dark (no flash, no reliance on the script).
     intro: the opening curtain (home page, first visit in a session)."""
@@ -274,7 +275,7 @@ def page(path, data_page, title, desc, body, current="", og_type="website", lds=
         '<link rel="icon" type="image/png" href="/images/logos/enso.png">\n<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">\n'
         f'<link rel="alternate" type="application/rss+xml" title="{esc(BLOG["title"] + " — " + site["name"])}" href="{URL}/blog/feed.xml">\n'
         + head_extra +
-        '<link rel="stylesheet" href="' + CSS_URL + '">\n' + NOSCRIPT + "\n" + ld(ORG) + "".join(ld(x) for x in lds) + "\n</head>\n")
+        '<link rel="stylesheet" href="' + CSS_URL + '">\n' + head_after + NOSCRIPT + "\n" + ld(ORG) + "".join(ld(x) for x in lds) + "\n</head>\n")
     chrome = (
         f'<body data-page="{data_page}">\n' + (INTRO_HTML if intro else "")
         + '<a class="skip" href="#main">Skip to content</a>\n'
@@ -444,6 +445,171 @@ phil = f"""
 t, d = pmeta("philosophy")
 page("philosophy.html", "philosophy", t, d, phil, current="/philosophy.html",
      lds=[crumbs(HOME_CRUMB, (seo["pages"]["philosophy"]["crumb"], URL + "/philosophy.html"))])
+
+# ---------------- investment verticals: /verticals.html (a ring of nine circles) + a page for each vertical
+import math
+V_ = site["verticals_page"]
+_vn = len(V_["items"])
+
+
+def _vcell(i, v):
+    a = math.radians(i * 360 / _vn - 90)
+    pos = f'--x:{50 + 38.5 * math.cos(a):.2f}%;--y:{50 + 38.5 * math.sin(a):.2f}%;--d:{i * 0.05:.2f}s'
+    return (f'<li><a class="vc rv" style="{pos}" href="/verticals/{v["slug"]}.html"><span class="vn">{i + 1:02d}</span>'
+            f'<span class="vt">{esc(v["name"])}</span></a></li>')
+
+
+def _vbullets(v):
+    out = '<ul class="vbul two">' + "".join(f"<li>{esc(b)}</li>" for b in v["bullets"]) + "</ul>"
+    if v.get("note"):
+        k, _, rest = v["note"].partition(":")
+        out += f'<p class="vnote"><b>{esc(k)}:</b>{esc(rest)}</p>'
+    return out
+
+
+_ring = (f'<div class="vring-wrap"><div class="vring"><img class="oe" src="/images/logos/enso-hd.webp" alt="" '
+         f'width="{ENSO_HD[0]}" height="{ENSO_HD[1]}" loading="lazy" decoding="async"><div class="oc label">{esc(V_["centre"])}</div>'
+         f'<ul class="vring-list">{"".join(_vcell(i, v) for i, v in enumerate(V_["items"]))}</ul></div></div>')
+D_ = V_["difference"]
+vert = f"""<div class="vpage">
+<div class="hero vhero"><div class="wrap">
+  <div class="label tl fade" style="--d:.05s">{esc(V_["kicker"])}</div>
+  <div class="vh-grid"><h1 class="h1">{words(V_["headline"])}</h1>
+  <div class="vintro fade" style="--d:.9s">{"".join(f"<p>{esc(p)}</p>" for p in V_["intro"])}</div></div>
+</div></div>
+<section style="padding-top:0"><div class="wrap">
+  {_ring}
+</div></section>
+<section class="dark vdiff"><canvas class="skyc" aria-hidden="true"></canvas><div class="wrap" style="position:relative">
+  <div class="vd-grid"><div><div class="label tl rv">{esc(D_["label"])}</div>
+  <div class="vd-lines">{"".join(f'<p class="rv">{esc(p)}</p>' for p in D_["paragraphs"])}</div>
+  </div><div><p class="vd-q rv">{esc(D_["questions_intro"])}</p><ol class="vd-qs">{"".join(f'<li class="rv"><span class="g">{k + 1:02d}</span><span>{esc(q)}</span></li>' for k, q in enumerate(D_["questions"]))}</ol></div></div>
+  <div class="vd-end"><div><p class="vd-obj rv">{esc(D_["objective"])}</p>
+  <p class="vd-hi rv">{esc(D_["highlight"])}</p></div>
+  <div class="vd-close">{"".join(f'<p class="rv">{esc(p)}</p>' for p in D_["closing"])}</div></div>
+</div></section>
+</div>"""
+t, d = pmeta("verticals")
+page("verticals.html", "verticals", t, d, vert, current="/verticals.html",
+     lds=[crumbs(HOME_CRUMB, (seo["pages"]["verticals"]["crumb"], URL + "/verticals.html"))])
+
+for i, v in enumerate(V_["items"]):
+    nv = V_["items"][(i + 1) % _vn]
+    strip = '<ol class="vstrip">' + "".join(
+        f'<li><a class="{"on" if k == i else ""}" href="{x["slug"]}.html" title="{esc(x["name"])}" aria-label="{esc(x["name"])}"'
+        f'{" aria-current=" + chr(34) + "page" + chr(34) if k == i else ""}>{k + 1:02d}</a></li>' for k, x in enumerate(V_["items"])) + "</ol>"
+    body = f"""<div class="vpage2"><div class="wrap">
+  <a class="back fade" href="../verticals.html">&larr; All verticals</a>
+  {strip}
+  <div class="vhead2"><div class="vbig fade"><span>{i + 1:02d}</span></div>
+    <div><div class="label tl fade">{esc(V_["kicker"])}</div><h1 class="h1">{words(v["name"])}</h1></div></div>
+  <div class="rv">{_vbullets(v)}</div>
+  <a class="next rv" href="{nv["slug"]}.html"><div><div class="label" style="margin-bottom:14px">Next vertical</div><div class="big">{esc(nv["name"])} &rarr;</div></div></a>
+</div></div>"""
+    page(f"verticals/{v['slug']}.html", "vertical", f'{v["name"]} — Investment Verticals — Directive 17',
+         f'{v["name"]}: ' + " ".join(v["bullets"][:2]), body, current="/verticals.html",
+         lds=[crumbs(HOME_CRUMB, (seo["pages"]["verticals"]["crumb"], URL + "/verticals.html"),
+                     (v["name"], URL + f"/verticals/{v['slug']}.html"))])
+
+# ---------------- team: /team.html — the team watercolour; under each person their name, position and "Read bio" (opens their profile in place).
+# Words: content/team/team.json (bios word for word). Where each person stands in the painting: content/team/art.json.
+# Pictures: content/images/team/ (team-art.webp = the whole painting; art-<slug>.webp = each person alone).
+# Someone with an empty bio (Dylan Werner, Intern) shows name and position only and cannot be clicked.
+# Phones: the people stand in rows (team.json "phone_rows"), each with their name underneath.
+# Look: theme/team.css; behaviour: theme/team.js (both only on this page).
+T_ = json.loads(read(CONTENT / "team" / "team.json"))
+TA = json.loads(read(CONTENT / "team" / "art.json"))
+_TG = {g["slug"]: g for g in TA["people"]}
+_TAW, _TAH, _TK = TA["w"], TA["h"], TA["k"]
+_TCW, _TCH = TA["canvas"]
+TEAM = [dict(i=i, name=p["name"], slug=p["slug"], title=p["position"], text=p["bio"], bio=bool(p["bio"]), g=_TG[p["slug"]])
+        for i, p in enumerate(T_["people"])]
+_TWITH = [p for p in TEAM if p["bio"]]
+_TBY = {p["slug"]: p for p in TEAM}
+_AR_NE = '<svg class="ar" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 9.5 9.5 2.5M4 2.5h5.5V8"/></svg>'
+_AR_L = '<svg class="ar ar-w" viewBox="0 0 20 12" aria-hidden="true" focusable="false"><path d="M19 6H2M6.5 1.5 2 6l4.5 4.5"/></svg>'
+_AR_R = '<svg class="ar ar-w" viewBox="0 0 20 12" aria-hidden="true" focusable="false"><path d="M1 6h17M13.5 1.5 18 6l-4.5 4.5"/></svg>'
+
+
+def _two_lines(n):
+    a, _, b = n.partition(" ")
+    return f'<span class="n1">{esc(a)}</span> <span class="n1">{esc(b)}</span>' if b else esc(a)
+
+
+def _tbox(p):                                   # the box this person's own figure was cut from, as a share of the painting
+    bx, by, bw, bh = p["g"]["box"]
+    return f"--bx:{bx * 100:.3f}%;--by:{by * 100:.3f}%;--bw:{bw * 100:.3f}%;--bh:{bh * 100:.3f}%"
+
+
+def _thit(p, fig=False):                        # the clickable outline of a person: over the painting, or over their own figure (phones)
+    if not p["bio"]:
+        return ""
+    bx, by, bw, bh = p["g"]["box"]
+    if fig:
+        pts = [((x / 100 - bx) / bw * 100, (y / 100 - by) / bh * 100) for x, y in p["g"]["poly"]]
+        box = "--bx:0%;--by:0%;--bw:100%;--bh:100%"
+    else:
+        pts, box = p["g"]["poly"], _tbox(p)
+    poly = ",".join(f"{x:.2f}% {y:.2f}%" for x, y in pts)
+    return f'<button type="button" class="pk gp-hit" data-p="{p["i"]}" tabindex="-1" aria-hidden="true" style="clip-path:polygon({poly});{box}"></button>'
+
+
+def _tnames(p):
+    inner = f'<span class="nm">{_two_lines(p["name"])}</span><span class="ti">{esc(p["title"])}</span>'
+    if p["bio"]:
+        return f'<button type="button" class="pk-n" data-p="{p["i"]}">{inner}<span class="rb">Read bio{_AR_NE}</span></button>'
+    return f'<div class="pk-n pk-off">{inner}</div>'
+
+
+def _tcut(p, cls="", extra="", src="src"):
+    return (f'<img class="{cls}" {src}="/images/team/art-{p["slug"]}.webp" alt="" width="{round(_TCW * _TK)}" height="{round(_TCH * _TK)}"'
+            f' decoding="async" draggable="false"{extra}>')
+
+
+def _team_body():
+    alt = "Watercolour of the Directive 17 team, left to right: " + ", ".join(p["name"] for p in TEAM) + "."
+    solos = "".join(_tcut(p, "gp-solo", f' data-p="{p["i"]}" aria-hidden="true" style="{_tbox(p)}"', "data-src") for p in _TWITH)
+    full = (f'<div class="gp-wide"><div class="gp-pic gp-full"><img class="gp-art" src="/images/team/team-art.webp" alt="{esc(alt)}" '
+            f'width="{round(_TAW * _TK)}" height="{round(_TAH * _TK)}" loading="lazy" decoding="async" draggable="false">'
+            f'<span class="gp-wash" aria-hidden="true"></span>{solos}{"".join(_thit(p) for p in TEAM)}</div></div>')
+    under = '<ul class="gp-under gp-u-full">' + "".join(
+        f'<li style="--c:{p["g"]["c"] * 100:.3f}%">{_tnames(p)}</li>' for p in TEAM) + "</ul>"
+    rows = ""
+    for r in T_["phone_rows"]:
+        cells = ""
+        for slug in r:
+            p = _TBY[slug]; bx, _, bw, _ = p["g"]["box"]
+            fx = (p["g"]["c"] - bx) / bw               # where the person stands across their own figure
+            cells += (f'<li class="gp-pc" style="--fx:{fx:.4f}"><div class="gp-fig"><div class="gp-pic">'
+                      + _tcut(p, "gp-art", f' alt="{esc(p["name"])}" loading="lazy"') + _thit(p, fig=True)
+                      + f'</div></div>{_tnames(p)}</li>')
+        rows += f'<ul class="gp-prow">{cells}</ul>'
+    view = (f'<div class="gp-view"><button type="button" class="gv-close">{_AR_L}Meet the team</button>'
+            '<div class="gp-view-main"><div class="gp-view-ph"><div class="gp-view-fig">'
+            f'<img class="gv-ring" src="/images/logos/enso-hd.webp" alt="" aria-hidden="true" loading="lazy" draggable="false">'
+            f'<img class="gv-art" alt="" width="{round(_TCW * _TK)}" height="{round(_TCH * _TK)}" draggable="false"></div></div>'
+            '<div class="gp-view-tx"><div class="gv-stack"></div></div></div>'
+            f'<div class="gv-nav"><button type="button" class="gv-prev">{_AR_L}<span class="gv-pn"></span></button><span class="gv-count"></span>'
+            f'<button type="button" class="gv-next"><span class="gv-nn"></span>{_AR_R}</button></div></div>')
+    profiles = "".join(
+        f'<article class="pf-src" id="pf-{p["i"]}"><div class="pf-ph">{_tcut(p, "", " loading=" + chr(34) + "lazy" + chr(34))}</div><div class="pf-tx">'
+        f'<h2 class="nm">{esc(p["name"])}</h2><div class="ti">{esc(p["title"])}</div>'
+        '<div class="bio">' + "".join(f"<p>{esc(t)}</p>" for t in p["text"]) + "</div></div></article>" for p in _TWITH)
+    rest = "".join(f'<p class="pf-rest"><span class="nm">{esc(p["name"])}</span><span class="ti">{esc(p["title"])}</span></p>'
+                   for p in TEAM if not p["bio"])
+    return (f'<div class="hero team-hero"><div class="wrap"><div class="label tl fade" style="--d:.05s">{esc(T_["label"])}</div>'
+            f'<h1 class="h1">{words(T_["heading"])}</h1></div></div>\n'
+            f'<section style="padding-top:0" class="team"><div class="tg tgp" style="--n:{len(TEAM)}"><div class="gp-band"><div class="gp-row">'
+            f'{full}<div class="gp-rows">{rows}</div></div>{view}</div>{under}</div>'
+            f'<div class="wrap pf-list"><h2 class="label tl">Everyone</h2>{profiles}{rest}</div></section>\n'
+            f'<script src="{versioned("team.js")}"></script>\n')
+
+
+t, d = pmeta("team")
+page("team.html", "team", t, d, _team_body(), current="/team.html",
+     lds=[crumbs(HOME_CRUMB, (seo["pages"]["team"]["crumb"], URL + "/team.html"))],
+     head_after=(f'<link rel="stylesheet" href="{versioned("team.css")}">\n'
+                 '<link rel="preload" as="image" href="/images/team/team-art.webp" media="(min-width:761px)">\n'))
 
 # ---------------- future
 F_ = site["future_page"]
@@ -690,7 +856,7 @@ write(OUT / "blog" / "feed.xml",
       f'<language>en</language>\n<lastBuildDate>{rfc822(TODAY)}</lastBuildDate>\n{items}\n</channel>\n</rss>\n')
 
 # ---------------- crawler files: sitemap, robots (AI bots welcome), llms.txt
-_urls = ["", "why.html", "philosophy.html", "companies.html", "future.html", "build.html", "blog/"] \
+_urls = ["", "why.html", "philosophy.html", "verticals.html", "team.html", "companies.html", "future.html", "build.html", "blog/"] + [f"verticals/{v['slug']}.html" for v in V_["items"]] \
         + [f"blog/{p['slug']}.html" for p in posts] + [f"companies/{c['slug']}.html" for c in with_pages] + ["founders-note.html"]
 _sm = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
 for u in _urls:
@@ -717,13 +883,16 @@ _ll = ["# Directive 17", "", f"> {site['subline']} {site['tagline']}", "",
        "## Pages", ""]
 _ll += [f"- [Why We Exist]({URL}/why.html): Most organizations begin with markets. We begin with people.",
         f"- [Philosophy]({URL}/philosophy.html): The Five Pillars — happiness, health, trust, connection, human potential — and the Human Test.",
+        f"- [Team]({URL}/team.html): The people behind Directive 17 — " + "; ".join(f"{p['name']}, {p['title']}" for p in TEAM) + ".",
         f"- [Companies]({URL}/companies.html): Portfolio companies. Different companies. One philosophy.",
         f"- [The Future We See]({URL}/future.html): What future is worth building?",
         f"- [Build With Us]({URL}/build.html): Contact — {EMAIL}",
         f"- [A Note from the Founder]({URL}/founders-note.html): Joel Shapiro on why Directive 17 exists and what it invests in.",
         "", "## Companies", ""]
 _ll += [f"- [{c['show']}]({URL}/companies/{c['slug']}.html): {c['paras'][0]}" for c in with_pages]
-_ll += ["", "## Joel's Blog", ""]
+_ll += ["", "## Investment Verticals", "", f"- [Investment Verticals]({URL}/verticals.html): {V_['headline']}"]
+_ll += [f"- [{v['name']}]({URL}/verticals/{v['slug']}.html): " + " ".join(v["bullets"]) for v in V_["items"]]
+_ll += ["", "## Joel's Blogs", ""]
 _ll += [f"- [{p['title']}]({URL}/blog/{p['slug']}.html): {p['excerpt']}" for p in posts]
 write(OUT / "llms.txt", "\n".join(_ll) + "\n")
 

@@ -1,0 +1,72 @@
+{
+ "_note": "The Team page (/team.html). People appear left to right as in the watercolour. Someone with an empty bio is shown with name and position only and cannot be clicked. phone_rows = who stands in each row on a phone (top to bottom).",
+ "label": "Team",
+ "heading": "The people behind Directive 17.",
+ "people": [
+  {
+   "name": "Tushar Gidadhubli",
+   "slug": "tushar-gidadhubli",
+   "position": "Chief Administrative Officer",
+   "bio": [
+    "Tushar Gidadhubli is Chief Administrative Officer at Directive 17, where he works across venture development, research, internal systems, and operations. While attending George Washington University, he gained experience on Capitol Hill and in government relations. His final internship clarified what he wanted from his career: work he could believe in. As AI began changing how people think, work, and connect, he wanted a more direct role in shaping what came next.",
+    "He joined D17 to help build companies that encourage independent thought, creativity, and human connection. Outside work, he makes hip-hop and indie music, plays clarinet, and plays pickup basketball. His favorite author is Dostoevsky, which explains how a short bio became a discussion about the fate of humanity. He believes technology should leave people more room to be human. The robots can have the spreadsheets."
+   ]
+  },
+  {
+   "name": "Stuart Jacobson",
+   "slug": "stuart-jacobson",
+   "position": "Chief Technology Officer",
+   "bio": [
+    "Stuart Jacobson is Chief Technology Officer at Directive 17, where he builds AI tools and automation for business operations and creative projects. He graduated magna cum laude from Virginia Tech with a degree in mechanical engineering and a minor in biomedical engineering. His background spans medical-device development, manufacturing, and software automation, giving him experience building both physical products and digital tools.",
+    "He joined D17 for the opportunity to work across industries and take on different kinds of problems. He hopes the companies it builds will help people find community and feel more connected to one another. Outside work, he enjoys golf, spending time with his dog, and meeting new people."
+   ]
+  },
+  {
+   "name": "Bria Black",
+   "slug": "bria-black",
+   "position": "President and COO",
+   "bio": [
+    "Bria Black is President & Chief Operating Officer at Directive 17, where she oversees operations, execution, and growth across the firm’s ventures and investment portfolio. Her background spans business development, luxury hospitality, and private membership. Before D17, she led business development at Collectible Fine Wine and served as Opening Managing Director and General Manager of Lion’s Head Private Members Club. Earlier, she was part of the management team at Atlas at The St. Regis Atlanta, which later earned a Michelin star.",
+    "At D17, Bria helps turn ambitious ideas into businesses that can last. She translates strategy into practical plans, builds the systems needed for growth, and guides ventures from concept into operation. Her experience managing relationships and hospitality businesses informs the work of bringing people together and making those plans happen."
+   ]
+  },
+  {
+   "name": "Joel Shapiro",
+   "slug": "joel-shapiro",
+   "position": "CEO and Founder",
+   "bio": [
+    "Joel Shapiro is Founder & Chief Executive Officer of Directive 17, where he leads the firm’s work building and investing in companies that improve the human experience. He brings more than 35 years of experience in investing and business leadership and has raised billions of dollars in capital over his career. Before D17, he founded Shapiro Carter, which later became Shapiro Capital Management, and served as CEO and Managing Partner of Timbervest.",
+    "He started D17 with the belief that a successful business should make people’s lives better as well as generate a return. That conviction takes him across technology, health, hospitality, sports, and entertainment, looking for ways to help people connect, feel better, and enjoy being alive. He wants the companies D17 builds to give people more reasons to laugh, gather, and experience something worth remembering. Making people smile is a serious investment thesis around here."
+   ]
+  },
+  {
+   "name": "Avery Schuhardt",
+   "slug": "avery-schuhardt",
+   "position": "Chief Fun Officer",
+   "bio": [
+    "Avery Schuhardt is Chief Fun Officer at Directive 17, bringing a background in aviation, hospitality, and business. She began working at 15 and went on to serve and bartend at leading Atlanta restaurants, including a Michelin-recognized establishment. She holds a degree in Aviation Science and Management and earned her private pilot certificate at 20. By 24, she had added an instrument rating, commercial pilot certificate, multi-engine rating, and certified flight instructor certificate.",
+    "Avery brings that combination of technical training and people skills to D17, along with a creative, resourceful approach to new challenges. Her travels and outgoing personality have helped her build relationships across the country. She makes the most of new opportunities and brings the same determination to her work that took her from learning to fly to teaching others."
+   ]
+  },
+  {
+   "name": "Dylan Werner",
+   "slug": "dylan-werner",
+   "position": "Intern",
+   "bio": []
+  }
+ ],
+ "phone_rows": [
+  [
+   "joel-shapiro",
+   "bria-black"
+  ],
+  [
+   "tushar-gidadhubli",
+   "avery-schuhardt",
+   "stuart-jacobson"
+  ],
+  [
+   "dylan-werner"
+  ]
+ ]
+}

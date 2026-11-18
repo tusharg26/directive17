@@ -582,3 +582,95 @@ body.menu-open{overflow:hidden;padding-right:var(--sbw,0px)}
   opacity:0;letter-spacing:.6em;padding-left:.6em;animation:introName 1s var(--ease) .55s forwards}
 @keyframes introName{from{opacity:0;letter-spacing:.6em;padding-left:.6em}to{opacity:1;letter-spacing:.3em;padding-left:.3em}}
 @media (prefers-reduced-motion:reduce){#intro{display:none!important}}
+/* ---------- menu with seven or eight items (".many"): on upright phones the ring is taller, the enso a little smaller,
+   and the items beside it may wrap onto two lines so nothing runs off the screen */
+@media (max-width:760px) and (orientation:portrait){
+  .circle.many{--sw:.46}
+  .circle.many a.item.c{--ty:calc(var(--cw) * var(--uy) * 1.32)}
+  .circle.many a.item.r,.circle.many a.item.l{--ty:calc(var(--cw) * var(--uy) * 1.24)}
+  .circle.many a.item.r span,.circle.many a.item.l span{white-space:normal;text-wrap:balance;line-height:1.12;max-width:calc(50vw - var(--cw) * (var(--ax) - var(--ek)) - 14px)}
+  .circle.many a.item.r{text-align:left}
+  .circle.many a.item.l{text-align:right}
+}
+
+/* ---------- INVESTMENT VERTICALS (/verticals.html): intro, a ring of nine circles around the enso (two columns on phones),
+   what each vertical covers, and The Directive 17 Difference on forest */
+.vintro{margin-top:30px;max-width:62ch}
+.vintro p{font-size:clamp(1.08rem,1.55vw,1.4rem);line-height:1.45;letter-spacing:-.01em;color:var(--ink);margin-bottom:.8em}
+.vring-wrap{margin-top:10px;display:flex;justify-content:center}
+.vring{position:relative;flex:none;width:min(860px,92vw);height:min(860px,92vw)}
+.vring .oe{position:absolute;left:29%;top:29%;width:42%;height:42%;object-fit:contain}
+.vring .oc{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
+.vring-list{list-style:none;margin:0;padding:0}
+.vring .vc{position:absolute;left:calc(var(--x) - 10.75%);top:calc(var(--y) - 10.75%);width:21.5%;height:21.5%;border-radius:50%;
+  background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--deep);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:2.2%;border:0;font:inherit;color:inherit;cursor:pointer;
+  transition:background .4s,opacity 1s var(--ease),transform 1.1s var(--ease);transition-delay:0s,var(--d,0s),var(--d,0s)}
+.vring .vn{font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.18em;color:var(--accenttext);margin-bottom:6px;transition:color .4s}
+.vring .vt{font-size:clamp(.8rem,1.02vw,.9rem);font-weight:640;line-height:1.15;color:var(--deep);transition:color .4s}
+.vring .vc:hover,.vring .vc:focus-visible,.vring .vc.on{background:var(--deep)}
+.vring .vc:hover .vt,.vring .vc:focus-visible .vt,.vring .vc.on .vt{color:var(--bg)}
+.vring .vc:hover .vn,.vring .vc:focus-visible .vn,.vring .vc.on .vn{color:var(--accentdark)}
+@media (max-width:900px){
+  .vring{width:100%;height:auto}
+  .vring .oe,.vring .oc{display:none}
+  .vring-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .vring .vc{position:relative;left:auto;top:auto;width:100%;height:auto;aspect-ratio:1;padding:12%}
+  .vring .vt{font-size:.92rem}
+  .vring-list li:last-child{grid-column:1/-1;width:calc(50% - 6px);justify-self:center}
+  @media (max-width:360px){.vring .vc{padding:9%}.vring .vt{font-size:.8rem}.vring .vn{margin-bottom:4px}}
+}
+/* bullet lists: a small amber ring as the marker (a nod to the circles) */
+.vbul{list-style:none;margin:0;padding:0}
+.vbul li{position:relative;padding:12px 0 12px 30px;font-size:clamp(1.02rem,1.3vw,1.18rem);line-height:1.45;color:var(--ink);border-bottom:1px solid var(--line)}
+.vbul li::before{content:"";position:absolute;left:2px;top:calc(12px + .45em);width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--accent)}
+.vbul.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(24px,4vw,64px)}
+@media (max-width:760px){.vbul.two{grid-template-columns:minmax(0,1fr)}}
+.vnote{margin-top:22px;padding:18px 22px;border-radius:16px;background:var(--panel);font-size:1rem;line-height:1.5;color:var(--ink);max-width:70ch}
+.vnote b{color:var(--deep)}
+/* each vertical on its own page */
+.vpage2{padding:var(--top) 0 var(--end)}
+.vstrip{list-style:none;margin:6px 0 34px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.vstrip a{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.08em;color:var(--deep);box-shadow:inset 0 0 0 1.5px var(--deep);transition:background .3s,color .3s}
+.vstrip a:hover{background:var(--panel)}
+.vstrip a.on{background:var(--deep);color:var(--accentdark)}
+@media (max-width:560px){.vstrip{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:5px}.vstrip a{width:100%;height:auto;aspect-ratio:1;max-width:40px;font-size:10px;letter-spacing:.02em}}
+.vhead2{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,3vw,40px);align-items:center;margin-bottom:34px}
+.vhead2 .vbig{width:clamp(96px,11vw,150px);aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--deep);display:grid;place-items:center;font-family:var(--sans);font-weight:700;font-size:clamp(1.2rem,2vw,1.8rem);letter-spacing:.06em;color:var(--accenttext)}
+.vhead2 .h1{margin-top:12px}
+@media (max-width:560px){.vhead2{grid-template-columns:minmax(0,1fr)}}
+/* The Directive 17 Difference */
+.vdiff{overflow:hidden}
+.vd-lines p{font-size:clamp(1.3rem,2.6vw,2.3rem);font-weight:600;letter-spacing:-.02em;line-height:1.18;color:var(--bg);max-width:30ch;margin-top:18px}
+.vd-q{margin-top:44px;font-size:1.05rem;color:var(--sageOnDark)}
+.vd-qs{list-style:none;margin:10px 0 0;padding:0;max-width:900px}
+.vd-qs li{display:grid;grid-template-columns:clamp(54px,7vw,96px) minmax(0,1fr);align-items:baseline;padding:18px 0;border-bottom:1px solid var(--deepline);font-size:clamp(1.1rem,1.8vw,1.55rem);line-height:1.3;color:var(--bg)}
+.vd-qs .g{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.2em;color:var(--accentdark)}
+.vd-obj{margin-top:44px;max-width:60ch;font-size:clamp(1.02rem,1.4vw,1.2rem);line-height:1.5;color:var(--sageOnDark)}
+.vd-hi{margin-top:10px;font-size:clamp(2rem,5vw,4.4rem);font-weight:640;letter-spacing:-.03em;line-height:1.02;color:var(--accentdark);max-width:16ch}
+.vd-close{margin-top:40px;max-width:60ch}
+.vd-close p{font-size:clamp(1.02rem,1.4vw,1.2rem);line-height:1.5;color:var(--bg);margin-bottom:.6em}
+
+/* ---------- Investment Verticals page: layout */
+.vpage .vring-wrap{margin-top:0}
+main>.vpage:last-child{padding-bottom:0}
+.vpage>section:first-of-type{padding-bottom:var(--gap)}
+/* headline left, intro right; Difference in two columns */
+.vpage .vh-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(30px,5vw,80px);align-items:end;margin-top:20px}
+.vpage .vintro{margin-top:0}
+.vpage .vd-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,80px);align-items:start}
+.vpage .vd-q{margin-top:6px}
+.vpage .vd-end{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,80px);align-items:end;margin-top:20px}
+.vpage .vd-end .vd-close{margin-top:0}
+@media (max-width:860px){.vpage .vh-grid,.vpage .vd-grid,.vpage .vd-end{grid-template-columns:minmax(0,1fr)}.vpage .vd-end .vd-close{margin-top:30px}.vpage .vd-q{margin-top:40px}}
+/* phones */
+@media (max-width:900px){
+  /* an even 3 x 3 grid — number circles with the name underneath */
+  .vpage .vring-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 12px}
+  .vpage .vring-list li:last-child{grid-column:auto;width:auto}
+  .vpage .vring .vc{aspect-ratio:auto;border-radius:0;box-shadow:none;background:transparent;padding:0;justify-content:flex-start;gap:10px}
+  .vpage .vring .vn{width:100%;max-width:84px;aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--deep);display:grid;place-items:center;margin:0;font-size:13px}
+  .vpage .vring .vt{font-size:.8rem;line-height:1.2}
+  .vpage .vring .vc:hover{background:transparent}.vpage .vring .vc:hover .vt{color:var(--deep)}
+  .vpage .vring .vc:hover .vn{background:var(--deep);color:var(--accentdark)}
+}

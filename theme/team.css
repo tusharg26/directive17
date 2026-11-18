@@ -1,0 +1,129 @@
+/* Team page (round 46: the illustrated team). Loaded only on /team.html, after site.css. */
+.tg button{appearance:none;-webkit-appearance:none;background:none;border:0;border-radius:0;margin:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.team .nm{display:block;font-family:var(--serif);font-weight:600;letter-spacing:-.02em;line-height:1.12;color:var(--deep)}
+.team .ti{display:block;font-family:var(--sans);font-size:.94rem;font-weight:400;line-height:1.38;color:var(--ink)}
+.nm .n1{display:block}
+.tg .ar{flex:none;width:.7em;height:.7em;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.tg .ar-w{width:1.2em;height:.72em;stroke-width:1.5}
+.tg button:focus-visible{outline:2px solid var(--accenttext);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.tg *{transition:none!important;animation:none!important}}
+/* the heading: one line always (--tfs shrinks it on a narrow screen instead of letting it wrap), close under the bar and close above the picture */
+:root{--tfs:min(clamp(1.9rem,4.1vw,4.1rem),calc((100vw - 2 * var(--gut)) / 14));--tvh:100vh;--thero:calc(var(--barH) + clamp(10px,2vh,22px) + 26px + var(--tfs) * 1.02 + clamp(6px,.9vw,12px))}
+@supports (height:100svh){:root{--tvh:100svh}}
+.team-hero{padding-top:calc(var(--barH) + clamp(10px,2vh,22px));padding-bottom:clamp(6px,.9vw,12px)}
+.team-hero .h1{margin-top:8px;max-width:none;white-space:nowrap;font-size:var(--tfs)}
+main{overflow-anchor:none}   /* the page is moved by the script when a profile opens and closes; the browser must not also adjust it */
+/* --aw the width of the painting on a wide screen (its height is aw / 2.6122). "Make them that big": the whole window, up to 1680px.
+   --fitall  the widest that still leaves the heading, the painting and the names underneath in the first screen (--under is an estimate of the
+             names; the script measures the real row and trims with --trim). Used whenever it leaves the painting big.
+   --fitpic  the widest that leaves the heading and the whole painting in the first screen (the names then follow just below).
+   On a short laptop window, where --fitall would make the people small, the painting keeps 84% of the window (1340px at most) as long as the
+   painting itself still fits; never below 60% of the window, so a very short window scrolls instead. */
+.tgp{margin:0;--under:calc(12px + clamp(1.12rem,1.75vw,1.75rem) * 2.2 + 6px + 1.3rem + 8px + 1.32rem + 10px);
+  --fitall:calc((var(--tvh) - var(--thero) - var(--under) - 12px - var(--trim,0px)) * 2.6122);--fitpic:calc((var(--tvh) - var(--thero) - 10px) * 2.6122);
+  --aw:min(100vw,1680px,max(60vw,var(--fitall),min(var(--fitpic),84vw,1340px)));transition:margin-top .55s cubic-bezier(.2,.7,.2,1)}
+@media (min-width:761px) and (max-height:560px){.tgp{--aw:min(100vw,1680px)}}   /* a very short window (a phone on its side): full size and scroll */
+.gp-band{display:grid;position:relative;background:var(--bg);overflow:hidden;overflow:clip;border-bottom:1px solid var(--line)}   /* clip: the picture can never be nudged sideways */
+.gp-row,.gp-view{grid-area:1/1;min-width:0;position:relative;z-index:1}
+.gp-row{transition:opacity .4s ease,visibility 0s}
+.gp-wide{display:flex;justify-content:center}
+.gp-pic{position:relative;flex:none}
+.gp-full{width:var(--aw)}
+.gp-art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+/* each person's clickable outline lies over the painting; --bx/--by/--bw/--bh is the box their own figure was cut from */
+.tg .gp-hit{position:absolute;inset:0;width:100%;height:100%;outline:0}
+/* pointing at a person: the painting pales and that person's own figure stays in full colour on top of it, exactly where it was */
+.gp-wash{position:absolute;inset:0;background:var(--bg);opacity:0;transition:opacity .35s ease;pointer-events:none}
+.gp-solo{position:absolute;left:var(--bx);top:var(--by);width:var(--bw);height:var(--bh);opacity:0;transition:opacity .3s ease;pointer-events:none;user-select:none}
+.gp-pic.hovering .gp-wash{opacity:.62}
+.gp-solo.on{opacity:1}
+.gp-rows{display:none}
+/* under each person, centred on them: name on two lines, position, Read bio (all blocks share one grid cell, each pushed across to its person) */
+.gp-under{list-style:none;margin:0 auto;padding:12px 0 10px;display:grid;width:var(--aw);--bwid:14.6%}
+.gp-under li{grid-area:1/1;display:flex;width:var(--bwid);margin-left:calc(var(--c) - var(--bwid) / 2)}
+.gp-under .pk-n{display:flex;flex-direction:column;align-items:center;width:100%;text-align:center}
+.gp-under .pk-off{cursor:default}
+.gp-under .nm{font-size:clamp(1.12rem,calc(var(--aw) * .0195),1.75rem);line-height:1.1}
+.gp-under .ti{margin-top:6px;text-wrap:balance}
+.rb{display:inline-flex;align-items:center;gap:.42em;margin-top:auto;padding-top:8px;font-family:var(--sans);font-size:.94rem;font-weight:700;line-height:1.4;color:var(--deep);border-bottom:1.5px solid transparent}
+.tg .pk-n.hov .rb,.tg .pk-n:focus-visible .rb{border-bottom-color:currentColor}.tg .pk-n.hov .rb .ar{transform:translate(2px,-2px)}
+.tgp.open .gp-under{display:none}
+
+/* ---- a person chosen: the profile takes the page under the bar. The heading fades and the picture slides up into its place (the script sets a
+   negative top margin on .tgp); the painting fades back. Meet the team at the top left; the person's own figure from the painting; every person's
+   text lies in ONE grid cell (.gv-stack) and only the chosen one shows, so the profile is the same height for everyone and nothing moves from
+   person to person; under a rule, the previous and the next person by name. */
+.team-hero .wrap{transition:opacity .35s ease .15s,visibility 0s}
+.team-open .team-hero .wrap{opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s .2s}
+.tgp.open .gp-row{opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s .35s}
+.tgp.open .gp-band{border-bottom-color:transparent}
+.gp-view{display:none;width:100%;max-width:calc(var(--max) + 2 * var(--gut));margin:0 auto;padding:0 var(--gut) 8px}
+.tgp.open .gp-view{display:block}
+.tg .gv-close{display:inline-flex;align-items:center;gap:.6em;margin:6px 0 4px;padding:9px 0;font-family:var(--sans);font-size:1rem;font-weight:700;line-height:1.3;color:var(--deep)}
+.gp-view-main{display:grid;grid-template-columns:minmax(0,.74fr) minmax(0,1.26fr);column-gap:clamp(28px,3.8vw,64px);border-bottom:1px solid var(--line)}
+/* the figure: as large as its column allows, but no taller than leaves Meet the team above it and the rule and footer below it in view */
+.gp-view-ph{min-width:0;align-self:start;--fw:min(108%,max(220px,calc((var(--tvh) - var(--barH) - 134px) * 0.9449)))}
+.gp-view-fig{position:relative;width:var(--fw);margin-left:calc((100% - var(--fw)) / 2);transform-origin:0 0;transition:transform .6s var(--ease);pointer-events:none}
+.gv-art{position:relative;display:block;width:100%;height:auto}
+.gv-ring{position:absolute;left:50%;top:47%;width:96%;max-width:none;height:auto;transform:translate(-50%,-50%);opacity:0;transition:opacity .5s ease}
+.tgp.shown .gv-ring{opacity:1;transition:opacity .6s ease .3s}
+.gp-view-tx{position:relative;z-index:1;min-width:0;align-self:center;padding:12px 0 20px;opacity:0;transform:translateY(10px);transition:opacity .45s ease .18s,transform .6s var(--ease) .18s}
+.tgp.shown .gp-view-tx{opacity:1;transform:none}
+.gv-stack{display:grid}
+.gv-item{grid-area:1/1;min-width:0;visibility:hidden;outline:0}
+.gv-item.cur{visibility:visible}
+.gv-item .nm{font-size:min(clamp(2.5rem,4.6vw,4rem),max(2rem,7.6vh));font-weight:640;letter-spacing:-.03em;line-height:1.03}
+.gv-item .ti{margin-top:.6em;font-size:clamp(1.08rem,1.4vw,1.26rem);font-weight:700;letter-spacing:.035em;line-height:1.3;color:var(--accenttext)}
+.bio{margin-top:clamp(13px,1.5vw,20px);max-width:min(100%,68ch)}
+.bio p{font-size:min(clamp(1.02rem,1.26vw,1.16rem),max(.97rem,2.3vh));line-height:1.55;color:var(--ink)}
+.bio p+p{margin-top:.85em}
+@media (min-width:1001px) and (max-height:700px){.bio{max-width:none}.gp-view-tx{padding:8px 0 14px}}
+/* the footer of a profile: who comes before, where you are, who comes next */
+.gv-nav{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;column-gap:14px;padding:6px 0 0}
+.gv-nav button{display:inline-flex;align-items:center;gap:.65em;padding:11px 0;font-family:var(--serif);font-size:clamp(1rem,1.25vw,1.15rem);font-weight:600;letter-spacing:-.01em;line-height:1.2;color:var(--deep)}
+.gv-prev{justify-self:start}.tg .gv-next{justify-self:end;text-align:right}
+.gv-count{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.16em;color:var(--ink);font-variant-numeric:tabular-nums}
+@media (hover:hover){.tg .gv-close:hover,.gv-nav button:hover{color:var(--accenttext)}.tg .gv-close:hover .ar,.gv-prev:hover .ar{transform:translateX(-4px)}.gv-next:hover .ar{transform:translateX(4px)}}
+@media (max-width:1000px){.gp-view-main{grid-template-columns:minmax(0,.66fr) minmax(0,1.34fr)}.gp-view-ph{--fw:min(122%,max(220px,calc((var(--tvh) - var(--barH) - 134px) * 0.9449)))}}
+
+@media (max-width:760px){
+  /* phones: the people stand in rows (Joel and Bria; Tushar, Avery and Stuart; Dylan — content/team/team.json "phone_rows"), each person's own
+     figure from the painting, all the same size, a third of the screen apiece, with their name, position and Read bio underneath */
+  .gp-wide,.gp-u-full{display:none}
+  .gp-rows{display:block;overflow:hidden;overflow:clip;padding:4px 0 8px}
+  .gp-prow{list-style:none;margin:0;padding:0;display:flex;justify-content:center}
+  .gp-prow+.gp-prow{margin-top:clamp(14px,4vw,22px)}
+  .gp-pc{flex:none;width:33.333%;min-width:0;display:flex;flex-direction:column;--fs:172%}
+  .gp-fig{position:relative}
+  .gp-fig .gp-pic{width:var(--fs);margin-left:calc(50% - var(--fx) * var(--fs))}
+  .gp-pc .pk-n{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;width:100%;padding:8px 4px 0;text-align:center}
+  .gp-pc .pk-off{cursor:default}
+  .gp-pc .nm{font-size:clamp(1.02rem,4.6vw,1.3rem);line-height:1.1}
+  .gp-pc .ti{font-size:clamp(.76rem,3.4vw,.88rem);margin-top:5px;text-wrap:balance}
+  .gp-band{border-bottom:0}
+  .gp-under{width:100%;padding:11px 0 14px;--bwid:31.5%}
+  .gp-under .pk-n{padding:0 5px}
+  .gp-under .nm{font-size:clamp(1.02rem,4.6vw,1.3rem)}
+  .gp-under .ti{font-size:clamp(.76rem,3.4vw,.88rem);margin-top:5px}
+  .rb{font-size:.9rem;padding-top:6px;min-height:34px}
+  .tgp{transition:none}
+  /* the profile stacks: Meet the team, the figure, the name, position and bio (their natural length here), then the rule and the previous / next footer */
+  .gp-view{padding:0 0 12px}
+  .tg .gv-close{margin:8px 0 0 var(--gut)}
+  .gp-view-main{display:block;border-bottom:0}
+  .gp-view-ph{--fw:min(86%,360px);border-bottom:1px solid var(--line);padding-top:4px}
+  .gp-view-tx{padding:18px var(--gut) 22px}
+  .gv-item{display:none}.gv-item.cur{display:block}
+  .gv-item .nm{font-size:clamp(2.1rem,9.6vw,2.7rem)}
+  .bio{max-width:none}.bio p{font-size:1.03rem}
+  .gv-nav{margin:0 var(--gut);border-top:1px solid var(--line);padding-top:8px}
+  @media (max-width:379px){.gv-nav{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:0}.gv-count{grid-column:1 / -1;grid-row:1;justify-self:center;padding-top:6px}}   /* a narrow phone: the count on its own line above the two names */
+}
+/* without scripts: everyone listed in full under the picture */
+.pf-list{padding-top:clamp(28px,4vw,56px)}
+.pf-src{display:grid;grid-template-columns:clamp(110px,14vw,170px) minmax(0,1fr);column-gap:clamp(18px,2.6vw,36px);padding:22px 0;border-top:1px solid var(--line)}
+.pf-ph{align-self:start}.pf-ph img{display:block;width:100%;height:auto}
+.pf-src .nm,.pf-rest .nm{font-size:clamp(1.4rem,2vw,1.8rem)}.pf-src .ti,.pf-rest .ti{margin-top:7px;font-weight:700;color:var(--accenttext)}.pf-src .bio{max-width:70ch}.pf-src .bio p{font-size:clamp(.98rem,1.1vw,1.06rem);line-height:1.5}
+.pf-rest{padding:22px 0;border-top:1px solid var(--line)}
+.tgjs .pf-list{display:none}
+html:not(.tgjs) .rb,html:not(.tgjs) .gp-solo,html:not(.tgjs) .gp-wash{display:none}html:not(.tgjs) .tg .pk-n,html:not(.tgjs) .tg .gp-hit{cursor:default}

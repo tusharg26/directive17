@@ -7,27 +7,43 @@
   "nav": [
     {
       "label": "Why",
-      "href": "/why.html"
+      "href": "/why.html",
+      "deg": 0
     },
     {
       "label": "Philosophy",
-      "href": "/philosophy.html"
+      "href": "/philosophy.html",
+      "deg": 45
+    },
+    {
+      "label": "Verticals",
+      "href": "/verticals.html",
+      "deg": 90
     },
     {
       "label": "Companies",
-      "href": "/companies.html"
+      "href": "/companies.html",
+      "deg": 135
+    },
+    {
+      "label": "Team",
+      "href": "/team.html",
+      "deg": 180
+    },
+    {
+      "label": "Joel's Blogs",
+      "href": "/blog/",
+      "deg": 225
     },
     {
       "label": "Future",
-      "href": "/future.html"
+      "href": "/future.html",
+      "deg": 270
     },
     {
       "label": "Build With Us",
-      "href": "/build.html"
-    },
-    {
-      "label": "Joel's Blog",
-      "href": "/blog/"
+      "href": "/build.html",
+      "deg": 315
     }
   ],
   "home_pillars": [
@@ -148,7 +164,7 @@
     "list_link": "View as a list"
   },
   "blog_page": {
-    "kicker": "Joel's Blog",
+    "kicker": "Joel's Blogs",
     "title": "Joel's Tales from Weird Side",
     "tagline": "I wish I was making this shit up!"
   },
@@ -157,5 +173,184 @@
     "headline": "This page doesn't exist.",
     "body": "The future does. Let's get you back to it.",
     "button": "Back home"
+  },
+  "verticals_page": {
+    "kicker": "Investment Verticals",
+    "headline": "Investing in companies that make people smile, laugh, connect, and live better lives.",
+    "intro": [
+      "Our investment philosophy is simple: We believe making people’s lives better is not only a worthwhile mission, but also an extraordinary investment opportunity.",
+      "Below are our nine investment verticals, with examples of the businesses, products, and experiences we intend to invest in and build."
+    ],
+    "centre": "Nine Verticals",
+    "items": [
+      {
+        "name": "The Everyday Happiness Economy",
+        "slug": "the-everyday-happiness-economy",
+        "bullets": [
+          "Products and services that create everyday joy.",
+          "Businesses that make ordinary moments extraordinary.",
+          "Gifting, surprises, and random acts of kindness.",
+          "Personal experiences that make people feel special.",
+          "Lifestyle brands built around happiness and positivity.",
+          "Affordable indulgences and little luxuries.",
+          "Subscription businesses delivering recurring happiness.",
+          "Innovative products that simplify and improve daily life."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Human Connection, Belonging & Anti-Loneliness",
+        "slug": "human-connection-belonging-and-anti-loneliness",
+        "bullets": [
+          "Platforms that help people build meaningful friendships.",
+          "Experiences that bring strangers together.",
+          "Community-building and social engagement businesses.",
+          "Corporate employee connection and relocation programs.",
+          "Intergenerational friendship and mentorship platforms.",
+          "Dating, companionship, and relationship experiences.",
+          "Programs combating isolation among seniors, young adults, and families.",
+          "Technology that facilitates genuine human interaction rather than replacing it."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Entertainment, Laughter, Interactive & Immersive Experiences",
+        "slug": "entertainment-laughter-interactive-and-immersive-experiences",
+        "bullets": [
+          "Comedy, satire, and humor-driven entertainment.",
+          "Live theater, shows, and unique performances.",
+          "Interactive and immersive entertainment.",
+          "Experiential gaming and audience participation.",
+          "Film, television, and original content creation.",
+          "Intellectual property development and monetization.",
+          "AI-powered entertainment and storytelling.",
+          "Family entertainment and attractions.",
+          "New technologies that transform audiences into participants.",
+          "Entertainment platforms that can scale globally."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Celebrations & Food",
+        "slug": "celebrations-and-food",
+        "bullets": [
+          "Businesses that celebrate life’s milestones.",
+          "Birthdays, anniversaries, weddings, and unconventional celebrations.",
+          "Living celebrations and celebrations of life.",
+          "Unique hospitality and dining experiences.",
+          "Innovative restaurants, cafés, and food concepts.",
+          "Premium food, specialty products, and culinary experiences.",
+          "Experiential food retail and e-commerce.",
+          "Celebrity chef collaborations and culinary entertainment.",
+          "Personalized celebrations and event planning.",
+          "Businesses that bring families and friends together around food."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Sports, Music & Recreation",
+        "slug": "sports-music-and-recreation",
+        "bullets": [
+          "Sports leagues, teams, and entertainment properties.",
+          "Live music, concerts, and festivals.",
+          "Participatory sports and recreational experiences.",
+          "New forms of competitive entertainment.",
+          "Youth sports and family recreation.",
+          "Technology enhancing fan engagement.",
+          "Interactive sporting and music experiences.",
+          "Outdoor adventures and recreational activities.",
+          "Businesses that combine physical activity, community, and fun."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Technology for the Betterment of Life",
+        "slug": "technology-for-the-betterment-of-life",
+        "bullets": [
+          "Artificial intelligence that improves human lives.",
+          "Technologies that eliminate frustration and complexity.",
+          "Personalized AI assistants and concierge platforms.",
+          "Preventive health, longevity, and wellness technologies.",
+          "Technologies that improve accessibility and independence.",
+          "Education and lifelong learning innovations.",
+          "Mental wellness and emotional well-being platforms.",
+          "Technologies that improve productivity and give people more personal time.",
+          "Robotics and automation that enhance quality of life.",
+          "Trust, safety, security, and governance technologies that make AI and digital systems more dependable."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Families, Pets, Babies & The Elderly",
+        "slug": "families-pets-babies-and-the-elderly",
+        "bullets": [
+          "Products and services that strengthen family relationships.",
+          "Parenting and early-childhood innovations.",
+          "Educational and developmental experiences for children.",
+          "Family entertainment and shared activities.",
+          "Pet wellness, companionship, and innovative pet services.",
+          "Products that improve the lives of older adults.",
+          "Aging-in-place and independent living technologies.",
+          "Intergenerational experiences and family connections.",
+          "Caregiving support and family assistance platforms.",
+          "Businesses that improve the quality of life for people and animals at every stage."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Making the World a Better & Safer Place",
+        "slug": "making-the-world-a-better-and-safer-place",
+        "bullets": [
+          "Technologies that protect people and communities.",
+          "Public safety and emergency response innovations.",
+          "Environmental sustainability and clean living.",
+          "Food safety, transparency, and traceability.",
+          "Clean water, air quality, and healthier environments.",
+          "Technologies that reduce accidents and prevent injuries.",
+          "Solutions that improve access to healthcare and education.",
+          "Innovations that protect vulnerable populations.",
+          "Technologies that strengthen critical infrastructure.",
+          "Businesses that solve meaningful societal problems while generating attractive financial returns."
+        ],
+        "note": ""
+      },
+      {
+        "name": "Crazy Shit (Very Limited)",
+        "slug": "crazy-shit-very-limited",
+        "bullets": [
+          "Ideas that sound completely insane until they work.",
+          "Businesses that create entirely new categories.",
+          "Wildly unconventional entertainment concepts.",
+          "Products nobody knew they needed.",
+          "Technologies that challenge conventional thinking.",
+          "Disruptive business models that traditional investors won’t touch.",
+          "Experimental ventures with extraordinary upside potential.",
+          "Businesses that make people say, “Who the hell thought of that?”",
+          "Opportunities where creativity, absurdity, and commercial potential intersect.",
+          "Investments that might change the world—or at least make it laugh."
+        ],
+        "note": "Investment discipline: This vertical will receive a very limited allocation of capital, with the same rigorous financial and operational underwriting applied to every other investment."
+      }
+    ],
+    "difference": {
+      "label": "The Directive 17 Difference",
+      "paragraphs": [
+        "We are not limited to entertainment, hospitality, technology, sports, or consumer products.",
+        "We invest in outcomes that matter to human beings.",
+        "We want people to be happier, healthier, safer, more connected, more entertained, and more fulfilled."
+      ],
+      "questions_intro": "Every investment should answer three fundamental questions:",
+      "questions": [
+        "Will this business genuinely make people’s lives better?",
+        "Can we build a scalable, financially successful business around that purpose?",
+        "Can Directive 17 contribute something meaningful beyond capital?"
+      ],
+      "objective": "Our ultimate objective is to generate exceptional financial returns alongside something most investment firms never bother to measure:",
+      "highlight": "The return on human happiness.",
+      "closing": [
+        "And occasionally, we’re going to invest in something so fucking crazy that nobody else would even consider it.",
+        "Because sometimes the craziest ideas create the biggest smiles."
+      ]
+    }
   }
 }

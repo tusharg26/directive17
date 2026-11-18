@@ -36,15 +36,25 @@
       "crumb": "Companies"
     },
     "blog": {
-      "title": "Joel's Tales from Weird Side — Joel's Blog — Directive 17",
+      "title": "Joel's Tales from Weird Side — Joel's Blogs — Directive 17",
       "description": "{blog_title}: the blog of Joel Shapiro, founder of Directive 17. {blog_tagline}",
-      "crumb": "Joel's Blog"
+      "crumb": "Joel's Blogs"
     },
     "note": {
       "description": "A Note from the Founder, by Joel Shapiro. {title}. {lede}",
       "crumb": "A Note from the Founder"
+    },
+    "verticals": {
+      "title": "Investment Verticals — Directive 17",
+      "description": "Investing in companies that make people smile, laugh, connect, and live better lives.",
+      "crumb": "Investment Verticals"
+    },
+    "team": {
+      "title": "Team — Directive 17",
+      "description": "The people behind Directive 17: Tushar Gidadhubli, Stuart Jacobson, Bria Black, Joel Shapiro, Avery Schuhardt and Dylan Werner.",
+      "crumb": "Team"
     }
   },
-  "post_title": "{title} — Joel's Blog — Directive 17",
+  "post_title": "{title} — Joel's Blogs — Directive 17",
   "company_title": "{name} — Directive 17"
 }
