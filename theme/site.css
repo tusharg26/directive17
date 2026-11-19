@@ -624,8 +624,11 @@ body.menu-open{overflow:hidden;padding-right:var(--sbw,0px)}
 .vbul{list-style:none;margin:0;padding:0}
 .vbul li{position:relative;padding:12px 0 12px 30px;font-size:clamp(1.02rem,1.3vw,1.18rem);line-height:1.45;color:var(--ink);border-bottom:1px solid var(--line)}
 .vbul li::before{content:"";position:absolute;left:2px;top:calc(12px + .45em);width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--accent)}
-.vbul.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(24px,4vw,64px)}
-@media (max-width:760px){.vbul.two{grid-template-columns:minmax(0,1fr)}}
+/* two columns, every row the same height (the tallest bullet sets it), text centred in its row, so the dividers line up evenly */
+.vbul.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;column-gap:clamp(24px,4vw,64px)}
+.vbul.two li{display:flex;align-items:center;padding:14px 0 14px 32px}
+.vbul.two li::before{top:50%;transform:translateY(-50%)}
+@media (max-width:760px){.vbul.two{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto}.vbul.two li{display:block;padding:13px 0 13px 30px}.vbul.two li::before{top:calc(13px + .45em);transform:none}}
 .vnote{margin-top:22px;padding:18px 22px;border-radius:16px;background:var(--panel);font-size:1rem;line-height:1.5;color:var(--ink);max-width:70ch}
 .vnote b{color:var(--deep)}
 /* each vertical on its own page */
